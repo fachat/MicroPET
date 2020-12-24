@@ -1,0 +1,91 @@
+
+; this lets the CPU a) init the video memory and then
+; b) increase the video memory byte by byte in a never ending loop.
+;
+; Note that during init (after reset) the uPET CPLD has a 
+; memory mapping that maps some upper ROM into the upper half
+; of bank 0. Only when the control port is written
+; to move out of init mode, the real bank address is used.
+
+
+	*=$f000
+vreset
+	; init the CPU
+	sei
+	cld
+	ldx #$ff
+	txs
+
+	; switch to native mode
+	clc
+	xce
+
+	; set ac to single byte ...
+	sep #%00100000
+	; ... and tell the assembler about it
+	.as
+
+	; set X/Y registers to 16 bit ...
+	rep #%00010000
+	; ... and tell the assembler about it
+	.xl
+
+	; -----------------------
+	; copy over charrom to RAM
+
+	ldx #0
+copy
+	lda $080000,x	; location in test ROM bank
+	sta $070000,x	; location in RAM - uppermost RAM bank
+	inx
+	cpx #$2000
+	bne copy
+
+	; -----------------------
+	; copy over PET ROM into low RAM
+
+	;ldx #$2000
+rloop	lda $080000,x
+	sta $008000,x
+	inx
+	bpl rloop
+
+	; -----------------------
+	; switch back to emulation mode
+
+	; set X/Y registers to 8 bit ...
+	sep #%00010000
+	; ... and tell the assembler about it
+	.xs
+
+	; switch to native mode
+	sec
+	xce
+
+
+	; -----------------------
+	; copy over trampolin to low RAM
+	ldx #vcop-tramp-1
+cloop	lda tramp,x
+	sta 0,x
+	dex
+	bpl cloop
+	jmp 0
+
+tramp	sta $ffffff	; unlock init mode
+	jmp ($fffc)	; RESET vector
+			
+vcop
+vbrk	
+vabort
+vnmi
+virq
+	rti
+
+	.dsb $fff4-*,$ff
+	.word vcop
+	.word vbrk
+	.word vabort
+	.word vnmi
+	.word vreset
+	.word virq

@@ -1,0 +1,89 @@
+Partlist
+
+Exported from micropet_v1.sch at 12/24/20 4:17 PM
+
+EAGLE Version 6.4.0 Copyright (c) 1988-2013 CadSoft
+
+Assembly variant: 
+
+Part     Value           Device           Package      Library        Sheet
+
+BEEP1    PIEZOBEEPER     PIEZOBEEPER      JP2          csa            1
+C1                       C-EU025-025X050  C025-025X050 rcl            3
+C2                       C-EU025-025X050  C025-025X050 rcl            3
+C3                       C-EU025-025X050  C025-025X050 rcl            3
+C4                       C-EU025-025X050  C025-025X050 rcl            3
+C14      100n            C5/2.5           C5B2.5       capacitor-wima 3
+C15      100n            C5/2.5           C5B2.5       capacitor-wima 3
+C16      47u             CPOL-EUE2.5-7    E2,5-7       rcl            3
+C17                      C-EU025-025X050  C025-025X050 rcl            3
+C19                      C-EU025-025X050  C025-025X050 rcl            3
+C20                      C-EU025-025X050  C025-025X050 rcl            3
+C23                      C-EU025-025X050  C025-025X050 rcl            3
+C25                      C-EU025-025X050  C025-025X050 rcl            3
+C26                      C-EU025-025X050  C025-025X050 rcl            3
+C27                      C-EU025-025X050  C025-025X050 rcl            3
+C28                      CPOL-EUE2.5-6    E2,5-6       rcl            3
+C29                      C-EU025-025X050  C025-025X050 rcl            3
+C31                      C-EU025-025X050  C025-025X050 rcl            3
+C32                      C-EU025-025X050  C025-025X050 rcl            3
+C33                      C-EU025-025X050  C025-025X050 rcl            3
+C34                      C-EU025-025X050  C025-025X050 rcl            3
+C35                      C-EU025-025X050  C025-025X050 rcl            3
+C37                      C-EU025-025X050  C025-025X050 rcl            3
+C38                      C-EU025-025X050  C025-025X050 rcl            3
+C39                      C-EU025-025X050  C025-025X050 rcl            3
+C40                      C-EU025-025X050  C025-025X050 rcl            3
+C41                      CPOL-EUE2.5-6    E2,5-6       rcl            3
+D1                       DIODE-D-5        D-5          diode          1
+D2       1N4002          DIODE-C1702-05   C1702-05     diode          3
+IC1      LM317           LM317TL          317TL        v-reg          3
+IC3      74HCT00N        74HCT00N         DIL14        74xx-eu        1
+IC4      74LS86N         74LS86N          DIL14        74xx-us        1
+IC5      74LS145N        74LS145N         DIL16        74xx-eu        1
+IC6      MC3446          MC3446           DIL16        csa            1
+IC7      MC3446          MC3446           DIL16        csa            1
+IC8      MC3446          MC3446           DIL16        csa            1
+IC9      VIAPLCC         VIAPLCC          PLCC44       csa            1
+IC10     PIAPLCC         PIAPLCC          PLCC44       csa            1
+IC11     PIAPLCC         PIAPLCC          PLCC44       csa            1
+IC12     7417N           7417N            DIL14        74xx-eu        1
+IC13     RAMSOCK32TO512K RAMSOCK32TO512K  DIL32OPT28   csa            2
+IC14     ROMSOCK32TO512K ROMSOCK32TO512K  DIL32OPT28   csa            2
+J2                       FLOP-4W827001    827001       con-amp        3
+JP1                      JP2E             JP2          jumper         2
+JP2                      JP1E             JP1          jumper         3
+JP3                      JP1E             JP1          jumper         1
+JP4                      JP1E             JP1          jumper         1
+JP5                      JP1E             JP1          jumper         1
+JP6                      JP2E             JP2          jumper         1
+JP7                      JP4E             JP4          jumper         2
+JP8                      JP2E             JP2          jumper         2
+JP9                      JP2E             JP2          jumper         2
+JP10                     JP2E             JP2          jumper         1
+P1       C64KEYB         C64KEYB          C64KEYB      csa            1
+P2       IEEE488         IEEE488          24HP         csa            1
+P3       PETUSERPORT     PETUSERPORT      FLAT24       csa            1
+P5       CBMTAPE         CBMTAPE          JP6          csa            1
+P6       CBMTAPE         CBMTAPE          JP6          csa            1
+P7       PETKEYBD        PETKEYBD         C64KEYB      csa            1
+QG1                      CRYSTAL_RES-SG51 SG51         crystal        2
+R1       2k4             R-EU_0207/2V     0207/2V      rcl            1
+R2       5k1             R-EU_0207/2V     0207/2V      rcl            1
+R3       2k4             R-EU_0207/2V     0207/2V      rcl            1
+R4       2k4             R-EU_0207/10     0207/10      rcl            1
+R5       5k1             R-EU_0207/2V     0207/2V      rcl            1
+R6       10              R-EU_0207/2V     0207/2V      rcl            1
+R7       10k             R-EU_0207/10     0207/10      rcl            1
+R8       240             R-EU_0204/5      0204/5       rcl            3
+R9       10k             R-EU_0207/2V     0207/2V      rcl            2
+R10      10k             R-EU_0207/2V     0207/2V      rcl            2
+R11      10k             R-EU_0207/2V     0207/2V      rcl            2
+R12      1k              R-EU_0207/2V     0207/2V      rcl            2
+R17      390             R-EU_0204/5      0204/5       rcl            3
+RN1      10k             RN08             RN-9         resistor-net   1
+SV1                      MA06-1           MA06-1       con-lstb       2
+U$1      W65C816SPLCC    W65C816SPLCC     PLCC44       csa            2
+U$2      XC95288XLTQ144  XC95288XLTQ144   TQFP144      csa            2
+U$3      DS1813          DS1813           TO92         csa            3
+X1                       F09HPS           F09HP        con-subd       3
