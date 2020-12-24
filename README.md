@@ -7,6 +7,8 @@ The current version is 1.0E.
 
 ![Picture of a MicroPET](images/upet.png)
 
+Some videos on the build process can be found here [YT 8-bit times](https://youtube.com/playlist?list=PLi1dzy7kw1iybjcUccgjCV4fhNH4IPWSx)
+
 ## Features
 
 The board is built with a number of potential features, not all of them have been implemented at this time.
@@ -32,6 +34,8 @@ So we have two sections - what works and what will (hopefully) work at some poin
 - Other Commodore models 4032, 8032, 8296
 - Configurable modes (speed 1/2/4/8 MHz, 40/80 column, character/hires mode)
 - Writable ROM (although that may be superseded with the SPI-based ROM)
+- Write protection for the PET ROM once copied to RAM
+- Boot-menu to select different PET versions to run
 
 ## Build
 
