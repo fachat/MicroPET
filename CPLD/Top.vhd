@@ -38,7 +38,7 @@ entity Top is
 	   nres : in std_logic;
 	
 	-- config
-	   mode: in std_logic_vector(1 downto 0);	-- 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
+	   boot: in std_logic_vector(1 downto 0);
 	   graphic: in std_logic;	-- from I/O, select charset
 	   
 	-- CPU interface
@@ -67,7 +67,10 @@ entity Top is
 	-- video out
            pxl : out  STD_LOGIC;
            vsync : out  STD_LOGIC;
-           hsync : out  STD_LOGIC
+           hsync : out  STD_LOGIC;
+	   
+	-- Debug
+	   dbg_out: out std_logic
 	 );
 end Top;
 
@@ -101,15 +104,24 @@ architecture Behavioral of Top is
 	signal m_romsel: std_logic;
 	signal m_romsel_d: std_logic;
 
+	signal sel0 : std_logic;
+	signal sel8 : std_logic;
+
+	signal mode : std_logic_vector(1 downto 0);
+	signal wp_rom9 : std_logic;
+	signal wp_romA : std_logic;
+	signal wp_romPET : std_logic;
+	
 	-- video
-	signal va_out: std_logic_vector(13 downto 0);
+	signal va_out: std_logic_vector(15 downto 0);
 	signal vd_in: std_logic_vector(7 downto 0);
 	signal vpage: std_logic_vector(3 downto 0);
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
 	signal is_vid_out: std_logic;
-	signal is_chrom_out: std_logic;
+	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
+	signal map_char: std_logic;
 	
 	-- cpu
 	signal ca_in: std_logic_vector(15 downto 0);
@@ -132,21 +144,6 @@ architecture Behavioral of Top is
 	
 	-- components
 	
-	component Ctrl is
-	  Port ( 
-	   qclk : in  STD_LOGIC;	-- 32 MHz input
-	   dotclk : out std_logic;	-- 16 MHz output
-           sysclk : out  STD_LOGIC;	-- 8 MHz output
-	   
-           is_cpu : out  STD_LOGIC;
-           is_vid : out  STD_LOGIC;
-	   
-	   reset: in std_logic;
-           vda : in  STD_LOGIC;
-           vpa : in  STD_LOGIC
-	 );
-	end component;
-
 	component Mapper is
 	  Port ( 
 	   A : in  STD_LOGIC_VECTOR (15 downto 8);
@@ -170,16 +167,20 @@ architecture Behavioral of Top is
 	   ramsel: out std_logic;
 	   romsel: out std_logic;
 	   
+	   wp_rom9: in std_logic;
+	   wp_romA: in std_logic;
+	   wp_romPET: in std_logic;
+	   
 	   dbgout: out std_logic
 	  );
 	end component;
 	
 	component Video is
 	  Port ( 
-	   A : out  STD_LOGIC_VECTOR (13 downto 0);
+	   A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
-           page : in  STD_LOGIC_VECTOR (3 downto 0);
-	
+	   CPU_D : in std_logic_vector (7 downto 0);
+	   
 	   pxl_out: out std_logic;	-- video bitstream
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
@@ -187,6 +188,9 @@ architecture Behavioral of Top is
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
+	   crtc_sel : in std_logic;	-- select line for CRTC
+	   crtc_rs  : in std_logic;	-- register select
+	   crtc_rwb : in std_logic;	-- r/-w
 	   
 	   qclk: in std_logic;		-- Q clock
 	   dotclk : in std_logic;	-- 16MHz in
@@ -194,8 +198,9 @@ architecture Behavioral of Top is
 	   memby2: in std_logic;	-- sysclk / 2, i.e. every potential video slot
 	   memby4: in std_logic;	-- sysclk / 4
 	   memby8: in std_logic;	-- sysclk / 8
+	   
            is_vid : out STD_LOGIC;	-- true during video access phase
-	   is_chrom: out std_logic;	-- map character set out of 8296's way
+	   is_char: out std_logic;	-- map character data fetch
 	   dbg_out : out std_logic;
 	   reset : in std_logic
 	 );
@@ -230,12 +235,10 @@ begin
 
 	-- define CPU slots. clk2=1 is reserved for video
 	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
-	is_cpu <= '1' and not(memby2) and not(memby4) and not(memby8); 
---	is_cpu <= '1'		 		when mode = "11" else		-- 8MHz minus video (via RDY)
---		not(memby2) 			when mode = "10" else		-- every 2nd = 4MHz
---		not(memby2) and not(memby4)	when mode = "01" else		-- every 4th = 2MHz
---		not(memby2) and not(memby4) and not(memby8) when mode = "00";	-- every 8th = 1MHz
-		
+	is_cpu <= '1'		 		when mode = "11" else		-- 8MHz minus video (via RDY)
+		not(memby2) 			when mode = "10" else		-- every 2nd = 4MHz
+		not(memby2) and not(memby4)	when mode = "01" else		-- every 4th = 2MHz
+		not(memby2) and not(memby4) and not(memby8) when mode = "00";	-- every 8th = 1MHz		
 	
 	reset <= not(nres);
 	
@@ -326,7 +329,9 @@ begin
 	   m_iosel,
 	   m_ramsel_out,
 	   m_romsel,
-	   
+	   wp_rom9,
+	   wp_romA,
+	   wp_romPET,
 	   dbg_map
 	);
 
@@ -345,7 +350,14 @@ begin
 	end process;
 	
 	cfgld_in <= '1' when m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
+
+	-- internal selects
+	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
+	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
+
+	dbg_out <= dbg_vid;
 	
+	-- external selects are inverted
 	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
 	nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
 	nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
@@ -359,13 +371,16 @@ begin
 	port map (
 		va_out,
 		vd_in,
-		vpage,
+		cd_in, 
 		pxl,
 		vsync,
 		hsync,
 		vis_80_in,
 		vis_hires_in,
 		vgraphic,
+		sel8,
+		ca_in(0),
+		rwb,
 		qclk,
 		dotclk,
 		memclk,		-- sysclk
@@ -373,7 +388,7 @@ begin
 		memby4,		-- vid2
 		memby8,		-- vid4
 		is_vid_out,
-		is_chrom_out,
+		is_char_out,
 		dbg_vid,
 		reset
 	);
@@ -398,54 +413,47 @@ begin
 		end if;
 	end process;
 	
-	-- store page control register $fff2
-	--
-	-- D0-3	: video page (0-15)
-	-- D4-7 : reserved, must be 0
-	--
-	Page: process(m_ffsel_out, phi2_int, rwb, reset, ca_in, D)
-	begin
-		if (reset = '1') then
-			vpage <= "0000";
-		elsif (falling_edge(phi2_int)) then
-			if (rwb = '0' and m_ffsel_out='1' and ca_in(7 downto 0) = x"F2") then
-				--vpage <= D(3 downto 0);
-			end if;
-		end if;
-	end process;
-
 	-- store video control register $fff1
 	--
 	-- D0 	: 1= hires
 	-- D1	: 1= 80 column
 	-- D2-7	: reserved, must be 0
 	--
-	Ctrl_P: process(m_ffsel_out, phi2_int, rwb, reset, ca_in, D)
+	Ctrl_P: process(sel0, phi2_int, rwb, reset, ca_in, D)
 	begin
 		if (reset = '1') then
 			vis_hires_in <= '0';
 			vis_80_in <= '0';
-		elsif (falling_edge(phi2_int)) then
-			--if (rwb = '0' and m_ffsel_out='1' and ca_in(7 downto 0) = x"F1") then
-			--	vis_hires_in <= D(0);
-			--	vis_80_in <= D(1);
-			--end if;
-			
-			-- temporary debug
-			vis_hires_in <= mode(1);
-			vis_80_in <= mode(0);
+			mode <= "00";
+			map_char <= '1';
+			wp_rom9 <= '0';
+			wp_romA <= '0';
+			wp_romPET <= '0';
+		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0') then
+			-- Write to $E80x
+			case (ca_in(3 downto 0)) is
+			when x"0" =>
+				vis_hires_in <= D(0);
+				vis_80_in <= D(1);
+				map_char <= not(D(2));
+				wp_rom9 <= D(3);
+				wp_romA <= D(4);
+				wp_romPET <= D(5);
+				mode(1 downto 0) <= D(7 downto 6); -- speed bits
+			when others =>
+				null;
+			end case;
 		end if;
 	end process;
 
 	-- RAM address
 	VA(11 downto 0) <= 	ca_in(11 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(11 downto 0);
-	VA(13 downto 12) <= 	ma_out(13 downto 12) 	when is_vid_out = '0' 	else 
-				va_out(13 downto 12);
-	VA(18 downto 14) <= 	ma_out(18 downto 14) 	when is_vid_out = '0' 	else	-- CPU access
-				"11100"			when is_chrom_out = '1' else	-- $x70000 for charrom (lowest 8k of it)
-				"00100" 		when vis_hires_in = '1' else	-- $x10000 for hires
-				"00010";						-- $x08000 like in the PET for characters
+	VA(15 downto 12) <= 	ma_out(15 downto 12) 	when is_vid_out = '0' 	else 
+				va_out(15 downto 12);
+	VA(18 downto 16) <= 	ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
+				"000"			when is_char_out = '1' and map_char='1' else	-- $x08000 for characters like in PET
+				"111";							-- hires and charrom pixel data in bank 7
 				
 	-- RAM data in for video fetch
 	--vd_in <= x"EA"; --D; --VD;
@@ -483,20 +491,8 @@ begin
 			'0' 	when phi2_int ='1' and m_ramsel_out ='1' else
 			'1';
 		
---	ramsel_p: process(nramsel_int, qclk)
---	begin
---		if (rising_edge(qclk)) then
---			if (ramrwb_int ='1') then
---				-- read RAM then keep a little longer
---				nramsel_int_d <= nramsel_int;
---			else
---				-- write - deselect quick
---				nramsel_int_d <= '1';
---			end if;
---		end if;
---	end process;
 	
-	nramsel <= nramsel_int; -- and nramsel_int_d;
+	nramsel <= nramsel_int;
 
 	-- select ROM
 	nromsel_int <= 	'1'	when phi2_int = '0' else

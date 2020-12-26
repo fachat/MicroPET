@@ -32,10 +32,10 @@ use ieee.numeric_std.all;
 --use UNISIM.VComponents.all;
 
 entity Video is
-    Port ( A : out  STD_LOGIC_VECTOR (13 downto 0);
+    Port ( A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
-           page : in  STD_LOGIC_VECTOR (3 downto 0);
-	
+	   CPU_D: in std_logic_vector(7 downto 0);
+	   
 	   pxl_out: out std_logic;	-- video bitstream
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
@@ -43,6 +43,9 @@ entity Video is
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
+	   crtc_sel : in std_logic;
+	   crtc_rs : in std_logic;
+	   crtc_rwb : in std_logic;
 	   
 	   qclk: in std_logic;		-- Q clock
 	   dotclk : in std_logic;	-- 16MHz in
@@ -51,7 +54,7 @@ entity Video is
 	   memby4: in std_logic;	-- every second vid access 2MHz (memby4)
 	   memby8: in std_logic;	-- every fourth vid access 1MHz (memby8)
            is_vid : out STD_LOGIC;	-- true during video access phase (all, character, chrom, and hires pixel data)
-	   is_chrom : out std_logic;	-- to map character rom fetches elsewhere
+	   is_char : out std_logic;	-- to map character data fetches elsewhere
 	   
 	   dbg_out : out std_logic;
 	   
@@ -67,6 +70,13 @@ architecture Behavioral of Video is
 	
 	-- mode
 	signal is_80: std_logic;
+	
+	-- crtc register emulation
+	-- only 8/9 rows per char are emulated right now
+	signal crtc_reg: std_logic_vector(3 downto 0);	
+	signal is_9rows: std_logic;
+	signal is_10rows: std_logic;
+	signal vpage : std_logic_vector(7 downto 0);
 	
 	-- hold and shift the pixel
 	signal pxlhold : std_logic_vector (7 downto 0) := (others => '0');
@@ -109,7 +119,7 @@ architecture Behavioral of Video is
 	signal v_sync_int : std_logic := '0';
 	
 	-- intermediate
-	signal a_out : std_logic_vector (13 downto 0);
+	signal a_out : std_logic_vector (15 downto 0);
 	
 	-- convenience
 	signal chr40 : std_logic;
@@ -151,11 +161,9 @@ begin
 	is_vid <= chr_fetch or pxl_fetch;
 	
 	-- character rom fetch
-	is_chrom <= pxl_fetch and not(is_hires);
+	is_char <= chr_fetch;
 		end if;
 	end process;
-	
-	dbg_out <= pxl_fetch;
 	
 	-----------------------------------------------------------------------------
 	-- horizontal geometry calculation
@@ -240,6 +248,54 @@ begin
 	begin
 		if (rising_edge(h_enable)) then
 			
+		    if (is_9rows = '1') then
+			-- timing for 9 pixel rows per character
+			-- end of character line
+			if (is_hires = '1' or cline_cnt = 8) then
+				-- if hires, everyone
+				last_line_of_char <= '1';
+			else
+				last_line_of_char <= '0';
+			end if;
+				
+			-- vsync
+			if (rline_cnt >= 265 and rline_cnt < 281) then
+				v_sync_int <= '1';
+			else
+				v_sync_int <= '0';
+			end if;
+			
+			-- venable
+			if (rline_cnt < 225) then
+				v_enable <= '1';
+			else
+				v_enable <= '0';
+			end if;
+		    elsif (is_10rows = '1') then
+			-- timing for 10 pixel rows per character
+			-- end of character line
+			if (is_hires = '1' or cline_cnt = 9) then
+				-- if hires, everyone
+				last_line_of_char <= '1';
+			else
+				last_line_of_char <= '0';
+			end if;
+				
+			-- vsync
+			if (rline_cnt >= 275 and rline_cnt < 291) then
+				v_sync_int <= '1';
+			else
+				v_sync_int <= '0';
+			end if;
+			
+			-- venable
+			if (rline_cnt < 250) then
+				v_enable <= '1';
+			else
+				v_enable <= '0';
+			end if;
+		    else
+			-- timing for 8 pixel rows per character
 			-- end of character line
 			if (is_hires = '1' or cline_cnt = 7) then
 				-- if hires, everyone
@@ -248,13 +304,6 @@ begin
 				last_line_of_char <= '0';
 			end if;
 			
-			-- end of screen
-			if (rline_cnt = 313) then
-				last_line_of_screen <= '1';
-			else
-				last_line_of_screen <= '0';
-			end if;
-	
 			-- vsync
 			if (rline_cnt >= 255 and rline_cnt < 271) then
 				v_sync_int <= '1';
@@ -268,7 +317,19 @@ begin
 			else
 				v_enable <= '0';
 			end if;
-		end if;
+		    end if; -- crtc_is_9rows
+
+		    -- common for 8/9 pixel rows per char
+		    
+			-- end of screen
+			if (rline_cnt = 313) then
+				last_line_of_screen <= '1';
+			else
+				last_line_of_screen <= '0';
+			end if;
+	
+		
+		end if; -- rising edge...
 	end process;
 
 	v_sync <= v_sync_int;
@@ -323,15 +384,18 @@ begin
 	a_out(10) <= vid_addr(10) when is_hires ='1' else
 			charhold(6) when pxl_fetch ='1' else 
 				vid_addr(10) when is_80 ='1' else 
-					page(0);
+					vpage(2);
 	a_out(11) <= vid_addr(11) when is_hires ='1' else
 			charhold(7) when pxl_fetch ='1' else
-				page(1);
+				vpage(3);
 	a_out(12) <= vid_addr(12) when is_hires ='1' else
 			is_graph when pxl_fetch ='1' else
-			page(2);
+				vpage(4);
 	a_out(13) <= vid_addr(13) when is_hires ='1' and is_80 ='1' else
-			page(3);
+			vpage(5) when is_hires ='1' or pxl_fetch ='1' else
+				'0';
+	a_out(15 downto 14) <= vpage(7 downto 6) when is_hires = '1' or pxl_fetch = '1' else
+			"10";		-- $8000 for PET character data
 
 	A <= a_out when chr_fetch ='1' or pxl_fetch ='1' else (others => 'Z');
 
@@ -384,6 +448,56 @@ begin
 	end process;
 	
 	pxl_out <= (pxlhold(7)) and enable;
+
+	--------------------------------------------
+	-- crtc register emulation
+	-- only 8/9 rows per char are emulated right now
+
+	dbg_out <= '0';
 	
+	regfile: process(memclk, CPU_D, crtc_sel, crtc_rs, reset) 
+	begin
+		if (reset = '1') then
+			crtc_reg <= X"0";
+		elsif (falling_edge(memclk) 
+				and crtc_sel = '1' 
+				and crtc_rs='0'
+				and crtc_rwb = '0'
+				) then
+			crtc_reg <= CPU_D(3 downto 0);
+		end if;
+	end process;
+	
+	reg9: process(memclk, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
+	begin
+		if (reset = '1') then
+			is_9rows <= '0';
+			is_10rows <= '0';
+			vpage <= x"00";
+		elsif (falling_edge(memclk) 
+				and crtc_sel = '1' 
+				and crtc_rs='1' 
+				and crtc_rwb = '0'
+				) then
+			case (crtc_reg) is
+			when x"9" =>
+				is_9rows <= '0';
+				is_10rows <= '0';
+				if (CPU_D = x"08") then
+					is_9rows <= '1';
+				elsif (CPU_D = x"09") then
+					is_10rows <= '1';
+				end if;
+			when x"c" =>
+				vpage(3 downto 0) <= CPU_D(3 downto 0);
+				vpage(4) <= not(CPU_D(4));	-- invert for PET boot
+				vpage(7 downto 5) <= CPU_D(7 downto 5);
+			when others =>
+				null;
+			end case;
+		end if;
+	end process;
+	
+
 end Behavioral;
 

@@ -53,6 +53,10 @@ entity Mapper is
 	   ramsel: out std_logic;
 	   romsel: out std_logic;
 	   
+   	   wp_rom9: in std_logic;
+	   wp_romA: in std_logic;
+	   wp_romPET: in std_logic;
+
 	   dbgout: out std_logic
 	);
 end Mapper;
@@ -67,6 +71,8 @@ architecture Behavioral of Mapper is
 	signal low64k: std_logic;
 	signal c8296ram: std_logic;
 	signal petrom: std_logic;
+	signal petrom9: std_logic;
+	signal petromA: std_logic;
 	signal petio: std_logic;
 	signal wprot: std_logic;
 	signal screen: std_logic;
@@ -78,9 +84,7 @@ architecture Behavioral of Mapper is
 	
 	signal bank: std_logic_vector(7 downto 0);
 	
-	constant init_bank: std_logic_vector(7 downto 0) := "00000111"; -- EA slide / boot loader
---	constant init_bank: std_logic_vector(7 downto 0) := "00000110";	-- increment bank 1 (video)
---	constant init_bank: std_logic_vector(7 downto 0) := "00000101";	-- increment video (charrom-based)
+	constant init_bank: std_logic_vector(7 downto 0) := "00000111"; -- top most bank - boot loader
 	
 begin
 
@@ -122,13 +126,20 @@ begin
 			and init ='0'			-- disable completely during init (for debugging I/O access)
 		else '0';
 	
-	petrom <= '1' when low64k = '1' and
-			A(15) = '1' and			-- upper half
+	-- the following are only used to determine write protect
+	-- of ROM area in the upper half of bank 0
+	-- Is evaluated in bank 0 only, so low64k can be ignored here
+	petrom <= '1' when A(15) = '1' and			-- upper half
 			(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
 			else '0';
+			
+	petrom9 <= '1' when A(15 downto 12) = x"9"
+			else '0';
 
-	screen <= '1' when low64k ='1' 
-			and A(15 downto 12) = x"8" 
+	petromA <= '1' when A(15 downto 12) = x"A"
+			else '0';
+
+	screen <= '1' when A(15 downto 12) = x"8" 
 			else '0';
 
 	-- 8296 specifics. *peek allow using the IO and screen memory windows despite mapping RAM
@@ -138,19 +149,25 @@ begin
 	scrpeek <= '1' when screen = '1' and cfg_mp(5)='1' else '0';
 
 	-- when c8296 is set, upper 16k of bank0 are mapped to RAM (with holes on *peek)
+	-- evaluated in bank0 only, so low64k ignored here
 	c8296ram <= '1' when cfg_mp(7) = '1'
-				and low64k = '1'
 				and iopeek = '0' 
 				and scrpeek = '0'
 				else '0';
 
-	-- write should not happen
-	wprot <= '1' when 
-			rwb = '0' and				-- write access
-			cfg_mp(7) = '1' and			-- 8296 enabled
-			((A(14)='1' and cfg_mp(1)='1')		-- upper 16k write protected
-			  or (A(14)='0' and cfg_mp(0)='1'))	-- lower 16k write protected
-			  else '0';
+	-- write should not happen (only evaluated in upper half of bank 0)
+	wprot <= '0' when rwb = '1' else			-- read access are ok
+			'1' when cfg_mp(7) = '1' and		-- 8296 enabled
+				((A(14)='1' and cfg_mp(1)='1')	-- upper 16k write protected
+				or (A(14)='0' and cfg_mp(0)='1')) -- lower 16k write protected
+				else 
+			'1' when petrom = '1' and wp_romPET = '1'
+				else
+			'1' when petrom9 = '1' and wp_rom9 = '1'
+				else
+			'1' when petromA = '1' and wp_romA = '1'
+				else
+			'0';
 			 
 	-----------------------------------
 	-- addr output
@@ -162,9 +179,9 @@ begin
 	-- bank 0/1
 	RA(16) <= 
 			bank(0) when low64k = '0' else  	-- CPU is not in low 64k
---			'1' 	when c8296ram = '1' 		-- 8296 enabled,
---					and A(15) = '1' 	-- upper half of bank0
---					else  			 
+			'1' 	when c8296ram = '1' 		-- 8296 enabled,
+					and A(15) = '1' 	-- upper half of bank0
+					else  			 
 			'0';
 			
 	-- within bank0
@@ -182,10 +199,9 @@ begin
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
---			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
---			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
+			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
+			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
 			'0' when petio = '1' else
---			'1' when screen = '1' else	-- $8xxx
 			'1';
 	
 	dbgout <= low64k; -- bank(3);
@@ -194,14 +210,11 @@ begin
 			'0' when rwb = '0' else		-- ignore writes
 			'1' when is_init = '1' else	-- all reads during init (only upper 16k in each bank)
 			'1' when bank(3) = '1' else	-- upper half of 1M address space is ROM (ignoring bits 4-7)
---			'0' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
---			'0' when c8296ram = '1' else	-- 8296 has RAM in all of bank0
---			'1' when petrom = '1' else	-- PET ROM area
 			'0';
 	
 	iosel <= '0' when avalid='0' else 
 			'0' when is_init = '1' else	-- we use ROM there only
---			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
+			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
 			'1' when petio ='1' else 
 			'0';
 			
