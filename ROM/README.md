@@ -30,20 +30,26 @@ The uppermost 16k of that area are mapped into the uppermost 16k of bank 0 durin
         +----+ $0FC000
         |    |         BASIC 4/40 columns
         |    |         ROM image ($b000-$ffff)
-	|    |
-	|    |
-	|    |
+        |    |
+        |    |
+        |    |
         +----+ $0F7000
         |    |         BASIC 4 80 columns editor ROM (2k + 2k reserved)
         +----+ $0F6000
         |    |         BASIC 2 
-	|    |         ROM image ($c000-$ffff)
-	|    |
+        |    |         ROM image ($c000-$ffff)
+        |    |
         |    |
         +----+ $0F2000
         |    |         8k character ROM
         |    |         (2 sets, 16 rows per character)
         +----+ $0F0000
+
+## Build
+
+To build the ROM, just run "make".
+This build process for bootimg downloads the necessary ROM images from the internet, builds the boot loader, and combines everything into a single boot image.
+Then burn the resulting file "bootimg" into the uppermost bank of the 512k ROM chip at address $70000.
 
 ## Files
 
