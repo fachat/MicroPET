@@ -85,9 +85,19 @@ architecture Behavioral of Mapper is
 	signal bank: std_logic_vector(7 downto 0);
 	
 	constant init_bank: std_logic_vector(7 downto 0) := "00000111"; -- top most bank - boot loader
+
+	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
+	begin
+		if L then
+			return('1');
+		else
+			return('0');
+		end if;
+	end function To_Std_Logic;
 	
 begin
 
+	
 	avalid <= vda or vpa;
 	
 	-- bummer, vpb is not connected to the CPLD
@@ -97,7 +107,9 @@ begin
 	-- but only on the upper 32k of bank0, as we need
 	-- access to stack RAM to change data bank via stack ops(bummer!)
 	is_init <= init and rwb --and (vpa or not(vpb)) -- read program or vectors
-		and A(15) and A(14); 		-- in upper 16k (in all banks!)
+		and A(15) and A(14) 		-- in upper 16k (in all banks!)
+		and To_Std_Logic(bankl = "00000000")
+		and To_Std_Logic(A(15 downto 8) /= x"E8");
 	
 	-----------------------------------
 
@@ -123,7 +135,6 @@ begin
 	-- the I/O area and triggers writes to I/O space
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
---			and init ='0'			-- disable completely during init (for debugging I/O access)
 		else '0';
 	
 	-- the following are only used to determine write protect
@@ -201,21 +212,21 @@ begin
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
+			'0' when petio = '1' else	-- not in I/O space
 			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
-			'0' when petio = '1' else
 			'1';
 	
 	dbgout <= low64k; -- bank(3);
 	
 	romsel <= '0' when avalid='0' else
 			'0' when rwb = '0' else		-- ignore writes
+			'0' when petio = '1' else	-- ignore in PET I/O window
 			'1' when is_init = '1' else	-- all reads during init (only upper 16k in each bank)
 			'1' when bank(3) = '1' else	-- upper half of 1M address space is ROM (ignoring bits 4-7)
 			'0';
 	
 	iosel <= '0' when avalid='0' else 
-			'0' when is_init = '1' else	-- we use ROM there only
 			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
 			'1' when petio ='1' else 
 			'0';
