@@ -43,6 +43,19 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 	+----+ $000000
 
 
+### Init Map
+
+When the CPU boots, it tries to do so from bank 0. Here we have RAM, so we have to provide some 
+initial mapping.
+
+Therefore, on reset, the uppermost 16k of bank 15 (ROM) is mapped into bank 0, with the exception of the I/O space
+at $e8xx.
+
+This mapping can be disabled by writing to the ROM area (bank(3)=1). To boot, the boot loader will
+set up the memory as desired, jump to a location outside the boot ROM, disable the initial boot mapping,
+and start the main program.
+
+
 ## CRTC emulation
 
 The Video code emulates two CRTC registers:
