@@ -146,3 +146,5 @@ The code contains three modules:
 The VHDL code is compiled using the latest version of WebISE that still supports the xc95xxx chips, i.e. version 14.7.
 It can still be downloaded from the Xilinx website.
 
+For more information on the setup, see the [build file](Build.md).
+
