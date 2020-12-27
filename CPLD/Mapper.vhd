@@ -123,7 +123,7 @@ begin
 	-- the I/O area and triggers writes to I/O space
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
-			and init ='0'			-- disable completely during init (for debugging I/O access)
+--			and init ='0'			-- disable completely during init (for debugging I/O access)
 		else '0';
 	
 	-- the following are only used to determine write protect
@@ -161,6 +161,8 @@ begin
 				((A(14)='1' and cfg_mp(1)='1')	-- upper 16k write protected
 				or (A(14)='0' and cfg_mp(0)='1')) -- lower 16k write protected
 				else 
+			'0' when cfg_mp(7) = '1' 		-- 8296 RAM but no wp
+				else
 			'1' when petrom = '1' and wp_romPET = '1'
 				else
 			'1' when petrom9 = '1' and wp_rom9 = '1'
