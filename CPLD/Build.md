@@ -31,11 +31,11 @@ Finally, add the constraints file
 
 In the process properties, set "Speed" as optimization goal, and optimization effort to "High".
 
-![Synthesis properties](process_synthesis.png)
+![Synthesis properties](images/process_synthesis.png)
 
 Set "Optimize Density" for the Fitting.
 
-![Fitting properties](process_fitting.png)
+![Fitting properties](images/process_fitting.png)
 
 Then you can build the "Top.jed" file by clicking the green triangle to start the build.
 
