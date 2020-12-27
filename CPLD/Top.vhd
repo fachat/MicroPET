@@ -355,7 +355,7 @@ begin
 	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
 
-	dbg_out <= dbg_vid;
+	dbg_out <= init;
 	
 	-- external selects are inverted
 	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
@@ -488,7 +488,7 @@ begin
 	-- select RAM
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
 			'0' 	when is_vid_out='1' else
-			'0' 	when phi2_int ='1' and m_ramsel_out ='1' else
+			'0' 	when phi2_int ='1' and m_ramsel_out ='1' and is_cpu='1' else
 			'1';
 		
 	
