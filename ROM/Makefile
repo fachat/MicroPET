@@ -1,7 +1,7 @@
 
 all: romtest01 romtest02 romtest01a romtest02a bootldr bootimg
 
-bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g
+bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g bootldr
 	# Note: need to stay below upper 16k, as this is mapped to bank 15 on init
 	# 8k charrom, 8k basic2, 4k editor2 (2k reserve), 4k kernal2
 	# 4k edit80g (2k reserve), 12k basic4, 2k edit40g, 2k empty, 4k kernel4
@@ -9,6 +9,8 @@ bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g
 	cat basic2 edit2g zero kernal2 			>> bootimg	# 8-24k
 	cat edit80g zero				>> bootimg	# 24-28k
 	cat basic4 edit40g zero kernal4			>> bootimg	# 28-48k
+	cat zero zero zero zero zero zero		>> bootimg	# 48-60k
+	cat bootldr					>> bootimg	# 60-64k
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1

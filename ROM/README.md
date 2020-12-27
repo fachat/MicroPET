@@ -4,16 +4,48 @@
 This folder contains files and code to build a ROM image that can be burned into the 512k ROM on the board, so that it actually boots.
 
 - bootldr.a65: boots the machine by:
--- copying over character ROM image from start of ROM ($080000) to start of bank 7 (in RAM)
--- copying over PET ROM image from $082000 to $087fff to bank 0 ($a000-$ffff) - the CPLD ignores I/O writes
+-- letting the user select which machine to boot (BASIC 2, BASIC 4/40 columns, BASIC 4/80 columns)
+-- copying over character ROM image from start of ROM ($0f0000) to start of bank 7 (in RAM)
+-- copying over selected PET ROM image to bank 0 ($a000-$ffff) - the CPLD ignores I/O writes
 -- copy some trampoline code into zeropage, and jump to it. This code disables init, and boots the PET ROM
 
 For this work the ROM needs to contain:
-- uppermost up to 16k: boot code
-- lowermost 8k: character ROM
-- from 8k to 32k: System ROM to be copied to $a000-$ffff
+- boot code
+- character ROM
+- system ROMs
 
-A complete ROM can be found in Rom512k.bin
+## Memory Map
+
+The boot files occupy the uppermost bank of the ROM, i.e. bank 15 in the CPU address space.
+The uppermost 16k of that area are mapped into the uppermost 16k of bank 0 during the init phase to boot the CPU.
+
+	Boot Image
+
+        +----+ $0FFFFF
+        |    |        Boot loader 
+        +----+ $0FF000
+        |    |        12k empty
+        |    |
+        |    |  
+        +----+ $0FC000
+        |    |         BASIC 4/40 columns
+        |    |         ROM image ($b000-$ffff)
+	|    |
+	|    |
+	|    |
+        +----+ $0F7000
+        |    |         BASIC 4 80 columns editor ROM (2k + 2k reserved)
+        +----+ $0F6000
+        |    |         BASIC 2 
+	|    |         ROM image ($c000-$ffff)
+	|    |
+        |    |
+        +----+ $0F2000
+        |    |         8k character ROM
+        |    |         (2 sets, 16 rows per character)
+        +----+ $0F0000
+
+## Files
 
 The following files are test files, or to build the ROMs:
 

@@ -17,7 +17,7 @@ RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
 upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
 	normal
-	+----+ $FFFFFF
+	+----+ $0FFFFF
 	|    |         ROM
 	|    |         bank 15
 	+----+ $0F0000

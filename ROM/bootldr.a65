@@ -36,7 +36,7 @@ vreset
 
 	ldx #0
 copy
-	lda $080000,x	; location in test ROM bank
+	lda $0f0000,x	; location in test ROM bank
 	sta $070000,x	; location in RAM - uppermost RAM bank
 	inx
 	cpx #$2000
@@ -68,7 +68,7 @@ basic2	.(
 	; $2000-$5fff in bootimg
 
 	ldx #$3fff
-rloop	lda $082000,x
+rloop	lda $0f2000,x
 	sta $00c000,x
 	dex
 	bmi end
@@ -89,7 +89,7 @@ basic4	.(
 	; copy over PET ROM for 40 columns into low RAM
 	; $7000-$bfff in bootimg
 	ldx #$4fff
-rloop	lda $087000,x
+rloop	lda $0f7000,x
 	sta $00b000,x
 	dex
 	bmi end40
@@ -110,7 +110,7 @@ end40	; check copying 80 col editor?
 	; copy over PET 80 column editor ROM into low RAM
 	; $6000-$6fff in bootimg
 	ldx #$0fff
-rloop	lda $086000,x
+rloop	lda $0f6000,x
 	sta $00E000,x
 	dex
 	bmi end80
