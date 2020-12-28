@@ -34,7 +34,7 @@ use ieee.numeric_std.all;
 entity Top is
     Port ( 
 	-- clock
-	   qclk : in std_logic;
+	   q50m : in std_logic;
 	   nres : in std_logic;
 	
 	-- config
@@ -81,13 +81,15 @@ architecture Behavioral of Top is
 	
 	-- clock
 	signal clkcnt: std_logic_vector(7 downto 0);
-	signal dotclk: std_logic;
+	signal qcnt: std_logic_vector(1 downto 0);
+	signal dotclk16: std_logic;
+	signal dotclk25: std_logic;
+	signal dmemclk: std_logic;
 	signal memclk: std_logic;
 	signal memby2: std_logic;
 	signal memby4: std_logic;
 	signal memby8: std_logic;
 	
-	signal memclk_d: std_logic;
 	signal phi2_int: std_logic;
 	signal is_cpu: std_logic;
 	
@@ -193,7 +195,8 @@ architecture Behavioral of Top is
 	   crtc_rwb : in std_logic;	-- r/-w
 	   
 	   qclk: in std_logic;		-- Q clock
-	   dotclk : in std_logic;	-- 16MHz in
+	   dotclk16 : in std_logic;	-- 16MHz in (composite timing)
+	   dotclk25 : in std_logic;	-- 25MHz in (VGA timing)
            memclk : in STD_LOGIC;	-- system clock 8MHz
 	   memby2: in std_logic;	-- sysclk / 2, i.e. every potential video slot
 	   memby4: in std_logic;	-- sysclk / 4
@@ -210,29 +213,30 @@ begin
 	
 	-- clock
 	-- generate sysclk from qclk (32MHz)
-	Clk: process(reset, qclk, clkcnt)
+	Clk: process(reset, q50m, clkcnt, qcnt, dotclk25)
 	begin
 		if (reset = '1') then 
 			clkcnt <= "00000000";
-		elsif (falling_edge(qclk)) then
-			clkcnt <= clkcnt + 1; 
+			qcnt <= "00";
+			dotclk25 <= '0';
+		elsif (falling_edge(q50m)) then
+			if (qcnt = "10") then
+				clkcnt <= clkcnt + 1; 
+				qcnt <= "00";
+			else
+				qcnt <= qcnt + 1;
+			end if;
+			dotclk25 <= not(dotclk25);
 		end if;
 	end process;
-	dotclk <= clkcnt(0); 	-- 16 MHz / memx2
-	memclk <= clkcnt(1);	-- 8 MHz
-	memby2 <= clkcnt(2);	-- 4 MHz
-	memby4 <= clkcnt(3);	-- 2 MHz
-	memby8 <= clkcnt(4);	-- 1 MHz
+	dotclk16 <= qcnt(1);	-- 16MHz for composite output
+	dmemclk <= qcnt(1); 	-- 16 MHz / memx2
+	memclk <= clkcnt(0);	-- 8 MHz
+	memby2 <= clkcnt(1);	-- 4 MHz
+	memby4 <= clkcnt(2);	-- 2 MHz
+	memby8 <= clkcnt(3);	-- 1 MHz
 	
-	memclk_p: process(reset, qclk, memclk)
-	begin
-		if (reset = '1') then
-			memclk_d <= '0';
-		elsif (rising_edge(qclk)) then
-			memclk_d <= memclk;
-		end if;
-	end process;
-
+	
 	-- define CPU slots. clk2=1 is reserved for video
 	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
 	is_cpu <= '1'		 		when mode = "11" else		-- 8MHz minus video (via RDY)
@@ -274,11 +278,11 @@ begin
 		end if;
 	end process;
 
-	release_p: process(wait_int_d2, dotclk, is_vid_out, memclk, reset)
+	release_p: process(wait_int_d2, dmemclk, is_vid_out, memclk, reset)
 	begin
 		if (reset = '1') then
 			release_int <= '0';
-		elsif (rising_edge(dotclk)) then
+		elsif (rising_edge(dmemclk)) then
 			--if (memclk = '1' and wait_int_d2 = '1' and is_vid_out = '0') then
 			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1') then
 				release_int <= '1';
@@ -321,7 +325,7 @@ begin
 	   vpb,
 	   rwb,
 	   init,
-	   qclk,
+	   q50m,
            cfgld_in,
 	   ma_out,
 	   m_ffsel_out,
@@ -381,9 +385,10 @@ begin
 		sel8,
 		ca_in(0),
 		rwb,
-		qclk,
-		dotclk,
-		memclk,		-- sysclk
+		q50m,		-- Q clock (50MHz)
+		dotclk16,		-- Q/3 ~= 16 MHz (composite timing)
+		dotclk25,		-- Q/2 = 25 MHz (VGA timing)
+		memclk,		-- sysclk (~8MHz)
 		memby2,		-- vid1
 		memby4,		-- vid2
 		memby8,		-- vid4

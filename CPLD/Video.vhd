@@ -48,7 +48,8 @@ entity Video is
 	   crtc_rwb : in std_logic;
 	   
 	   qclk: in std_logic;		-- Q clock
-	   dotclk : in std_logic;	-- 16MHz in
+	   dotclk16 : in std_logic;	-- 16MHz in (composite timing)
+	   dotclk25 : in std_logic;	-- 24MHz in (VGA timing)
            memclk : in STD_LOGIC;	-- system clock 8MHz
 	   memby2: in std_logic;	-- every vid access 4MHz (memby2)
 	   memby4: in std_logic;	-- every second vid access 2MHz (memby4)
@@ -147,7 +148,7 @@ begin
 	-- note: at least pxl_fetch is used in loading the video shift register, at falling edge of a clock
 	-- so the combinatorial part will glitch, and sometimes not fulfill the condition to load the SR.
 	-- Therefore the outputs are registered here on the rising edge of qclk
-	vid_p: process(dotclk, chr40, chr80, pxl40, pxl80, qclk)
+	vid_p: process(chr40, chr80, pxl40, pxl80, qclk)
 	begin
 		if (rising_edge(qclk)) then
 	-- do we fetch character index?
@@ -414,9 +415,9 @@ begin
 	-----------------------------------------------------------------------------
 	-- output sr control
 
-	memclk_p: process (dotclk, memclk)
+	memclk_p: process (dotclk16, memclk)
 	begin 
-		if (rising_edge(dotclk)) then
+		if (rising_edge(dotclk16)) then
 			memclk_d <= memclk;
 		end if;
 	end process;
@@ -424,11 +425,11 @@ begin
 	-- note that switching dotclk depending on 40/80 cols delays it to the effect
 	-- that it generates artifacts. So we always use 80col dotclk (16MHz), and in 40 column
 	-- mode we just shift out every pixel twice.
-	SR: process(pxl_fetch, D, reset, memclk, dotclk, pxlhold, memby2, memby4, memby8, pxl_fetch)
+	SR: process(pxl_fetch, D, reset, memclk, dotclk16, pxlhold, memby2, memby4, memby8, pxl_fetch)
 	begin
 		if (reset ='1') then
 			pxlhold <= (others => '0');
-		elsif (falling_edge(dotclk)) then
+		elsif (falling_edge(dotclk16)) then
 			if (pxl_fetch = '1' and memclk ='1') then
 				enable <= h_enable and v_enable;
 				pxlhold <= D;

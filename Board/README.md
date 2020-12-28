@@ -32,7 +32,7 @@ PNG images created
 - 1x 74LS07
 - 1x DS1813 RESET controller
 
-- 32 MHZ crystal oscillator
+- 50 MHZ crystal oscillator
 
 - LM317T variable voltage regulator
 
@@ -47,5 +47,8 @@ PNG images created
 
 More details can be found in the [Eagle parts list](micropet_v1.parts).
 
+## Erratum
+
+- 1.0A has the bug that the CON pin for the clock oscillator is pulled low. This disables clock oscillators with tri-state input (which I did not notice with the original 32MHz oscillator, only with a 50MHz part later).
 
 -
