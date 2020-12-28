@@ -16,26 +16,28 @@ So we have two sections - what works and what will (hopefully) work at some poin
 
 ### Implemented
 
-- Commodore 3032 
+- Commodore 3032 / 4032 / 8032 with options menu to select at boot
+  - Boot-menu to select different PET versions to run
   - 40 col character display
+  - 80 col character display
   - IEEE488 interface
   - PET graphics keyboard
 - Improved system design:
   - 512k RAM, 512k ROM, accessible using banks on the W65816 CPU
-  - up to 8 MHz mode (currently by modifying VHDL)
+  - up to 8 MHz mode (via configuration register)
   - Composite video output
+  - Write protection for the PET ROMs once copied to RAM
 - Improved Video output:
-  - Hires graphics mode (currently using a jumper)
+  - Hires graphics mode (using a configuration register)
   - modifyable character set
   - 40/80 column display switchable
 
 ### Planned
 
-- Other Commodore models 4032, 8032, 8296
-- Configurable modes (speed 1/2/4/8 MHz, 40/80 column, character/hires mode)
+- Other Commodore models: 8296 (should work, just untested)
 - Writable ROM (although that may be superseded with the SPI-based ROM)
-- Write protection for the PET ROM once copied to RAM
-- Boot-menu to select different PET versions to run
+  - needs separate connection from ROM /OE to CPLD, as it has to be high on write (but is connected to /CE right now, which is low on access)
+- VGA video output (may break timing-related demos though)
 
 ## Build
 
@@ -70,7 +72,6 @@ These are future expansions I want to look into. Not all may be possible to impl
 - Replace MC3446 IEEE488 drives with 74LS640-1 
 - Replace IEEE488 connector with board edge connector
 - Add Tape board edge connector
-- VGA video output (may break timing-related demos though)
 - add SPI bus
 - Replace 8-bit ROM with an SPI-based ROM, boot from SPI
 
