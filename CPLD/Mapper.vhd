@@ -167,6 +167,9 @@ begin
 
 	-- write should not happen (only evaluated in upper half of bank 0)
 	wprot <= '0' when rwb = '1' else			-- read access are ok
+			'0' when cfg_mp(7) = '1' and		-- ignore I/O window
+				petio = '1' and iopeek = '1' 
+				else
 			'1' when cfg_mp(7) = '1' and		-- 8296 enabled
 				((A(14)='1' and cfg_mp(1)='1')	-- upper 16k write protected
 				or (A(14)='0' and cfg_mp(0)='1')) -- lower 16k write protected
@@ -211,9 +214,9 @@ begin
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
-			'0' when petio = '1' else	-- not in I/O space
 			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
+			'0' when petio = '1' else	-- not in I/O space
 			'1';
 	
 	dbgout <= low64k; -- bank(3);
