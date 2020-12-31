@@ -81,9 +81,11 @@ architecture Behavioral of Top is
 	
 	-- clock
 	signal dotclk: std_logic;
+	signal dot2clk: std_logic;
 	signal slotclk: std_logic;
 	signal pxl_window: std_logic;
 	signal chr_window: std_logic;
+	signal sr_load: std_logic;
 	
 	signal memclk: std_logic;
 	signal clk1m: std_logic;
@@ -157,9 +159,11 @@ architecture Behavioral of Top is
 	   clk4m	: out std_logic;	-- trigger CPU access @ 4MHz
 	   
 	   dotclk	: out std_logic;	-- pixel clock for video
+	   dot2clk	: out std_logic;	-- half the pixel clock
 	   slotclk	: out std_logic;	-- 1 slot = 8 pixel; 1 slot = 2 memory accesses, one for char, one for pixel data (at end of slot)
 	   chr_window	: out std_logic;	-- 1 during character fetch window
-	   pxl_window	: out std_logic		-- 1 during pixel fetch window (end of slot)
+	   pxl_window	: out std_logic;	-- 1 during pixel fetch window (end of slot)
+	   sr_load	: out std_logic		-- load pixel SR on falling edge of dotclk when this is set
 	 );
 	end component;
 	   
@@ -213,10 +217,12 @@ architecture Behavioral of Top is
 	   
 	   qclk: in std_logic;		-- Q clock
 	   dotclk : in std_logic;	-- 25MHz in (VGA timing)
+	   dot2clk : in std_logic;
            memclk : in STD_LOGIC;	-- system clock 8MHz
 	   slotclk : in std_logic;
 	   chr_window : in std_logic;
 	   pxl_window : in std_logic;
+	   sr_load : in std_logic;
 	   
            is_vid : out STD_LOGIC;	-- true during video access phase
 	   is_char: out std_logic;	-- map character data fetch
@@ -236,9 +242,11 @@ begin
 	   clk2m,
 	   clk4m,
 	   dotclk,
+	   dot2clk,
 	   slotclk,
 	   chr_window,
-	   pxl_window
+	   pxl_window,
+	   sr_load
 	);
 
 	-- define CPU slots. clk2=1 is reserved for video
@@ -403,10 +411,12 @@ begin
 		rwb,
 		q50m,		-- Q clock (50MHz)
 		dotclk,
+		dot2clk,
 		memclk,		-- sysclk (~8MHz)
 		slotclk,
 		chr_window,
 		pxl_window,
+		sr_load,
 		is_vid_out,
 		is_char_out,
 		dbg_vid,

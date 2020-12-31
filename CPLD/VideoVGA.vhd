@@ -49,10 +49,13 @@ entity Video is
 	   
 	   qclk: in std_logic;		-- Q clock
 	   dotclk : in std_logic;	-- 24MHz in (VGA timing)
+	   dot2clk : in std_logic;
            memclk : in STD_LOGIC;	-- system clock 8MHz
 	   slotclk : in std_logic;
 	   chr_window : in std_logic;
 	   pxl_window : in std_logic;
+	   sr_load : in std_logic;
+	   
            is_vid : out STD_LOGIC;	-- true during video access phase (all, character, chrom, and hires pixel data)
 	   is_char : out std_logic;	-- to map character data fetches elsewhere
 	   
@@ -130,6 +133,8 @@ architecture Behavioral of Video is
 	
 	signal chr_fetch : std_logic;
 	signal pxl_fetch : std_logic;
+	signal sr_load_d : std_logic;
+	signal dot2clk_d : std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
@@ -142,7 +147,7 @@ architecture Behavioral of Video is
 
 begin
 
-	in_slot_cnt_p: process(in_slot, memclk, reset)
+	in_slot_cnt_p: process(in_slot, slotclk, reset)
 	begin
 		if (reset = '1') then
 			in_slot <= '0';
@@ -212,7 +217,7 @@ begin
 			end if;
 			
 			-- sync
-			if (slot_cnt >= 81 and slot_cnt <= 93) then
+			if (slot_cnt >= 83 and slot_cnt <= 95) then
 				h_sync_int <= '1';
 			else
 				h_sync_int <= '0';
@@ -435,27 +440,28 @@ begin
 	-----------------------------------------------------------------------------
 	-- output sr control
 
-	memclk_p: process (dotclk, memclk)
+	memclk_p: process (qclk, sr_load)
 	begin 
-		if (rising_edge(dotclk)) then
-			memclk_d <= memclk;
+		if (rising_edge(qclk)) then
+			dot2clk_d <= dot2clk;
+			sr_load_d <= sr_load;
 		end if;
 	end process;
 	
 	-- note that switching dotclk depending on 40/80 cols delays it to the effect
 	-- that it generates artifacts. So we always use 80col dotclk (16MHz), and in 40 column
 	-- mode we just shift out every pixel twice.
-	SR: process(pxl_fetch, D, reset, memclk, dotclk, pxlhold, pxl_fetch)
+	SR: process(pxl_fetch, D, reset, memclk, dotclk, pxlhold, sr_load)
 	begin
 		if (reset ='1') then
 			pxlhold <= (others => '0');
 		elsif (falling_edge(dotclk)) then
-			if (pxl_fetch = '1' and memclk ='1') then
+			-- dotclk falls at same edge as memclk (falling qclk)
+			-- note: pxl_fetch is registered with qclk above, as is memclk_d (rising qclk)
+			if (pxl_fetch = '1' and sr_load_d ='1') then
 				enable <= h_enable and v_enable;
 				pxlhold <= D;
-			-- note that checking memclk_d is required as it seems there are 
-			-- glitches using memclk itself
-			elsif (memclk_d = '1' or is_80 = '1') then 
+			elsif (dot2clk_d = '1' or is_80 = '1') then 
 				pxlhold(7) <= pxlhold(6);
 				pxlhold(6) <= pxlhold(5);
 				pxlhold(5) <= pxlhold(4);

@@ -39,9 +39,11 @@ entity Clock is
 	   clk4m	: out std_logic;	-- trigger CPU access @ 4MHz
 	   
 	   dotclk	: out std_logic;	-- pixel clock for video
+	   dot2clk	: out std_logic;	-- half the pixel clock
 	   slotclk	: out std_logic;	-- 1 slot = 8 pixel; 1 slot = 2 memory accesses, one for char, one for pixel data (at end of slot)
 	   chr_window	: out std_logic;	-- 1 during character fetch window
-	   pxl_window	: out std_logic		-- 1 during pixel fetch window (end of slot)
+	   pxl_window	: out std_logic;	-- 1 during pixel fetch window (end of slot)
+	   sr_load	: out std_logic		-- load SR on falling dotclk when this is set
 	 );
 end Clock;
 
@@ -88,7 +90,9 @@ begin
 			pxl_window <= To_Std_Logic(clk_cnt2(2 downto 1) = "11");	-- last in slot
 			
 			dotclk <= clk_cnt1 (1);		-- 16 MHz (asymmetric)
+			dot2clk <= clk_cnt2 (0);
 			memclk <= clk_cnt2 (0);		-- 8 MHz
+			sr_load <= clk_cnt2 (0);
 			slotclk <= clk_cnt2 (2);	-- 2 MHz
 			
 			clk4m <= clk_cnt2 (1);

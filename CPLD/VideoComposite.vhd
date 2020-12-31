@@ -49,11 +49,13 @@ entity Video is
 	   crtc_rwb : in std_logic;	-- r/-w
 	   
 	   qclk: in std_logic;		-- Q clock
-	   dotclk : in std_logic;	-- 25MHz in (VGA timing)
+	   dotclk : in std_logic;	-- 25MHz in
+	   dot2clk : in std_logic;	-- half the pixel clock
            memclk : in STD_LOGIC;	-- system clock 8MHz
 	   slotclk : in std_logic;
 	   chr_window : in std_logic;
 	   pxl_window : in std_logic;
+	   sr_load: in std_logic;
 	   
            is_vid : out STD_LOGIC;	-- true during video access phase
 	   is_char: out std_logic;	-- map character data fetch
@@ -65,7 +67,8 @@ end Video;
 architecture Behavioral of Video is
 
 	-- slot clock
-	signal memclk_d : std_logic;
+	signal sr_load_d : std_logic;
+	signal dot2clk_d : std_logic;
 	
 	signal in_slot: std_logic;
 	
@@ -422,10 +425,11 @@ begin
 	-----------------------------------------------------------------------------
 	-- output sr control
 
-	memclk_p: process (dotclk, memclk)
+	memclk_p: process (dotclk, memclk, dot2clk)
 	begin 
 		if (rising_edge(dotclk)) then
-			memclk_d <= memclk;
+			dot2clk_d <= dot2clk;
+			sr_load_d <= sr_load;
 		end if;
 	end process;
 	
@@ -437,12 +441,12 @@ begin
 		if (reset ='1') then
 			pxlhold <= (others => '0');
 		elsif (falling_edge(dotclk)) then
-			if (pxl_fetch = '1' and memclk ='1') then
+			if (pxl_fetch = '1' and sr_load_d ='1') then
 				enable <= h_enable and v_enable;
 				pxlhold <= D;
 			-- note that checking memclk_d is required as it seems there are 
 			-- glitches using memclk itself
-			elsif (memclk_d = '1' or is_80 = '1') then 
+			elsif (dot2clk_d = '1' or is_80 = '1') then 
 				pxlhold(7) <= pxlhold(6);
 				pxlhold(6) <= pxlhold(5);
 				pxlhold(5) <= pxlhold(4);
