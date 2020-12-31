@@ -212,13 +212,14 @@ begin
 			end if;
 			
 			-- sync
-			if (slot_cnt >= 83 and slot_cnt <= 94) then
+			if (slot_cnt >= 81 and slot_cnt <= 93) then
 				h_sync_int <= '1';
 			else
 				h_sync_int <= '0';
 			end if;
 			
-			-- last visible slot
+			-- last visible slot (visible from 0 to 80,
+			-- but during slot 0 SR is empty, and only fetches take place)
 			if (slot_cnt = 80) then
 				last_vis_slot_of_line <= '1';
 			else 
@@ -240,12 +241,12 @@ begin
 	-----------------------------------------------------------------------------
 	-- vertical geometry calculation
 
-	LineCnt: process(h_enable, last_line_of_screen, rline_cnt, cline_cnt, reset)
+	LineCnt: process(h_sync_int, last_line_of_screen, rline_cnt, cline_cnt, reset)
 	begin
 		if (reset = '1') then
 			rline_cnt <= (others => '0');
 			cline_cnt <= (others => '0');
-		elsif (falling_edge(h_enable)) then
+		elsif (falling_edge(h_sync_int)) then
 			if (last_line_of_screen = '1') then
 				rline_cnt <= (others => '0');
 				cline_cnt <= (others => '0');
@@ -254,16 +255,17 @@ begin
 				
 				if (last_line_of_char = '1') then
 					cline_cnt <= (others => '0');
-				else
+				elsif (rline_cnt(0) = '1') then
+					-- display each char line twice
 					cline_cnt <= cline_cnt + 1;
 				end if;
 			end if;
 		end if;
 	end process;
 
-	LineProx: process(h_enable)
+	LineProx: process(h_sync_int)
 	begin
-		if (rising_edge(h_enable)) then
+		if (rising_edge(h_sync_int)) then
 			
 --		    if (is_9rows = '1') then
 --			-- timing for 9 pixel rows per character
@@ -314,7 +316,7 @@ begin
 --		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
-			if (is_hires = '1' or cline_cnt = 7) then
+			if ((is_hires = '1' or cline_cnt = 7) and rline_cnt(0) = '1') then
 				-- if hires, everyone
 				last_line_of_char <= '1';
 			else
@@ -322,7 +324,9 @@ begin
 			end if;
 			
 			-- vsync
-			if (rline_cnt >= 490 and rline_cnt < 492) then
+			--if (rline_cnt >= 490 and rline_cnt < 492) then
+			-- center the 400 lines we do in the 480 available lines
+			if (rline_cnt >= 450 and rline_cnt < 452) then
 				v_sync_int <= '1';
 			else
 				v_sync_int <= '0';
@@ -371,7 +375,7 @@ begin
 		end if;
 	end process;
 	
-	AddrCnt: process(last_slot_of_line, last_line_of_screen, vid_addr, vid_addr_hold, is_80, slotclk, reset)
+	AddrCnt: process(last_slot_of_line, last_line_of_screen, vid_addr, vid_addr_hold, is_80, in_slot, slotclk, reset)
 	begin
 		if (reset = '1') then
 			vid_addr <= (others => '0');
@@ -381,9 +385,9 @@ begin
 				is_80 <= is_80_in;
 			else
 				if (last_slot_of_line = '0') then
-					--if (is_80 = '1' or memby8 = '1') then
+					if (is_80 = '1' or in_slot = '1') then
 						vid_addr <= vid_addr + 1;
-					--end if;
+					end if;
 				else
 					vid_addr <= vid_addr_hold;
 				end if;
