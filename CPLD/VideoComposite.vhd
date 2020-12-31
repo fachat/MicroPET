@@ -32,9 +32,10 @@ use ieee.numeric_std.all;
 --use UNISIM.VComponents.all;
 
 entity Video is
-    Port ( A : out  STD_LOGIC_VECTOR (15 downto 0);
+	  Port ( 
+	   A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
-	   CPU_D: in std_logic_vector(7 downto 0);
+	   CPU_D : in std_logic_vector (7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
            v_sync : out  STD_LOGIC;
@@ -42,32 +43,31 @@ entity Video is
 
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
-	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
-	   crtc_sel : in std_logic;
-	   crtc_rs : in std_logic;
-	   crtc_rwb : in std_logic;
+	   is_graph : in std_logic;	-- from PET I/O
+	   crtc_sel : in std_logic;	-- select line for CRTC
+	   crtc_rs  : in std_logic;	-- register select
+	   crtc_rwb : in std_logic;	-- r/-w
 	   
 	   qclk: in std_logic;		-- Q clock
-	   dotclk16 : in std_logic;	-- 16MHz in (composite timing)
-	   dotclk25 : in std_logic;	-- 24MHz in (VGA timing)
+	   dotclk : in std_logic;	-- 25MHz in (VGA timing)
            memclk : in STD_LOGIC;	-- system clock 8MHz
-	   memby2: in std_logic;	-- every vid access 4MHz (memby2)
-	   memby4: in std_logic;	-- every second vid access 2MHz (memby4)
-	   memby8: in std_logic;	-- every fourth vid access 1MHz (memby8)
-           is_vid : out STD_LOGIC;	-- true during video access phase (all, character, chrom, and hires pixel data)
-	   is_char : out std_logic;	-- to map character data fetches elsewhere
+	   slotclk : in std_logic;
+	   chr_window : in std_logic;
+	   pxl_window : in std_logic;
 	   
+           is_vid : out STD_LOGIC;	-- true during video access phase
+	   is_char: out std_logic;	-- map character data fetch
 	   dbg_out : out std_logic;
-	   
 	   reset : in std_logic
-	   );
+	 );
 end Video;
 
 architecture Behavioral of Video is
 
 	-- slot clock
-	signal slotclk : std_logic;
 	signal memclk_d : std_logic;
+	
+	signal in_slot: std_logic;
 	
 	-- mode
 	signal is_80: std_logic;
@@ -133,17 +133,24 @@ architecture Behavioral of Video is
 	
 begin
 
-	slotclk <= memby4;
+	in_slot_cnt_p: process(in_slot, slotclk, reset)
+	begin
+		if (reset = '1') then
+			in_slot <= '0';
+		elsif (falling_edge(slotclk)) then
+			in_slot <= not(in_slot);
+		end if;
+	end process;
 	
 	-- access indicators
 	--
 	-- pxl40/chr40 are used in both 40 and 80 col mode
 	-- pxl40/80 must be active at last cycle before loading the pixel shift register
 	-- 	as the pixel SR is directly loaded from the data bus
-	chr40 <= memby2 and not(memby4) and not(memby8)	and not(is_hires);
-	pxl40 <= memby2 and memby4 	and not(memby8);
-	chr80 <= memby2 and not(memby4) and memby8	and not(is_hires) and is_80;
-	pxl80 <= memby2 and memby4 	and memby8			  and is_80;
+	chr40 <= chr_window and in_slot 	and not(is_hires);
+	pxl40 <= pxl_window and in_slot;
+	chr80 <= chr_window and not(in_slot) 	and not(is_hires) 	and is_80;
+	pxl80 <= pxl_window and not(in_slot)		  		and is_80;
 
 	-- note: at least pxl_fetch is used in loading the video shift register, at falling edge of a clock
 	-- so the combinatorial part will glitch, and sometimes not fulfill the condition to load the SR.
@@ -355,7 +362,7 @@ begin
 		end if;
 	end process;
 	
-	AddrCnt: process(last_slot_of_line, last_line_of_screen, vid_addr, vid_addr_hold, is_80, memby8, slotclk, reset)
+	AddrCnt: process(last_slot_of_line, last_line_of_screen, vid_addr, vid_addr_hold, is_80, in_slot, slotclk, reset)
 	begin
 		if (reset = '1') then
 			vid_addr <= (others => '0');
@@ -365,7 +372,7 @@ begin
 				is_80 <= is_80_in;
 			else
 				if (last_slot_of_line = '0') then
-					if (is_80 = '1' or memby8 = '1') then
+					if (is_80 = '1' or in_slot = '1') then
 						vid_addr <= vid_addr + 1;
 					end if;
 				else
@@ -415,9 +422,9 @@ begin
 	-----------------------------------------------------------------------------
 	-- output sr control
 
-	memclk_p: process (dotclk16, memclk)
+	memclk_p: process (dotclk, memclk)
 	begin 
-		if (rising_edge(dotclk16)) then
+		if (rising_edge(dotclk)) then
 			memclk_d <= memclk;
 		end if;
 	end process;
@@ -425,11 +432,11 @@ begin
 	-- note that switching dotclk depending on 40/80 cols delays it to the effect
 	-- that it generates artifacts. So we always use 80col dotclk (16MHz), and in 40 column
 	-- mode we just shift out every pixel twice.
-	SR: process(pxl_fetch, D, reset, memclk, dotclk16, pxlhold, memby2, memby4, memby8, pxl_fetch)
+	SR: process(pxl_fetch, D, reset, memclk, dotclk, pxlhold, pxl_fetch)
 	begin
 		if (reset ='1') then
 			pxlhold <= (others => '0');
-		elsif (falling_edge(dotclk16)) then
+		elsif (falling_edge(dotclk)) then
 			if (pxl_fetch = '1' and memclk ='1') then
 				enable <= h_enable and v_enable;
 				pxlhold <= D;

@@ -65,7 +65,6 @@ architecture Behavioral of Mapper is
 
 	signal cfg_mp: std_logic_vector(7 downto 0);
 	signal bankl: std_logic_vector(7 downto 0);
-	signal bank_in: std_logic_vector(7 downto 0);
 	
 	-- convenience
 	signal low64k: std_logic;

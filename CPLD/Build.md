@@ -22,6 +22,7 @@ Under the project, "Add Source" and add the "Top.vhd" VHDL file
 ![Add Top VHDL file](images/add_top_file.png)
 
 Then add the other VHDL files underneath by assigning the VHDL files to their respective components.
+Note that for the Video and Clock components, two options are available, Composite video out or VGA (640x480) output.
 
 ![Add other VHDL files](images/add_mapper_and_video.png)
 
