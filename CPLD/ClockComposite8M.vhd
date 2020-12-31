@@ -48,7 +48,7 @@ end Clock;
 architecture Behavioral of Clock is
 
 	signal clk_cnt1 : std_logic_vector(1 downto 0);
-	signal clk_cnt2 : std_logic_vector(4 downto 0);
+	signal clk_cnt2 : std_logic_vector(3 downto 0);
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin

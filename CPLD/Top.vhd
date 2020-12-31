@@ -85,7 +85,6 @@ architecture Behavioral of Top is
 	signal pxl_window: std_logic;
 	signal chr_window: std_logic;
 	
-	signal dmemclk: std_logic;
 	signal memclk: std_logic;
 	signal clk1m: std_logic;
 	signal clk2m: std_logic;
@@ -93,6 +92,7 @@ architecture Behavioral of Top is
 	
 	signal phi2_int: std_logic;
 	signal is_cpu: std_logic;
+	signal is_cpu_trigger: std_logic;
 	
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
@@ -241,16 +241,25 @@ begin
 	   pxl_window
 	);
 
-	
-	
 	-- define CPU slots. clk2=1 is reserved for video
 	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
-	is_cpu <= '1';
---	is_cpu <= '1'		 		when mode = "11" else		-- 8MHz minus video (via RDY)
---		not(memby2) 			when mode = "10" else		-- every 2nd = 4MHz
---		not(memby2) and not(memby4)	when mode = "01" else		-- every 4th = 2MHz
---		not(memby2) and not(memby4) and not(memby8) when mode = "00";	-- every 8th = 1MHz		
-	
+
+	is_cpu_trigger <= '1'	when mode = "11" else
+			clk4m	when mode = "10" else
+			clk2m	when mode = "01" else
+			clk1m;
+
+	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int)
+	begin
+		if (reset = '1' or release_int = '1') then
+			is_cpu <= '0';
+		elsif (mode = "11") then
+			is_cpu <= '1';
+		elsif rising_edge(is_cpu_trigger) then
+			is_cpu <= '1';
+		end if;
+	end process;
+		
 	reset <= not(nres);
 	
 	-- TODO: is_cpu handling to slow down to specified clock
