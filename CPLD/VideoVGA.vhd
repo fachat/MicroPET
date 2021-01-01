@@ -67,9 +67,7 @@ end Video;
 
 architecture Behavioral of Video is
 
-	-- slot clock
-	signal memclk_d : std_logic;
-	
+	-- 1 bit slot counter to enable 40 column
 	signal in_slot: std_logic;
 	
 	-- mode
@@ -81,6 +79,7 @@ architecture Behavioral of Video is
 	signal is_9rows: std_logic;
 	signal is_10rows: std_logic;
 	signal vpage : std_logic_vector(7 downto 0);
+	signal interlace : std_logic;
 	
 	-- hold and shift the pixel
 	signal pxlhold : std_logic_vector (7 downto 0) := (others => '0');
@@ -174,10 +173,10 @@ begin
 		if (rising_edge(qclk)) then
 	-- do we fetch character index?
 	-- not hires, and first cycle in streak
-	chr_fetch <= chr40 or chr80;
+	chr_fetch <= (chr40 or chr80) and (interlace or not(rline_cnt(0))) ;
 
 	-- dot fetch
-	pxl_fetch <= pxl40 or pxl80;
+	pxl_fetch <= (pxl40 or pxl80) and (interlace or not(rline_cnt(0)));
 	
 	-- video access?
 	is_vid <= chr_fetch or pxl_fetch;
@@ -251,7 +250,7 @@ begin
 		if (reset = '1') then
 			rline_cnt <= (others => '0');
 			cline_cnt <= (others => '0');
-		elsif (falling_edge(h_sync_int)) then
+		elsif (rising_edge(h_sync_int)) then
 			if (last_line_of_screen = '1') then
 				rline_cnt <= (others => '0');
 				cline_cnt <= (others => '0');
@@ -265,12 +264,18 @@ begin
 					cline_cnt <= cline_cnt + 1;
 				end if;
 			end if;
+			
+			if (rline_cnt >= 450 and rline_cnt < 452) then
+				v_sync_int <= '1';
+			else
+				v_sync_int <= '0';
+			end if;
 		end if;
 	end process;
 
 	LineProx: process(h_sync_int)
 	begin
-		if (rising_edge(h_sync_int)) then
+		if (falling_edge(h_sync_int)) then
 			
 --		    if (is_9rows = '1') then
 --			-- timing for 9 pixel rows per character
@@ -331,11 +336,11 @@ begin
 			-- vsync
 			--if (rline_cnt >= 490 and rline_cnt < 492) then
 			-- center the 400 lines we do in the 480 available lines
-			if (rline_cnt >= 450 and rline_cnt < 452) then
-				v_sync_int <= '1';
-			else
-				v_sync_int <= '0';
-			end if;
+--			if (rline_cnt >= 450 and rline_cnt < 452) then
+--				v_sync_int <= '1';
+--			else
+--				v_sync_int <= '0';
+--			end if;
 			
 			-- venable
 			if (rline_cnt < 400) then
@@ -501,6 +506,7 @@ begin
 			is_9rows <= '0';
 			is_10rows <= '0';
 			vpage <= x"00";
+			interlace <= '0';
 		elsif (falling_edge(memclk) 
 				and crtc_sel = '1' 
 				and crtc_rs='1' 
@@ -519,6 +525,8 @@ begin
 				vpage(3 downto 0) <= CPU_D(3 downto 0);
 				vpage(4) <= not(CPU_D(4));	-- invert for PET boot
 				vpage(7 downto 5) <= CPU_D(7 downto 5);
+			when x"8" =>
+				interlace <= CPU_D(0);
 			when others =>
 				null;
 			end case;
