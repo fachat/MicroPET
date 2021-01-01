@@ -38,7 +38,8 @@ entity Top is
 	   nres : in std_logic;
 	
 	-- config
-	   boot: in std_logic_vector(1 downto 0);
+	  -- boot: in std_logic_vector(1 downto 0);
+	   boot: out std_logic_vector(1 downto 0); -- for debug
 	   graphic: in std_logic;	-- from I/O, select charset
 	   
 	-- CPU interface
@@ -106,7 +107,6 @@ architecture Behavioral of Top is
 	signal nromsel_int: std_logic;
 	signal m_iosel: std_logic;
 	signal m_romsel: std_logic;
-	signal m_romsel_d: std_logic;
 
 	signal sel0 : std_logic;
 	signal sel8 : std_logic;
@@ -136,6 +136,7 @@ architecture Behavioral of Top is
 	signal wait_int_d: std_logic;
 	signal wait_int_d2: std_logic;
 	signal release_int: std_logic;
+	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
 	
 	-- bummer, not in schematic
@@ -256,22 +257,22 @@ begin
 			clk4m	when mode = "10" else
 			clk2m	when mode = "01" else
 			clk1m;
-
-	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int)
+	
+	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int, memclk)
 	begin
 		if (reset = '1' or release_int = '1') then
 			is_cpu <= '0';
 		elsif (mode = "11") then
 			is_cpu <= '1';
-		elsif rising_edge(is_cpu_trigger) then
-			is_cpu <= '1';
+		elsif falling_edge(memclk) then
+			if (is_cpu_trigger = '1') then
+				is_cpu <= '1';
+			end if;
 		end if;
 	end process;
-		
+
 	reset <= not(nres);
 	
-	-- TODO: is_cpu handling to slow down to specified clock
-	--
 	-- WAIT is used to slow 
 	-- 1) access to the slow ROM (which is independent from video bus) and
 	-- 2) access to the RAM when video access is needed
@@ -302,30 +303,36 @@ begin
 		end if;
 	end process;
 
-	release_p: process(wait_int_d2, dotclk, is_vid_out, memclk, reset)
+	release2_p: process(wait_int_d2, dotclk, is_vid_out, q50m, reset)
+	begin
+		if (reset = '1') then
+			release_int2 <= '0';
+		elsif (rising_edge(q50m)) then
+			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and wait_ram = '0') then
+				release_int2 <= '1';
+			else
+				release_int2 <= '0';
+			end if;
+		end if;
+	end process;
+
+	release_p: process(release_int2, q50m, reset)
 	begin
 		if (reset = '1') then
 			release_int <= '0';
-		elsif (rising_edge(dotclk)) then
-			--if (memclk = '1' and wait_int_d2 = '1' and is_vid_out = '0') then
-			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1') then
-				release_int <= '1';
-			else
-				release_int <= '0';
-			end if;
+		elsif (falling_edge(q50m)) then
+			release_int <= release_int2;
 		end if;
 	end process;
 	
 
-	-- Note. the 65816 puts out the bank address even if RDY=0.
-	-- So, in fact the CPU drives the data bus against e.g. a slow ROM starting
-	-- to put the data on the bus.
-	-- Therefore, RDY cannot be used, but clock stretching must be used,
-	-- using the internal wait signal
-	--
+	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), the I/O timers
+	-- will always count on 8MHz - which is not what we want
 	phi2_int <= memclk or wait_int_d;
-	
 	rdy <= '1';
+	
+	boot(0) <= m_iosel;
+	boot(1) <= wait_int;
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
@@ -363,20 +370,7 @@ begin
 	   dbg_map
 	);
 
-	
-	Romsel_p: process(reset, m_romsel, memclk)
-	begin
-		if (reset = '1') then
-			m_romsel_d <= '1';
-		elsif (falling_edge(memclk)) then
-			if (m_romsel_d = '0') then
-				m_romsel_d <= m_romsel;
-			else
-				m_romsel_d <= '0';
-			end if;
-		end if;
-	end process;
-	
+		
 	cfgld_in <= '1' when m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
 
 	-- internal selects

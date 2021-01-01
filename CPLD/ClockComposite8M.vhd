@@ -95,11 +95,21 @@ begin
 			sr_load <= clk_cnt2 (0);
 			slotclk <= clk_cnt2 (2);	-- 2 MHz
 			
-			clk4m <= clk_cnt2 (1);
-			clk2m <= clk_cnt2 (2);
-			clk1m <= clk_cnt2 (3);
 		end if;
 	end process;
-		
+	
+	clk2_p: process(reset, qclk, clk_cnt2)
+	begin
+		if (reset = '1') then
+			clk4m <= '0';
+			clk2m <= '0';
+			clk1m <= '0';
+		elsif (rising_edge(qclk)) then
+			clk4m <= clk_cnt2(1);
+			clk2m <= To_Std_Logic(clk_cnt2(2 downto 1) = "11");
+			clk1m <= To_Std_Logic(clk_cnt2 = "111");
+		end if;
+	end process;
+	
 end Behavioral;
 

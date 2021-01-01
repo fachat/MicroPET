@@ -51,7 +51,7 @@ architecture Behavioral of Clock is
 
 	signal clk_cnt : std_logic_vector(3 downto 0);
 	signal cpu_cnt1 : std_logic_vector(2 downto 0);
-	signal cpu_cnt2 : std_logic_vector(2 downto 0);
+	signal memclk_int : std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
@@ -89,54 +89,55 @@ begin
 			
 			case (clk_cnt) is
 			when "0000" =>
-				memclk <= '0';
+				memclk_int <= '0';
 			when "0001" =>
-				memclk <= '0';
+				memclk_int <= '0';
 			when "0010" =>
-				memclk <= '1';
+				memclk_int <= '1';
 			when "0011" =>
-				memclk <= '1';
+				memclk_int <= '1';
 			when "0100" =>
-				memclk <= '1';
+				memclk_int <= '1';
 			when "0101" =>
-				memclk <= '0';
+				memclk_int <= '0';
 				chr_window <= '1';
 			when "0110" =>
-				memclk <= '0';
+				memclk_int <= '0';
 				chr_window <= '1';
 			when "0111" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				chr_window <= '1';
 			when "1000" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				chr_window <= '1';
 			when "1001" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				chr_window <= '1';
 			when "1010" =>
-				memclk <= '0';
+				memclk_int <= '0';
 				pxl_window <= '1';
 			when "1011" =>
-				memclk <= '0';
+				memclk_int <= '0';
 				pxl_window <= '1';
 			when "1100" =>
-				memclk <= '0';
+				memclk_int <= '0';
 				pxl_window <= '1';
 			when "1101" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				pxl_window <= '1';
 			when "1110" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				pxl_window <= '1';
 				--sr_load <= '1';
 			when "1111" =>
-				memclk <= '1';
+				memclk_int <= '1';
 				sr_load <= '1';
 				pxl_window <= '1';
 			when others =>
 				null;
 			end case;
 			
+			memclk <= memclk_int;
 			dotclk <= clk_cnt (0);
 			dot2clk <= clk_cnt (1);
 			slotclk <= clk_cnt (3);
@@ -144,24 +145,33 @@ begin
 	end process;
 
 	-- count 6 qclk cycles = ~8 MHz, then transform into clk1m/2m/4m
-	cpu_cnt1_p: process(qclk, reset, cpu_cnt1, cpu_cnt2)
+	cpu_cnt1_p: process(reset, cpu_cnt1, memclk_int)
 	begin
 		if (reset = '1') then
 			cpu_cnt1 <= "000";
-			cpu_cnt2 <= "000";
-		elsif (rising_edge(qclk)) then	
-			if (cpu_cnt1 = "101") then
+		elsif (rising_edge(memclk_int)) then	
+			if (cpu_cnt1 = "1001") then
 				cpu_cnt1 <= "000";
-				cpu_cnt2 <= cpu_cnt2 + 1;
 			else
 				cpu_cnt1 <= cpu_cnt1 + 1;
 			end if;
 		end if;
 	end process;
 
-	clk4m <= cpu_cnt2(0);
-	clk2m <= cpu_cnt2(1);
-	clk1m <= cpu_cnt2(2);
+	-- count 6 qclk cycles = ~8 MHz, then transform into clk1m/2m/4m
+	cpu_cnt2_p: process(qclk, reset, cpu_cnt1)
+	begin
+		if (reset = '1') then
+			clk4m <= '0';
+			clk2m <= '0';
+			clk1m <= '0';
+		elsif (rising_edge(qclk)) then	
+			clk4m <= cpu_cnt1(0);
+			clk2m <= To_Std_Logic(cpu_cnt1(1 downto 0) = "11");
+			clk1m <= To_Std_Logic(cpu_cnt1(2 downto 0) = "000");
+			
+		end if;
+	end process;
 		
 end Behavioral;
 
