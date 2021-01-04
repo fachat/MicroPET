@@ -63,6 +63,7 @@ architecture Behavioral of SPI is
 	signal run_txd: std_logic;			-- txd is full
 	signal ack_txd: std_logic;			-- ack is now taken and empty
 	signal ack_rxtx: std_logic;
+	signal serin_d: std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
@@ -155,9 +156,14 @@ begin
 				run_tx <= '1';
 
 			elsif (run_tx_d = '1' or run_rx_d = '1') then
-			
+
+				if (stat(0) = '0') then
+					-- sample at rising edge of spiclk
+					serin_d <= serin;
+				end if;
+				
 				if (stat(0) = '1') then
-					
+					-- falling edge of spiclk
 					sr(7) <= sr(6);
 					sr(6) <= sr(5);
 					sr(5) <= sr(4);
@@ -165,7 +171,7 @@ begin
 					sr(3) <= sr(2);
 					sr(2) <= sr(1);
 					sr(1) <= sr(0);
-					sr(0) <= serin;
+					sr(0) <= serin_d;
 				end if;
 
 				if (stat = "1111") then

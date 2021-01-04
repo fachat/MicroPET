@@ -73,6 +73,7 @@ entity Top is
 	-- SPI
 	   spi_out : out std_logic;
 	   spi_in  : in std_logic;
+	   spi_in2  : in std_logic;
 	   spi_clk : out std_logic;
 	   nflash : out std_logic;
 	   
@@ -149,6 +150,7 @@ architecture Behavioral of Top is
 	signal spi_dout : std_logic_vector(7 downto 0);
 	signal spi_cs : std_logic;
 	signal spi_sel : std_logic_vector(1 downto 0);
+	signal spi_in_d : std_logic;
 	
 	-- bummer, not in schematic
 	constant vpb: std_logic:= '1';
@@ -416,7 +418,7 @@ begin
 	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
 
-	dbg_out <= init;
+	dbg_out <= spi_in or spi_in2;
 	
 	-- external selects are inverted
 	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
@@ -478,7 +480,7 @@ begin
 	   reset
 	);
 	
-	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and phi2_int = '1');
+	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
 	-- select flash chip
 	nflash <= spi_sel(0);
