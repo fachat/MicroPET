@@ -69,6 +69,12 @@ entity Top is
            pxl : out  STD_LOGIC;
            vsync : out  STD_LOGIC;
            hsync : out  STD_LOGIC;
+	 
+	-- SPI
+	   spi_out : out std_logic;
+	   spi_in  : in std_logic;
+	   spi_clk : out std_logic;
+	   nflash : out std_logic;
 	   
 	-- Debug
 	   dbg_out: out std_logic
@@ -139,8 +145,14 @@ architecture Behavioral of Top is
 	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
 	
+	-- SPI
+	signal spi_dout : std_logic_vector(7 downto 0);
+	signal spi_cs : std_logic;
+	signal spi_sel : std_logic_vector(1 downto 0);
+	
 	-- bummer, not in schematic
 	constant vpb: std_logic:= '1';
+	constant e: std_logic:= '1';
 	
 	-- debug
 	signal dbg_vid: std_logic;
@@ -231,6 +243,33 @@ architecture Behavioral of Top is
 	   reset : in std_logic
 	 );
 	end component;
+
+	component SPI is
+	  Port ( 
+	   DIN : in  STD_LOGIC_VECTOR (7 downto 0);
+	   DOUT : out  STD_LOGIC_VECTOR (7 downto 0);
+	   RS: in std_logic_vector(1 downto 0);
+	   RWB: in std_logic;
+	   CS: in std_logic;	-- includes clock
+	   
+	   serin: in std_logic;
+	   serout: out std_logic;
+	   serclk: out std_logic;
+	   sersel: out std_logic_vector(1 downto 0);	   
+	   spiclk : in std_logic;
+	   
+	   reset : in std_logic
+	 );
+	end component;
+
+	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
+	begin
+		if L then
+			return('1');
+		else
+			return('0');
+		end if;
+	end function To_Std_Logic;
 
 begin
 
@@ -331,8 +370,8 @@ begin
 	phi2_int <= memclk or wait_int_d;
 	rdy <= '1';
 	
-	boot(0) <= m_iosel;
-	boot(1) <= wait_int;
+	--boot(0) <= spi_out;
+	--boot(1) <= spi_clk;
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
@@ -420,6 +459,31 @@ begin
 	vgraphic <= graphic;
 	
 	------------------------------------------------------
+	-- SPI interface
+	
+	spi_comp: SPI
+	port map (
+	   cd_in,
+	   spi_dout,
+	   ca_in(1 downto 0),
+	   rwb,
+	   spi_cs,
+	   
+	   spi_in,
+	   boot(0),	--spi_out,
+	   boot(1),	--spi_clk,
+	   spi_sel,
+	   memclk,
+	   
+	   reset
+	);
+	
+	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and phi2_int = '1');
+	
+	-- select flash chip
+	nflash <= spi_sel(0);
+	
+	------------------------------------------------------
 	-- control
 
 	-- release initial mapping after first write to $ffxx
@@ -502,6 +566,9 @@ begin
 			and m_ramsel_out ='1' 
 			and phi2_int='1'
 		else 
+		spi_dout when spi_cs = '1'
+			and rwb = '1'
+		else
 			(others => 'Z');
 	
 	-- ROM (4k) page address
