@@ -1,0 +1,29 @@
+
+ 100 b=59400: rem base address of spi interface
+ 110 d=1: rem device no, i.e. select mask for spi
+ 120 poke b,0: rem init select (deselect)
+ 200 input "enter block number (0-255)"; bl
+ 210 gosub 1000:rem read and display block
+ 220 goto 200
+ 1000 poke b,d:rem select device
+ 1010 poke b+1,3: rem read command
+ 1020 poke b+1,0: rem addr 23-16
+ 1030 poke b+1,bl:rem addr 15-8
+ 1040 poke b+1,0: rem addr 7-0
+ 1050 x=peek(b+1): rem trigger reading first byte
+ 1060 for i=0 to 255 step 8
+ 1070 h=bl:gosub 2100:print "."h$;
+ 1080 h=i:gosub 2100: print h$":";
+ 1085 for j=0 to 7
+ 1090 h=peek(b+1): rem read value, trigger next 
+ 1100 gosub 2100: print " "h$;
+ 1110 next j
+ 1120 print
+ 1130 next i
+ 1140 poke b,0: rem deselect device
+ 1150 return
+ 2100 h$=""
+ 2110 hl%=h/16:gosub 2200
+ 2120 hl%=h and 15
+ 2200 h$=h$+chr$(48+hl%-(hl%>9)*7)
+ 2210 return
