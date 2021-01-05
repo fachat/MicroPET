@@ -1,5 +1,5 @@
 
-all: romtest01 romtest02 romtest01a romtest02a bootldr bootimg spiimg readflash
+all: romtest01 romtest02 romtest01a romtest02a bootldr bootimg spiimg readflash iplldr
 
 bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g bootldr
 	# Note: need to stay below upper 16k, as this is mapped to bank 15 on init
@@ -37,6 +37,9 @@ char8to16: char8to16.c
 
 bootldr: bootldr.a65
 	xa -w -o bootldr bootldr.a65
+
+iplldr: iplldr.a65
+	xa -w -o iplldr iplldr.a65
 
 romtest02: romtest02.a65
 	xa -w -o romtest02 romtest02.a65

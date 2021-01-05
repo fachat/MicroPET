@@ -1,16 +1,22 @@
 
-; this lets the CPU a) init the video memory and then
-; b) show a boot menu to select which boot option to use
-; from 3032, 4032 and 8032(8296) version.
+; The first block of this is loaded by the IPL from the SPI Flash chip into the uppermost
+; 256 bytes of RAM in bank zero, where the CPU boots from.
+; This boot block then copies the last 2k of this to $8800 on bank0, and jumps
+; to it to execute it.
+; 
+; Note that this relies on the Flash ROM containing the
+; PET ROM images to copy from. 
 ;
-; Note that during init (after reset) the uPET CPLD has a 
-; memory mapping that maps some upper ROM into the upper half
-; of bank 0. Only when a write access to the ROM is found as 
-; trigger, the real bank address is used.
 
+SPICTRL	=$e808
+SPIDATA	=$e809
+SPIPEEK	=$e80a
 
-	*=$f000
-vreset
+RUNADDR	=$8800
+ADRDIFF	=$ff00-$8800
+
+	*=$ff00
+vreset	.(
 	; init the CPU
 	sei
 	cld
@@ -29,6 +35,127 @@ vreset
 	; set X/Y registers to 16 bit ...
 	rep #%00010000
 	; ... and tell the assembler about it
+	.xl
+
+	; -----------------------
+	; copy the boot code to $9000 (for now)
+	lda #1
+	sta SPICTRL	; enable Flash
+	lda #3
+	sta SPIDATA	; READ command
+	lda #0
+	sta SPIDATA	; bits 23-16
+	lda #>$0800	
+	sta SPIDATA	; bits 15-8
+	lda #<$0800
+	sta SPIDATA	; bits 7-0
+
+	lda SPIDATA	; trigger shift in of first byte into SR (value read is still invalid)
+
+	ldx #0
+readloop
+	lda SPIDATA	; read byte
+	sta $9800,x
+	inx
+	cpx #$0800
+	bne readloop
+	
+	lda #0
+	sta SPICTRL	; deselect Flash
+
+	; -----------------------
+	; copy over this code to low RAM, so we can safely overwrite
+	; the actual ROM area
+	ldx #0
+cpboot	lda $ff00,x
+	sta RUNADDR,x
+	inx
+	cpx #$ff
+	bne cpboot
+
+	jmp jmpboot
+
+	; make the assembler use relocated addresses
+	*=*-ADRDIFF
+jmpboot
+
+	; -----------------------
+	; copy over charrom to RAM
+	; $0000-$1fff in bootimg
+
+	ldx #0
+copy
+	lda $0f0000,x	; location in test ROM bank
+	sta $070000,x	; location in RAM - uppermost RAM bank
+	inx
+	cpx #$2000
+	bne copy
+
+basic4	.(
+	; -----------------------
+	; copy over PET ROM for 40 columns into low RAM
+	; $7000-$bfff in bootimg
+	ldx #$4fff
+rloop	cpx #$4ff0	; skip 8296 config register (currently unprotected)
+	beq rlx
+	lda $0f7000,x
+	sta $00b000,x
+rlx	dex
+	bmi end40
+	cpx #$38ff	; I/O window
+	bne rloop
+	ldx #$37ff
+	bne rloop
+	.)
+
+end40	; 
+
+	; -----------------------
+	; switch back to emulation mode
+end
+	; set X/Y registers to 8 bit ...
+	sep #%00010000
+	; ... and tell the assembler about it
+	.xs
+
+	; switch to native mode
+	sec
+	xce
+
+	jmp ($fffc)	; RESET vector
+
+
+vcop
+vbrk	
+vabort
+vnmi
+virq
+	rti
+
+	*=*+ADRDIFF
+
+	.dsb $fff4-*,$ff
+	.word vcop
+	.word vbrk
+	.word vabort
+	.word vnmi
+	.word vreset
+	.word virq
+
+	.)
+
+	; here we have 256 byte
+	; fill up to 2k
+	.dsb 2048-256
+
+	; ------------------------
+	; this is the actual boot code, 
+	; loaded from Flash via SPI to $8800 by above ipl code
+
+	*=$8800
+	.(
+
+	; code runs in .xl
 	.xl
 
 	; -----------------------
@@ -239,17 +366,6 @@ text	.asc "                                        "
 
 	.)
 
-vcop
-vbrk	
-vabort
-vnmi
-virq
-	rti
+	.dsb $9000-*,$ff
+	.)
 
-	.dsb $fff4-*,$ff
-	.word vcop
-	.word vbrk
-	.word vabort
-	.word vnmi
-	.word vreset
-	.word virq
