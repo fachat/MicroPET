@@ -88,6 +88,16 @@ architecture Behavioral of Top is
 	-- system
 	signal init: std_logic;		-- if true, is running from top of ROM
 	
+	-- Initial program load
+	signal ipl: std_logic;		-- Initial program load from SPI flash
+--	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
+	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during boot)
+	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
+	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
+	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
+	signal ipl_out: std_logic;	-- SPI output from IPL to flash
+	signal ipl_next: std_logic;	-- start next phase
+	
 	-- clock
 	signal dotclk: std_logic;
 	signal dot2clk: std_logic;
@@ -151,7 +161,8 @@ architecture Behavioral of Top is
 	signal spi_dout : std_logic_vector(7 downto 0);
 	signal spi_cs : std_logic;
 	signal spi_sel : std_logic_vector(1 downto 0);
-	signal spi_in_d : std_logic;
+	signal spi_outx : std_logic;
+	signal spi_clkx : std_logic;
 	
 	-- bummer, not in schematic
 	constant vpb: std_logic:= '1';
@@ -261,6 +272,7 @@ architecture Behavioral of Top is
 	   sersel: out std_logic_vector(1 downto 0);	   
 	   spiclk : in std_logic;
 	   
+	   ipl: in std_logic;
 	   reset : in std_logic
 	 );
 	end component;
@@ -313,7 +325,12 @@ begin
 		end if;
 	end process;
 
-	reset <= not(nres);
+	reset_p: process(q50m)
+	begin
+		if (rising_edge(q50m)) then
+			reset <= not(nres);
+		end if;
+	end process;
 	
 	-- WAIT is used to slow 
 	-- 1) access to the slow ROM (which is independent from video bus) and
@@ -323,7 +340,7 @@ begin
 			'0';
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
-	wait_int <= wait_ram or wait_rom or not(is_cpu);
+	wait_int <= wait_ram or wait_rom or not(is_cpu) or ipl;
 	
 	wait_p: process(wait_int, release_int, memclk, reset)
 	begin
@@ -350,7 +367,7 @@ begin
 		if (reset = '1') then
 			release_int2 <= '0';
 		elsif (rising_edge(q50m)) then
-			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and wait_ram = '0') then
+			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and ipl='0' and wait_ram = '0') then
 				release_int2 <= '1';
 			else
 				release_int2 <= '0';
@@ -473,18 +490,27 @@ begin
 	   spi_cs,
 	   
 	   spi_in,
-	   boot(0),	--spi_out,
-	   boot(1),	--spi_clk,
+	   spi_outx,
+	   spi_clkx,
 	   spi_sel,
 	   memclk,
 	   
+	   ipl_state,
 	   reset
 	);
 	
 	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
+	--spi_out <= ipl_out	when ipl = '1' 	else
+	boot(0) <= ipl_out	when ipl = '1' 	else
+		spi_outx;
+	boot(1) <= ipl_cnt(0)	when ipl = '1' and ipl_state = '0' else
+		spi_clkx;
+		
 	-- select flash chip
-	nflash <= not(spi_sel(0));
+	nflash <= '1'		when reset = '1' else
+		'0' 		when ipl = '1'	else
+		not(spi_sel(0));
 	
 	------------------------------------------------------
 	-- control
@@ -538,11 +564,17 @@ begin
 	end process;
 
 	-- RAM address
-	VA(11 downto 0) <= 	ca_in(11 downto 0) 	when is_vid_out = '0' 	else 
-				va_out(11 downto 0);
-	VA(15 downto 12) <= 	ma_out(15 downto 12) 	when is_vid_out = '0' 	else 
-				va_out(15 downto 12);
-	VA(18 downto 16) <= 	ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
+	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
+				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
+				va_out(7 downto 0);
+	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
+				ca_in(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(11 downto 8);					-- Video
+	VA(15 downto 12) <= 	ipl_addr(15 downto 12)	when ipl = '1'		else	-- IPL
+				ma_out(15 downto 12) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(15 downto 12);					-- Video
+	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
+				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
 				"000"			when is_char_out = '1' and map_char='1' else	-- $x08000 for characters like in PET
 				"111";							-- hires and charrom pixel data in bank 7
 				
@@ -552,17 +584,18 @@ begin
 	
 	-- RAM R/W
 	ramrwb_int <= 
-		'1' 	when is_vid_out ='1' else 
-		'1'	when m_ramsel_out ='0' else
-		'1'	when memclk='0' else
+		'0'	when ipl = '1' else		-- IPL loads data into RAM
+		'1' 	when is_vid_out ='1' else 	-- Video reads
+		'1'	when m_ramsel_out ='0' else	-- not selected
+		'1'	when memclk='0' else		-- protect during memclk low
 		rwb;
 		
 	ramrwb <= ramrwb_int;
 	
 	-- data transfer between CPU data bus and video/memory data bus
-	VD <= 	D when ramrwb_int = '0'
-		else
-			(others => 'Z');
+	VD <= 	spi_dout	when ipl = '1' 		else	-- IPL
+		D 		when ramrwb_int = '0'	else	-- CPU write
+		(others => 'Z');
 		
 	D <= 	VD when is_vid_out='0' 
 			and rwb='1' 
@@ -581,6 +614,7 @@ begin
 		
 	-- select RAM
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
+			'0'	when ipl = '1' else	-- IPL loads data into RAM
 			'0' 	when is_vid_out='1' else
 			'0' 	when phi2_int ='1' and m_ramsel_out ='1' and is_cpu='1' else
 			'1';
@@ -594,6 +628,67 @@ begin
 			'1';
 
 	nromsel <= nromsel_int;
+	
+	------------------------------------------------------
+	-- IPL logic
+	ipl_p: process(memclk, reset)
+	begin
+		if (reset = '1') then 
+			ipl_state <= '0';
+			ipl_cnt <= (others => '0');
+			ipl_out <= '0';
+			ipl <= '1';
+		elsif (falling_edge(memclk) and ipl = '1') then
+		
+			--ipl <= '0';	-- block IPL to test
+			
+			if (ipl_state_d = '0') then
+				-- initial count and SPI Flash read command
+				if (ipl_cnt >= "000000001011"
+					and ipl_cnt <= "000000001110") then
+					ipl_out <= '1';
+				else
+					ipl_out <= '0';
+				end if;
+				
+				if (ipl_next = '1') then
+					ipl_state <= '1';
+					ipl_cnt <= (others => '0');
+				else
+					ipl_cnt <= ipl_cnt + 1;
+				end if;
+			else
+				-- read block
+				if (ipl_next = '1') then
+					ipl <= '0';
+					ipl_state <= '0';
+				else
+					ipl_cnt <= ipl_cnt + 1;
+				end if;
+				ipl_out <= '0';
+			end if;
+		end if;
+	end process;
+	
+	ipl_state_p: process(reset, memclk, ipl_state)
+	begin
+		if (reset = '1') then
+			ipl_state_d <= '0';
+		elsif (rising_edge(memclk)) then
+			ipl_state_d <= ipl_state;
+			
+			ipl_next <= '0';
+			if (ipl_state = '0') then
+				if (ipl_cnt = "000001000000") then
+					ipl_next <= '1';
+				end if;
+			else
+				if (ipl_cnt = "111111110000") then
+					ipl_next <= '1';
+				end if;
+			end if;
+		end if;
+	end process;
 	
 end Behavioral;
 

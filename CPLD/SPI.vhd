@@ -45,6 +45,7 @@ entity SPI is
 	   sersel: out std_logic_vector(1 downto 0);	   
 	   spiclk : in std_logic;
 	   
+	   ipl: in std_logic;
 	   reset : in std_logic
 	 );
 end SPI;
@@ -77,7 +78,7 @@ architecture Behavioral of SPI is
 begin
 
 	-- read registers
-	read_p: process (rs, rwb, cs, sr, sel, run_tx, run_txd, run_rx, ack_rxtx, reset)
+	read_p: process (rs, rwb, cs, sr, sel, run_tx, run_txd, run_rx, ack_rxtx, ipl, reset)
 	begin
 		if (reset = '1') then
 			run_rx <= '0';
@@ -87,7 +88,9 @@ begin
 			run_rx <= '1';
 		end if;
 
-		if (cs = '1' and rwb = '1') then
+		if (ipl = '1') then
+			DOUT <= sr;
+		elsif (cs = '1' and rwb = '1') then
 			case rs is
 			when "00" =>
 				DOUT(7) <= run_rx or run_tx;
@@ -155,7 +158,7 @@ begin
 				sr <= txd;
 				run_tx <= '1';
 
-			elsif (run_tx_d = '1' or run_rx_d = '1') then
+			elsif (ipl = '1' or run_tx_d = '1' or run_rx_d = '1') then
 
 				if (stat(0) = '0') then
 					-- sample at rising edge of spiclk
