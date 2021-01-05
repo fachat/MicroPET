@@ -532,12 +532,12 @@ begin
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
+				mode(1 downto 0) <= D(7 downto 6); -- speed bits
 			when x"1" =>
 				is8296 <= D(0);
-				wp_rom9 <= D(3);
-				wp_romA <= D(4);
-				wp_romPET <= D(5);
-				mode(1 downto 0) <= D(7 downto 6); -- speed bits
+				wp_rom9 <= D(5);
+				wp_romA <= D(6);
+				wp_romPET <= D(7);
 			when others =>
 				null;
 			end case;
