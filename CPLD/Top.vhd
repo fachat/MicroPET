@@ -88,7 +88,7 @@ architecture Behavioral of Top is
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
 	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
---	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during boot)
+--	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during PET boot)
 	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
@@ -129,6 +129,7 @@ architecture Behavioral of Top is
 	signal wp_rom9 : std_logic;
 	signal wp_romA : std_logic;
 	signal wp_romPET : std_logic;
+	signal is8296 : std_logic;
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
@@ -422,7 +423,7 @@ begin
 	);
 
 		
-	cfgld_in <= '1' when m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
+	cfgld_in <= '1' when is8296 = '1' and m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
 
 	-- internal selects
 	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
@@ -507,7 +508,7 @@ begin
 	------------------------------------------------------
 	-- control
 	
-	-- store video control register $fff1
+	-- store video control register $e800
 	--
 	-- D0 	: 1= hires
 	-- D1	: 1= 80 column
@@ -523,6 +524,7 @@ begin
 			wp_rom9 <= '0';
 			wp_romA <= '0';
 			wp_romPET <= '0';
+			is8296 <= '0';
 		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0') then
 			-- Write to $E80x
 			case (ca_in(3 downto 0)) is
@@ -530,6 +532,8 @@ begin
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
+			when x"1" =>
+				is8296 <= D(0);
 				wp_rom9 <= D(3);
 				wp_romA <= D(4);
 				wp_romPET <= D(5);

@@ -116,11 +116,18 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 
 ### Micro-PET
 
-There is a control port at $e800. It is currently only writable.
+There are two control ports at $e800 and $e801. They are currently only writable.
+
+#### $e800 (59392)
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
+
+#### $e801 (59393)
+
+- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
+- Bit 1/2: unused, must be 0
 - Bit 3: 0= $009xxx is writable, 1= write protected
 - Bit 4: 0= $00Axxx is writable, 1= write protected
 - Bit 5: 0= $00B000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
