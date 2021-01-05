@@ -85,13 +85,10 @@ end Top;
 
 architecture Behavioral of Top is
 
-	-- system
-	signal init: std_logic;		-- if true, is running from top of ROM
-	
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
---	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
-	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during boot)
+	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
+--	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during boot)
 	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
@@ -120,7 +117,6 @@ architecture Behavioral of Top is
 	signal ma_out: std_logic_vector(18 downto 12);
 	signal m_ramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
-	signal m_endinit_out: std_logic;
 	signal nramsel_int: std_logic;
 	signal nromsel_int: std_logic;
 	signal m_iosel: std_logic;
@@ -204,7 +200,6 @@ architecture Behavioral of Top is
 	   vda: in std_logic;
 	   vpb: in std_logic;
 	   rwb : in std_logic;
-	   init : in std_logic;
 	   
 	   qclk : in std_logic;
 	   
@@ -212,7 +207,6 @@ architecture Behavioral of Top is
 	   
            RA : out  STD_LOGIC_VECTOR (18 downto 12);
 	   ffsel: out std_logic;
-	   endinit: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
 	   romsel: out std_logic;
@@ -414,12 +408,10 @@ begin
 	   vda,
 	   vpb,
 	   rwb,
-	   init,
 	   q50m,
            cfgld_in,
 	   ma_out,
 	   m_ffsel_out,
-	   m_endinit_out,
 	   m_iosel,
 	   m_ramsel_out,
 	   m_romsel,
@@ -514,21 +506,6 @@ begin
 	
 	------------------------------------------------------
 	-- control
-
-	-- release initial mapping after first write to $ffxx
-	-- but only if write is coming from low memory
-	-- (otherwise init could not copy over OS ROM to its boot place)
-	--
-	Init_P: process(m_ffsel_out, phi2_int, rwb, reset)
-	begin
-		if (reset='1') then
-			init <= '1';
-		elsif (falling_edge(phi2_int)) then
-			if (m_endinit_out = '1') then
-				init <= '0';
-			end if;
-		end if;
-	end process;
 	
 	-- store video control register $fff1
 	--
