@@ -683,7 +683,7 @@ begin
 					ipl_next <= '1';
 				end if;
 			else
-				if (ipl_cnt = "111111110000") then
+				if (ipl_cnt = "111111111111") then
 					ipl_next <= '1';
 				end if;
 			end if;
