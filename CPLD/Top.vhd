@@ -73,9 +73,10 @@ entity Top is
 	-- SPI
 	   spi_out : out std_logic;
 	   spi_in  : in std_logic;
-	   spi_in2  : in std_logic;
+	   spi_in2  : in std_logic;	-- fat-soldered two pins together
 	   spi_clk : out std_logic;
 	   nflash : out std_logic;
+	   nflash2 : in std_logic;	-- fat-soldered two pins together
 	   
 	-- Debug
 	   dbg_out: out std_logic
@@ -483,7 +484,7 @@ begin
 	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
 	-- select flash chip
-	nflash <= spi_sel(0);
+	nflash <= not(spi_sel(0));
 	
 	------------------------------------------------------
 	-- control
