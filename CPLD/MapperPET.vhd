@@ -40,7 +40,6 @@ entity Mapper is
 	   vda: in std_logic;
 	   vpb: in std_logic;
 	   rwb : in std_logic;
-	   init: in std_logic;
 	   
 	   qclk: in std_logic;
 	   
@@ -48,7 +47,6 @@ entity Mapper is
 	   
            RA : out  STD_LOGIC_VECTOR (18 downto 12);
 	   ffsel: out std_logic;
-	   endinit: out std_logic;	-- when set, de-assert init
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
 	   romsel: out std_logic;
@@ -79,12 +77,9 @@ architecture Behavioral of Mapper is
 	signal scrpeek: std_logic;
 
 	signal avalid: std_logic;
-	signal is_init: std_logic;
 	
 	signal bank: std_logic_vector(7 downto 0);
 	
-	constant init_bank: std_logic_vector(7 downto 0) := "00000111"; -- top most bank - boot loader
-
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
 		if L then
@@ -99,16 +94,6 @@ begin
 	
 	avalid <= vda or vpa;
 	
-	-- bummer, vpb is not connected to the CPLD
-	-- and unfortunately vector pulls are vpa=0,vda=1,vpb=0
-	-- so checking for vpa only does not work
-	-- so let's at least do reads only ...
-	-- but only on the upper 32k of bank0, as we need
-	-- access to stack RAM to change data bank via stack ops(bummer!)
-	is_init <= init and rwb --and (vpa or not(vpb)) -- read program or vectors
-		and A(15) and A(14) 		-- in upper 16k (in all banks!)
-		and To_Std_Logic(bankl = "00000000")
-		and To_Std_Logic(A(15 downto 8) /= x"E8");
 	
 	-----------------------------------
 
@@ -126,12 +111,10 @@ begin
 		end if;
 	end process;
 	
-	bank <= init_bank when is_init = '1' else bankl;
+	bank <= bankl;
 	
 	low64k <= '1' when bank = "00000000" else '0';
 	
-	-- we may disable petio completely during init, our crude first boot loader just copies ROM over the
-	-- the I/O area and triggers writes to I/O space
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
 		else '0';
@@ -210,7 +193,6 @@ begin
 	RA(14 downto 12) <= A(14 downto 12);
 
 	ramsel <= '0' when avalid='0' else
-			'0' when is_init = '1' else	-- not in init (reads)
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
@@ -224,7 +206,6 @@ begin
 	romsel <= '0' when avalid='0' else
 			'0' when rwb = '0' else		-- ignore writes
 			'0' when petio = '1' else	-- ignore in PET I/O window
-			'1' when is_init = '1' else	-- all reads during init (only upper 16k in each bank)
 			'1' when bank(3) = '1' else	-- upper half of 1M address space is ROM (ignoring bits 4-7)
 			'0';
 	
@@ -237,12 +218,7 @@ begin
 			'1' when low64k ='1' 
 				and A(15 downto 8) = x"FF" else 
 			'0';
-	
-	endinit <= '0' when avalid='0' else
-			'0' when rwb = '1' else		-- ignore reads
-			'1' when bank(3)='1' else	-- writes to upper memory (ROM)
-			'0';
-			
+				
 	-----------------------------------
 	-- cfg
 	
@@ -251,7 +227,7 @@ begin
 		if (reset ='1') then
 			cfg_mp <= (others => '0');
 		elsif (falling_edge(phi2)) then
-			if (init = '0' and cfgld = '1' and rwb = '0') then
+			if (cfgld = '1' and rwb = '0') then
 				cfg_mp <= D;
 			end if;
 		end if;
