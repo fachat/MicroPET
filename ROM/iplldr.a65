@@ -55,7 +55,7 @@ vreset	.(
 	ldx #0
 readloop
 	lda SPIDATA	; read byte
-	sta $9800,x
+	sta RUNADDR,x
 	inx
 	cpx #$0800
 	bne readloop
@@ -63,84 +63,23 @@ readloop
 	lda #0
 	sta SPICTRL	; deselect Flash
 
-	; -----------------------
-	; copy over this code to low RAM, so we can safely overwrite
-	; the actual ROM area
-	ldx #0
-cpboot	lda $ff00,x
-	sta RUNADDR,x
-	inx
-	cpx #$ff
-	bne cpboot
-
-	jmp jmpboot
-
-	; make the assembler use relocated addresses
-	*=*-ADRDIFF
-jmpboot
-
-	; -----------------------
-	; copy over charrom to RAM
-	; $0000-$1fff in bootimg
-
-	ldx #0
-copy
-	lda $0f0000,x	; location in test ROM bank
-	sta $070000,x	; location in RAM - uppermost RAM bank
-	inx
-	cpx #$2000
-	bne copy
-
-basic4	.(
-	; -----------------------
-	; copy over PET ROM for 40 columns into low RAM
-	; $7000-$bfff in bootimg
-	ldx #$4fff
-rloop	cpx #$4ff0	; skip 8296 config register (currently unprotected)
-	beq rlx
-	lda $0f7000,x
-	sta $00b000,x
-rlx	dex
-	bmi end40
-	cpx #$38ff	; I/O window
-	bne rloop
-	ldx #$37ff
-	bne rloop
-	.)
-
-end40	; 
-
-	; -----------------------
-	; switch back to emulation mode
-end
-	; set X/Y registers to 8 bit ...
-	sep #%00010000
-	; ... and tell the assembler about it
-	.xs
-
-	; switch to native mode
-	sec
-	xce
-
-	jmp ($fffc)	; RESET vector
-
+	jmp RUNADDR
 
 vcop
-vbrk	
+vbrk
 vabort
 vnmi
 virq
 	rti
 
-	*=*+ADRDIFF
+        .dsb $fff4-*,$ff
 
-	.dsb $fff4-*,$ff
-	.word vcop
-	.word vbrk
-	.word vabort
-	.word vnmi
-	.word vreset
-	.word virq
+        .word vcop
+        .word vbrk
+        .word vabort
+        .word vnmi
+        .word vreset
+        .word virq
 
 	.)
 
@@ -152,7 +91,8 @@ virq
 	; this is the actual boot code, 
 	; loaded from Flash via SPI to $8800 by above ipl code
 
-	*=$8800
+	*=RUNADDR
+jmpboot
 	.(
 
 	; code runs in .xl
@@ -160,100 +100,113 @@ virq
 
 	; -----------------------
 	; copy over charrom to RAM
-	; $0000-$1fff in bootimg
+	; $2000-$3fff in flash img
 
+	lda #$20
+	ldx #$a000
+	ldy #$2000
+	jsr flash2direct_xl
+	; now copy from bank 0 to target location
 	ldx #0
 copy
-	lda $0f0000,x	; location in test ROM bank
+	lda $a000,x	; location in test ROM bank
 	sta $070000,x	; location in RAM - uppermost RAM bank
 	inx
 	cpx #$2000
 	bne copy
 
-	jsr clrscreen
-	jsr selecttext
+	jsr clrscreen_xl
+	jsr selecttext_xl
 
 	; switches to .xs
 	sep #%00010000
 	.xs
 
-cloop	jsr checkkbd
+cloop	jsr checkkbd_xs
 	bcs cloop
-	
+
 	rep #%00010000
 	.xl
 
+	pha
+	jsr clrscreen_xl
+
+	lda #0		
+	xba		; prima high byte of AC with 0
+	pla
+	tay		; this is a wide operation, so AC high byte must be clear
+
+	lda #0
+	sta $e800	; default to 40 columns
+
+	; 1= Basic2, 2=Basic4, 3=Basic4/80, 4=Basic4/8296
 	dey
-	beq basic2
-	dey
-	beq basic40
-	bne basic80
+	bne basic4
 
 	; upgrade ROMs with BASIC2
 basic2	.(
 	; -----------------------
 	; copy over PET ROM into low RAM
-	; $2000-$5fff in bootimg
+	; $4000-$7fff in bootimg
 
-	ldx #$3fff
-rloop	lda $0f2000,x
-	sta $00c000,x
-	dex
-	bmi end
-	cpx #$28ff	; I/O window
-	bne rloop
-	ldx #$27ff
-	bne rloop
+	lda #$40
+	ldx #$c000
+	ldy #$4000
+	jsr flash2direct_xl
+	lda #%1000000
+	jmp end
 	.)
 
-basic80
-	ldy #1
-	bne basic4
-	; BASIC4 for 40/80 column machines (with CRTC)
-basic40	
-	ldy #0
+	; 1=Basic4, 2=Basic4/80, 3=Basic4/8296
 basic4	.(
+	phy
 	; -----------------------
 	; copy over PET ROM for 40 columns into low RAM
-	; $7000-$bfff in bootimg
-	ldx #$4fff
-rloop	lda $0f7000,x
-	sta $00b000,x
-	dex
-	bmi end40
-	cpx #$38ff	; I/O window
-	bne rloop
-	ldx #$37ff
-	bne rloop
+	; $9000-$dfff in bootimg
+	lda #$90
+	ldx #$b000
+	ldy #$5000
+	jsr flash2direct_xl
+	ply
+	dey
+	bne not4
+	lda #%10000000
+	jmp end
 	.)
 
-end40	; check copying 80 col editor?
-	tya
-	beq end
+	; 1=Basic4/80, 2=Basic4/8296
+not4	.(
+	; copying 80 col editor?
+	phy
+
+	lda #%00000010
+	sta $e800	; 80 column
 
 	; BASIC4 with 80 column machines (with CRTC)
 	; as option for BASIC4 with 40 cols
-	.(
 	; -----------------------
 	; copy over PET 80 column editor ROM into low RAM
-	; $6000-$6fff in bootimg
-	ldx #$0fff
-rloop	lda $0f6000,x
-	sta $00E000,x
-	dex
-	bmi end80
-	cpx #$08ff	; I/O window
-	bne rloop
-	ldx #$07ff
-	bne rloop
+	; $8000-$8fff in bootimg
+	lda #$80
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct_xl
 
-end80	lda #%00000010
-	sta $e800	; control port to 80 column
+	ply
+	dey
+	bne not8032
+
+	lda #%10000000
+	.byt $2c
+not8032	lda #%10000001	; 8296
+	; fallthrough
 	.)
 
 	; -----------------------
 	; switch back to emulation mode
 end
+	sta $e801
+
 	; set X/Y registers to 8 bit ...
 	sep #%00010000
 	; ... and tell the assembler about it
@@ -263,24 +216,52 @@ end
 	sec
 	xce
 
-
-	; -----------------------
-	; copy over trampolin to low RAM
-	ldx #endtramp-tramp-1
-tloop	lda tramp,x
-	sta 0,x
-	dex
-	bpl tloop
-	jmp 0
-
-tramp	sta $ffffff	; unlock init mode
 	jmp ($fffc)	; RESET vector
-endtramp
 
+	; ----------------------------
+	; copy an area from flash to bank 0 RAM
+
+	.xl
+	; AC = page in Flash (8bit)
+	; XR = start in bank 0 (16bit)
+	; YR = number of bytes (16 bit)
+flash2direct_xl .(
+	pha
+	lda #1
+	sta SPICTRL	; enable Flash
+	lda #3
+	sta SPIDATA	; READ command
+	lda #0
+	sta SPIDATA	; bits 23-16
+	pla
+	sta SPIDATA	; bits 15-8
+	lda #0
+	sta SPIDATA	; bits 7-0
+
+	lda SPIDATA	; trigger shift in of first byte into SR (value read is still invalid)
+
+readloop
+	lda SPIDATA	; read byte, trigger shift in of next byte
+	cpx #$e800	; skip I/O window
+	bcc ok
+	cpx #$e900
+	bcc nok
+ok	sta 0,x
+nok	inx
+	dey
+	bne readloop
+	
+	lda #0
+	sta SPICTRL	; deselect Flash
+	rts
+	.)
+
+	; ----------------------------
+	; check keyboard for input
 
 	.xs
 
-checkkbd .(
+checkkbd_xs .(
 	; init
 	lda #$38	; DDR, CA2 output hi
 	sta $e811
@@ -316,7 +297,9 @@ done	sec
 	rts
 
 gotone	; x has number of key
-	; key number is (9-row)+(7-col)+1 where row/col are from www.6502.org/users/andre/petindex/keymap/petgraph.png
+	; key number is (9-row)*8+(7-col)+1 where row/col are from www.6502.org/users/andre/petindex/keymap/petgraph.png
+	cpx #41		; 4/7 = "6"
+	beq is8296
 	cpx #18		; 7/6 = "2"
 	beq is2
 	cpx #42		; 4/6 = "4"
@@ -325,19 +308,24 @@ gotone	; x has number of key
 	beq is8
 	sec
 	rts
-is8	ldy #3
+is8296	lda #4
 	.byt $2c
-is4	ldy #2
+is8	lda #3
 	.byt $2c
-is2	ldy #1
+is4	lda #2
+	.byt $2c
+is2	lda #1
 	clc
 	rts
 	.)
 
+	; ----------------------------
+	; screen routines
+
 	; back in 16bit land
 	.xl
 
-clrscreen .(
+clrscreen_xl .(
 	ldx #999
 	lda #$20
 loop	sta $8000,x
@@ -346,7 +334,7 @@ loop	sta $8000,x
 	rts
 	.)
 
-selecttext .(
+selecttext_xl .(
 	ldx #0
 outl	lda text,x
 	beq endt
@@ -354,18 +342,20 @@ outl	lda text,x
 	sta $8000,x
 	inx
 	bne outl
-endt	rts
+endt	
+	rts
 	
 text	.asc "                                        "
-	.asc "PRESS KEYS FOR BOOT OPTION              "
+	.asc "PRESS KEY FOR BOOT OPTION:              "
 	.asc "                                        "
 	.asc "* BASIC ", "2"+$80, " (40 COLUMNS)                  "
 	.asc "* BASIC 4, ", "4"+$80, "0 COLUMNS                   "
 	.asc "* BASIC 4, ", "8"+$80, "0 COLUMNS                   "
+	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)"
 	.asc 0
 
 	.)
 
-	.dsb $9000-*,$ff
+	.dsb RUNADDR+2048-*,$ff
 	.)
 

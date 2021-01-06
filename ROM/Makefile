@@ -12,16 +12,17 @@ bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g
 	cat zero zero zero zero zero zero		>> bootimg	# 48-60k
 	cat bootldr					>> bootimg	# 60-64k
 
-spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g bootldr
+spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr
 	# Note: need to stay below upper 16k, as this is mapped to bank 15 on init
 	# 8k charrom, 8k basic2, 4k editor2 (2k reserve), 4k kernal2
 	# 4k edit80g (2k reserve), 12k basic4, 2k edit40g, 2k empty, 4k kernel4
-	cat chargen_pet16 				> spiimg	# 0-8k
-	cat basic2 edit2g zero kernal2 			>> spiimg	# 8-24k
-	cat edit80g zero				>> spiimg	# 24-28k
-	cat basic4 edit40g zero kernal4			>> spiimg	# 28-48k
-	cat zero zero zero zero zero zero		>> spiimg	# 48-60k
-	cat bootldr					>> spiimg	# 60-64k
+	cat iplldr					> spiimg	# 0-4k
+	cat zero zero					>> spiimg	# 4-8k
+	cat chargen_pet16 				>> spiimg	# 8-16k
+	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k
+	cat edit80g zero				>> spiimg	# 32-36k
+	cat basic4 edit40g zero kernal4			>> spiimg	# 36-56k
+	cat zero zero zero zero 			>> spiimg	# 56-64k
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1
@@ -99,6 +100,6 @@ readflash: readflash.lst
 clean:
 	rm -f romtest01 romtest01a romtest02 romtest02a zero bootldr chargen_pet16 char8to16 charPet2Invers
 	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g bootimg spiimg
-	rm -f readflash
+	rm -f readflash iplldr
 
 	
