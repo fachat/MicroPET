@@ -58,25 +58,29 @@ entity Top is
 	   ramrwb : out std_logic;
 
 	-- ROM, I/O (on CPU bus)
-	   RA: out std_logic_vector (18 downto 12);
 	   nsel1 : out STD_LOGIC;
 	   nsel2 : out STD_LOGIC;
 	   nsel4 : out STD_LOGIC;
-	   nromsel : out STD_LOGIC;
-	   npgm: out std_logic;
 	   
 	-- video out
            pxl : out  STD_LOGIC;
            vsync : out  STD_LOGIC;
            hsync : out  STD_LOGIC;
-	 
+	   dclk : out std_logic;
+	   dena : out std_logic;
+	   pet_vsync: out std_logic;
+	   
 	-- SPI
 	   spi_out : out std_logic;
-	   spi_in  : in std_logic;
-	   spi_in2  : in std_logic;	-- fat-soldered two pins together
 	   spi_clk : out std_logic;
+	   -- MISO
+	   spi_in1  : in std_logic;
+	   spi_in2  : in std_logic;
+	   spi_in3  : in std_logic;
+	   -- selects
 	   nflash : out std_logic;
-	   nflash2 : in std_logic;	-- fat-soldered two pins together
+	   spi_nsel2 : out std_logic;	
+	   spi_nsel3 : out std_logic;	
 	   
 	-- Debug
 	   dbg_out: out std_logic
@@ -118,9 +122,7 @@ architecture Behavioral of Top is
 	signal m_ramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
 	signal nramsel_int: std_logic;
-	signal nromsel_int: std_logic;
 	signal m_iosel: std_logic;
-	signal m_romsel: std_logic;
 
 	signal sel0 : std_logic;
 	signal sel8 : std_logic;
@@ -145,7 +147,6 @@ architecture Behavioral of Top is
 	signal ca_in: std_logic_vector(15 downto 0);
 	signal cd_in: std_logic_vector(7 downto 0);
 	signal reset: std_logic;
-	signal wait_rom: std_logic;
 	signal wait_ram: std_logic;
 	signal wait_int: std_logic;
 	signal wait_int_d: std_logic;
@@ -157,7 +158,8 @@ architecture Behavioral of Top is
 	-- SPI
 	signal spi_dout : std_logic_vector(7 downto 0);
 	signal spi_cs : std_logic;
-	signal spi_sel : std_logic_vector(1 downto 0);
+	signal spi_in : std_logic;
+	signal spi_sel : std_logic_vector(2 downto 0);
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
 	
@@ -210,7 +212,6 @@ architecture Behavioral of Top is
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
-	   romsel: out std_logic;
 	   
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
@@ -227,8 +228,10 @@ architecture Behavioral of Top is
 	   CPU_D : in std_logic_vector (7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
+	   dena   : out std_logic;	-- display enable
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
+	   pet_vsync: out std_logic;	-- for the PET screen interrupt
 
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
@@ -264,7 +267,7 @@ architecture Behavioral of Top is
 	   serin: in std_logic;
 	   serout: out std_logic;
 	   serclk: out std_logic;
-	   sersel: out std_logic_vector(1 downto 0);	   
+	   sersel: out std_logic_vector(2 downto 0);	   
 	   spiclk : in std_logic;
 	   
 	   ipl: in std_logic;
@@ -331,11 +334,11 @@ begin
 	-- 1) access to the slow ROM (which is independent from video bus) and
 	-- 2) access to the RAM when video access is needed
 	--
-	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
-			'0';
+--	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
+--			'0';
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
-	wait_int <= wait_ram or wait_rom or not(is_cpu) or ipl;
+	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
 	
 	wait_p: process(wait_int, release_int, memclk, reset)
 	begin
@@ -415,7 +418,6 @@ begin
 	   m_ffsel_out,
 	   m_iosel,
 	   m_ramsel_out,
-	   m_romsel,
 	   wp_rom9,
 	   wp_romA,
 	   wp_romPET,
@@ -428,15 +430,11 @@ begin
 	-- internal selects
 	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
-
-	dbg_out <= spi_in or spi_in2;
 	
 	-- external selects are inverted
 	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
 	nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
 	nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
-	
-	npgm <= '1';
 	
 	------------------------------------------------------
 	-- video
@@ -447,8 +445,10 @@ begin
 		vd_in,
 		cd_in, 
 		pxl,
+		dena,
 		vsync,
 		hsync,
+		pet_vsync,
 		vis_80_in,
 		vis_hires_in,
 		vgraphic,
@@ -471,6 +471,8 @@ begin
 
 	vgraphic <= graphic;
 	
+	dclk <= dotclk;
+	
 	------------------------------------------------------
 	-- SPI interface
 	
@@ -481,7 +483,6 @@ begin
 	   ca_in(1 downto 0),
 	   rwb,
 	   spi_cs,
-	   
 	   spi_in,
 	   spi_outx,
 	   spi_clkx,
@@ -492,6 +493,11 @@ begin
 	   reset
 	);
 	
+	spi_in <= spi_in1 when ipl = '1' or spi_sel(0) = '1' else
+		spi_in2 when spi_sel(1) = '1' else
+		spi_in3 when spi_sel(2) = '1' else
+		'0';
+		
 	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
 	--spi_out <= ipl_out	when ipl = '1' 	else
@@ -504,7 +510,12 @@ begin
 	nflash <= '1'		when reset = '1' else
 		'0' 		when ipl = '1'	else
 		not(spi_sel(0));
-	
+		
+	spi_nsel2 <= '1'	when reset = '1' else
+		not(spi_sel(1));
+	spi_nsel3 <= '1'	when reset = '1' else
+		not(spi_sel(2));
+		
 	------------------------------------------------------
 	-- control
 	
@@ -588,10 +599,6 @@ begin
 		else
 			(others => 'Z');
 	
-	-- ROM (4k) page address
-	RA(18 downto 12) <= ma_out(18 downto 12);
-
-	-- RA(18 downto 12) <= (others => '1');
 		
 	-- select RAM
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
@@ -603,12 +610,6 @@ begin
 	
 	nramsel <= nramsel_int;
 
-	-- select ROM
-	nromsel_int <= 	'1'	when phi2_int = '0' else
-			'0'	when m_romsel = '1' else
-			'1';
-
-	nromsel <= nromsel_int;
 	
 	------------------------------------------------------
 	-- IPL logic

@@ -38,8 +38,10 @@ entity Video is
 	   CPU_D : in std_logic_vector (7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
+	   dena   : out std_logic;	-- display enable
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
+	   pet_vsync : out std_logic;
 
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
@@ -344,6 +346,7 @@ begin
 	end process;
 
 	v_sync <= v_sync_int;
+	pet_vsync <= v_sync_int;
 	
 	-----------------------------------------------------------------------------
 	-- address calculations
@@ -461,6 +464,8 @@ begin
 	
 	pxl_out <= (pxlhold(7)) and enable;
 
+	dena <= enable;
+	
 	--------------------------------------------
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now

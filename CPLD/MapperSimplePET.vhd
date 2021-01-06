@@ -49,7 +49,6 @@ entity Mapper is
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
-	   romsel: out std_logic;
 	   
    	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
@@ -165,13 +164,7 @@ begin
 			'1';
 	
 	dbgout <= low64k; -- bank(3);
-	
-	romsel <= '0' when avalid='0' else
-			'0' when rwb = '0' else		-- ignore writes
-			'0' when petio = '1' else	-- ignore in PET I/O window
-			'1' when bank(3) = '1' else	-- upper half of 1M address space is ROM (ignoring bits 4-7)
-			'0';
-	
+		
 	iosel <= '0' when avalid='0' else 
 			'1' when petio ='1' else 
 			'0';

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: n/a
+-- Engineer: Andre Fachat
 -- 
 -- Create Date:    21:29:52 06/19/2020 
 -- Design Name: 
@@ -37,8 +37,10 @@ entity Video is
 	   CPU_D: in std_logic_vector(7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
+	   dena   : out std_logic;	-- display enable
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
+	   pet_vsync: out std_logic;	-- for the PET screen interrupt
 
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
@@ -82,7 +84,7 @@ architecture Behavioral of Video is
 	signal interlace : std_logic;
 	
 	-- hold and shift the pixel
-	signal pxlhold : std_logic_vector (11 downto 0) := (others => '0');
+	signal pxlhold : std_logic_vector (8 downto 0) := (others => '0');
 	-- hold the character information
 	signal charhold : std_logic_vector (7 downto 0) := (others => '0');
 
@@ -105,7 +107,6 @@ architecture Behavioral of Video is
 	--
 	-- pulse at end of raster line; falling slotclk
 	signal last_slot_of_line : std_logic := '0'; 
-	signal last_slot_of_line_d : std_logic := '0';
 	-- pulse for last visible character/slot; falling slotclk
 	signal last_vis_slot_of_line : std_logic := '0';
 	-- pulse at end of character line; falling slotclk
@@ -241,13 +242,6 @@ begin
 		end if;
 	end process;
 
-	last_slot_p: process(qclk, last_slot_of_line)
-	begin
-		if (rising_edge(qclk)) then
-			last_slot_of_line_d <= last_slot_of_line;
-		end if;
-	end process;
-	
 	h_sync <= not(h_sync_int); -- and not(v_sync_int));
 	
 	-----------------------------------------------------------------------------
@@ -341,6 +335,7 @@ begin
 	end process;
 
 	v_sync <= not(v_sync_int);
+	pet_vsync <= v_sync_int;
 	
 	-----------------------------------------------------------------------------
 	-- address calculations
@@ -440,9 +435,6 @@ begin
 		elsif (falling_edge(dotclk)) then
 			-- dotclk falls at same edge as memclk (falling qclk)
 			-- note: pxl_fetch is registered with qclk above, as is memclk_d (rising qclk)
-			pxlhold(11) <= pxlhold(10);
-			pxlhold(10) <= pxlhold(9);
-			pxlhold(9) <= pxlhold(8);
 			pxlhold(8) <= pxlhold(7) and enable;
 			if (pxl_fetch = '1' and sr_load_d ='1') then
 				enable <= h_enable and v_enable;
@@ -460,6 +452,7 @@ begin
 		end if;
 	end process;
 
+	dena <= enable;
 	pxl_out <= (pxlhold(8));-- and enable;
 
 	--------------------------------------------

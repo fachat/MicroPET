@@ -42,7 +42,7 @@ entity SPI is
 	   serin: in std_logic;
 	   serout: out std_logic;
 	   serclk: out std_logic;
-	   sersel: out std_logic_vector(1 downto 0);	   
+	   sersel: out std_logic_vector(2 downto 0);	   
 	   spiclk : in std_logic;
 	   
 	   ipl: in std_logic;
@@ -54,7 +54,7 @@ architecture Behavioral of SPI is
 
 	signal sr: std_logic_vector(7 downto 0);	-- rx/tx shift register
 	signal txd: std_logic_vector(7 downto 0);	-- tx data register
-	signal sel: std_logic_vector(1 downto 0);	
+	signal sel: std_logic_vector(2 downto 0);	
 	signal stat: std_logic_vector(3 downto 0);
 	
 	signal run_rx: std_logic;
@@ -95,8 +95,8 @@ begin
 			when "00" =>
 				DOUT(7) <= run_rx or run_tx;
 				DOUT(6) <= run_txd;
-				DOUT(5 downto 2) <= (others => '0');
-				DOUT(1 downto 0) <= sel(1 downto 0);
+				DOUT(5 downto 3) <= (others => '0');
+				DOUT(2 downto 0) <= sel(2 downto 0);
 			when "01" =>
 				DOUT <= sr;
 			when "10" =>
@@ -130,7 +130,7 @@ begin
 			
 			case rs is
 			when "00" =>
-				sel <= DIN(1 downto 0);
+				sel <= DIN(2 downto 0);
 			when "01" =>
 				txd <= DIN;
 			when others => 
