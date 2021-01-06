@@ -1,0 +1,56 @@
+
+// execute a loop in slow memory 
+// time loop executions and store the result in $2000-$2003
+
+VIA	=$e840
+T2L	=VIA + 8
+T2H	=VIA + 9
+ACR	=VIA + 11
+
+	*=$0292
+
+	php
+	sei
+
+	lda ACR
+	and #%11011111
+	sta ACR
+	
+	lda #0
+	sta T2L
+	sta T2H
+
+	; delay loop to check
+	ldx #0
+l1 	dex
+	bne l1
+	lda T2L
+	ldx T2H
+	sta loop
+	stx loop+1
+
+	ldy #0
+	lda #$20
+l0	bit $e840	; wait retrace end
+	bne l0
+l2	bit $e840	; wait for start of vertical retrace
+	beq l2
+	sty T2L
+	sty T2H		; start timer
+l3	bit $e840
+	bne l3		; wait end vertical retrace
+l4	bit $e840
+	beq l4		; wait for start of 2nd vertical retrace
+	lda T2L
+	ldx T2H		; read timer
+	sta crtc
+	stx crtc+1
+
+	plp
+	rts
+
+loop	=*	; word data
+crtc	=*+2	; word data
+
+
+

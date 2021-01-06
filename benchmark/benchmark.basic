@@ -1,0 +1,133 @@
+
+
+   18 gosub 13000
+   30 if v=80 then goto 200:rem 80 cols
+  100 rem 40 cols ####################
+  110 co=20: rem base cols
+  120 cm=35: rem max cols
+  130 sc$=chr$(13): rem separator
+  140 v=40
+  190 goto 1000
+  200 rem 80 cols ####################
+  210 co=20: rem base cols
+  220 cm=35: rem max cols
+  230 sc$=", ": rem separator
+  240 v=80
+ 1000 rem run tests #################
+ 1001 rem install benchmark
+ 1003 rem gosub 14000: rem read next routine from data
+ 1005 ba=20550: rem base 100% 6502 cycles per screen
+ 1006 rem
+ 1400 gosub 13900: rem print header
+ 1420 gosub 8000
+ 1440 gosub 9900:rem wait for key
+ 1490 rem
+ 1999 end
+ 8000 rem ###########################
+ 8005 print"cpu speed test:":print
+ 8100 cf=2:rem 1mhz
+ 8120 gosub 9000
+ 8200 cf=66:rem 2mhz
+ 8220 gosub 9000
+ 8300 cf=130:rem 4mhz
+ 8320 gosub 9000
+ 8400 cf=194:rem full speed
+ 8420 gosub 9000
+ 8910 return
+ 9000 rem ############################
+ 9010 rem common test sequence
+ 9100 gosub 11000
+ 9110 gosub 10000
+ 9120 gosub 12000
+ 9200 return
+ 9900 rem ############################
+ 9910 print:print"press key to continue";
+ 9920 geta$:iflen(a$)=0then9920
+ 9925 print:print
+ 9930 return
+ 10000 rem ###########################
+ 10005 rem run a benchmark with the given parameters and return the value
+ 10020 rem input: cf=config register val ($e800)
+ 10030 rem output: cy=number of cycles
+ 10120 poke 59392, cf:rem config
+ 10140 sys a
+ 10150 cy=peek(e+3) + 256*peek(e+4)
+ 10200 rem offset it
+ 10210 cy = 65536 - cy
+ 10215 if cf=194 then cy=cy+65536
+ 10220 rem done
+ 10230 return
+ 11000 rem ###########################
+ 11010 rem print config line output
+ 11020 rem input: cf
+ 11100 print "cf=";cf
+ 11200 return
+ 12000 rem ###########################
+ 12010 rem print a reverse line relative to speed value (cycles)
+ 12020 rem input: ba=benchmark base
+ 12025 rem input: bc=base timer clock speed
+ 12030 rem input: cy=current cycles
+ 12040 rem input: co=base columns
+ 12050 rem input: cm=max columns
+ 12100 rt=ba/cy:rem current cycle ratio compared to base system
+ 12110 cl=co*rt:rem cols to fill
+ 12200 if cl > cm then 12300
+ 12210 print"{rvon}";left$(s$,cl);"{rvof}";spc(cm-cl);
+ 12220 goto 12600
+ 12300 print"{rvon}";left$(s$,cm-1);">{rvof}";
+ 12600 s=bc / rt:rem speed in absolute mhz
+ 12605 print" ";sc$;cy;" cycles, effect. speed ";int(s*10+.5)/10;" mhz"
+ 12610 return
+ 13000 rem ###########################
+ 13100 ba=19266: rem base 100% pet cycles
+ 13101 rem determine system speed, output is bc (system clk), cc (cpu clk)
+ 13105 gosub 13110:gosub 13900: gosub 14000: gosub 15000: gosub 9900
+ 13106 return
+ 13110 s$="                                                                   "
+ 13120 ct=60336
+ 13200 rem check 40/80 cols
+ 13210 poke32768+40*25,21:rem one byte behind 40 cols
+ 13220 print"{clr}"
+ 13230 v=40
+ 13240 if peek(32768+40*25)=32 then v=80
+ 13400 if v=80 then goto 13600:rem 80 cols
+ 13500 rem 40 cols ####################
+ 13510 co=20: rem base cols
+ 13520 cm=35: rem max cols
+ 13525 poke 59392,0
+ 13530 sc$=chr$(13): rem separator
+ 13550 goto13700
+ 13600 rem 80 cols ####################
+ 13610 co=20: rem base cols
+ 13620 cm=35: rem max cols
+ 13625 poke 59392,2
+ 13630 sc$=", ": rem separator
+ 13700 return
+ 13900 rem #########################
+ 13901 rem print page header
+ 13905 print"{clr}pet 65816 cpu board benchmark";sc$;
+ 13910 print"(c) 2010 a. fachat":print
+ 13990 return
+ 14000 rem #########################
+ 14010 rem read the next code from the data sections
+ 14100 read a, l
+ 14110 e=a+l-1
+ 14120 for i=a to e: read d: poke i,d: next
+ 14130 return
+ 15000 rem #########################
+ 15010 rem calibrate the system
+ 15020 rem a,e are start/end address as given by read routine
+ 15030 sys a
+ 15040 tl=peek(e+1) + 256*peek(e+2)
+ 15050 tc=peek(e+3) + 256*peek(e+4)
+ 15060 cl = 65536 - tl: ml = int(1284 / cl * 100 + 0.5) / 100
+ 15065 cc = 65536 - tc: mc = int(cc / 20000 * 10 + 0.5) / 10
+ 15067 bc = mc: rem base clock (output from routine)
+ 15070 print"System running at " mc " MHz (" cc " screen cycles)"
+ 15075 print"CPU running at " ml " times system speed"
+ 15077 cx = int(ml * mc * 100 + 0.5)/100: rem CPU clock
+ 15080 print"CPU running at " cx " MHz"
+ 15085 fm=0: if bc>1.1 then fm=128
+ 15090 return
+ 60000 rem #########################
+ 60010 rem data section with benchmark code
