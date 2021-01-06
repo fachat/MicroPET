@@ -19864,7 +19864,6 @@ Distributor: Bürklin 71F972&lt;br&gt;</description>
 <part name="U$2" library="csa" deviceset="XC95288XL" device="TQ144"/>
 <part name="QG1" library="crystal" deviceset="CRYSTAL_RES-" device="SG51"/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
-<part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="VCC" device=""/>
 <part name="IC1" library="v-reg" deviceset="LM317TL" device="" value="LM317"/>
 <part name="V2" library="supply2" deviceset="VCC" device=""/>
@@ -22008,14 +22007,17 @@ with C64 keyboard</text>
 <sheet>
 <description>RAM,ROM,CPU</description>
 <plain>
-<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V1.0E-20201224</text>
-<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V1.0E</text>
+<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V1.0F-20201228</text>
+<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V1.0F</text>
 <text x="271.78" y="17.78" size="2.54" layer="92">(C) A. Fachat</text>
 <text x="337.82" y="20.32" size="2.54" layer="92">SHEET 2/3</text>
 <text x="279.4" y="33.02" size="2.54" layer="94">1.0B: replace VCC with V33 as ref voltage on jtag con.</text>
 <text x="279.4" y="38.1" size="2.54" layer="94">1.0C: pull up resistor on /IRQ</text>
 <text x="279.4" y="43.18" size="2.54" layer="94">1.0D: pull up resistor on Phi2 to improve phi2 signal quality</text>
 <text x="279.4" y="48.26" size="2.54" layer="94">1.0E: Add bypass caps to V33 (3.3V CPLD power supply)</text>
+<text x="279.4" y="73.66" size="2.54" layer="94">TODO: Connect CPU E and VPB to CPLD</text>
+<text x="279.4" y="53.34" size="2.54" layer="94">1.0F: don't pull CON pin of the clock oscillator to gnd
+         (disables oscillators with Tri-state input)</text>
 </plain>
 <instances>
 <instance part="FRAME2" gate="G$1" x="-58.42" y="-7.62"/>
@@ -22031,7 +22033,6 @@ with C64 keyboard</text>
 <instance part="U$2" gate="G$3" x="213.36" y="190.5" rot="R90"/>
 <instance part="QG1" gate="A" x="81.28" y="190.5"/>
 <instance part="GND10" gate="1" x="66.04" y="177.8"/>
-<instance part="GND12" gate="1" x="101.6" y="193.04"/>
 <instance part="SUPPLY2" gate="G$1" x="66.04" y="200.66"/>
 <instance part="IC14" gate="G$2" x="0" y="5.08"/>
 <instance part="IC13" gate="G$2" x="15.24" y="5.08"/>
@@ -22137,11 +22138,6 @@ with C64 keyboard</text>
 <pinref part="GND10" gate="1" pin="GND"/>
 <wire x1="68.58" y1="185.42" x2="66.04" y2="185.42" width="0.1524" layer="91"/>
 <wire x1="66.04" y1="185.42" x2="66.04" y2="180.34" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="QG1" gate="A" pin="CON"/>
-<pinref part="GND12" gate="1" pin="GND"/>
-<wire x1="93.98" y1="195.58" x2="101.6" y2="195.58" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U$2" gate="G$2" pin="GND@0"/>

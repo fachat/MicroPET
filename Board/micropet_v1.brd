@@ -102,9 +102,9 @@
 <wire x1="159.37" y1="-0.47" x2="159.37" y2="99.53" width="0" layer="20"/>
 <wire x1="159.37" y1="99.53" x2="-0.63" y2="99.53" width="0" layer="20"/>
 <wire x1="-0.63" y1="99.53" x2="-0.63" y2="-0.47" width="0" layer="20"/>
-<text x="4.445" y="20.6375" size="1.778" layer="1" font="vector" rot="R90">MicroPET-V1.0E</text>
+<text x="4.445" y="20.6375" size="1.778" layer="1" font="vector" rot="R90">MicroPET-V1.0F</text>
 <text x="4.28625" y="58.499375" size="1.778" layer="1" font="vector" rot="R90">(C) 2020 A. Fachat</text>
-<text x="4.445" y="20.6375" size="1.778" layer="25" font="vector" rot="R90">MicroPET-V1.0E</text>
+<text x="4.445" y="20.6375" size="1.778" layer="25" font="vector" rot="R90">MicroPET-V1.0F</text>
 <text x="4.28625" y="58.499375" size="1.778" layer="25" font="vector" rot="R90">(C) 2020 A. Fachat</text>
 </plain>
 <libraries>
@@ -2326,7 +2326,6 @@ design rules under a new name.</description>
 <contactref element="IC13" pad="16"/>
 <contactref element="IC14" pad="16"/>
 <contactref element="QG1" pad="7"/>
-<contactref element="QG1" pad="1"/>
 <contactref element="C14" pad="1"/>
 <contactref element="C16" pad="-"/>
 <contactref element="C15" pad="1"/>
@@ -2717,8 +2716,6 @@ design rules under a new name.</description>
 <wire x1="36.35375" y1="16.35125" x2="38.57625" y2="18.57375" width="0.3048" layer="1"/>
 <wire x1="38.57625" y1="18.57375" x2="40.48125" y2="18.57375" width="0.3048" layer="1"/>
 <wire x1="40.48125" y1="18.57375" x2="43.02125" y2="21.11375" width="0.3048" layer="1"/>
-<wire x1="61.9125" y1="23.65375" x2="61.9125" y2="18.7325" width="0.3048" layer="1"/>
-<wire x1="61.9125" y1="18.7325" x2="61.9125" y2="3.4925" width="0.3048" layer="1"/>
 <wire x1="57.15" y1="2.54" x2="60.96" y2="2.54" width="0.3048" layer="1"/>
 <wire x1="60.96" y1="2.54" x2="61.9125" y2="3.4925" width="0.3048" layer="1"/>
 <wire x1="61.9125" y1="3.4925" x2="65.7225" y2="3.4925" width="0.3048" layer="16"/>
@@ -2733,8 +2730,6 @@ design rules under a new name.</description>
 <wire x1="53.63875" y1="20.4975" x2="53.63875" y2="19.70375" width="1.016" layer="1"/>
 <wire x1="53.63875" y1="19.70375" x2="53.6575" y2="18.415" width="1.016" layer="1"/>
 <wire x1="53.6575" y1="18.415" x2="57.4675" y2="18.415" width="1.016" layer="16"/>
-<wire x1="57.4675" y1="18.415" x2="61.595" y2="18.415" width="0.3048" layer="16"/>
-<wire x1="61.595" y1="18.415" x2="61.9125" y2="18.7325" width="0.3048" layer="16"/>
 <wire x1="58.26125" y1="70.1675" x2="57.62625" y2="70.1675" width="0.3048" layer="16"/>
 <wire x1="57.62625" y1="70.1675" x2="56.35625" y2="68.8975" width="0.3048" layer="16"/>
 <wire x1="56.35625" y1="68.8975" x2="51.91125" y2="68.8975" width="0.3048" layer="16"/>
@@ -2836,6 +2831,10 @@ design rules under a new name.</description>
 <wire x1="58.1025" y1="50.085625" x2="57.4675" y2="49.450625" width="0.3048" layer="16"/>
 <wire x1="57.4675" y1="49.450625" x2="55.800625" y2="49.450625" width="0.3048" layer="16"/>
 <wire x1="55.800625" y1="49.450625" x2="55.5625" y2="49.68875" width="0.3048" layer="16"/>
+<wire x1="57.4675" y1="18.415" x2="57.4675" y2="20.47875" width="0.3048" layer="1"/>
+<wire x1="57.4675" y1="20.47875" x2="58.499375" y2="21.510625" width="0.3048" layer="1"/>
+<wire x1="58.499375" y1="21.510625" x2="58.499375" y2="23.1775" width="0.3048" layer="1"/>
+<wire x1="58.499375" y1="23.1775" x2="58.42" y2="23.256875" width="0.3048" layer="1"/>
 </signal>
 <signal name="VCC">
 <contactref element="IC5" pad="16"/>
@@ -8535,7 +8534,7 @@ design rules under a new name.</description>
 </signals>
 <errors>
 <approved hash="3,1,73edf3ffe4746466"/>
-<approved hash="3,1,f48de29ed1d0c7c3"/>
+<approved hash="3,1,bd0cab129d1c8b02"/>
 <approved hash="4,1,1ad920eb610c9e1a"/>
 <approved hash="4,1,30510debdf41e58b"/>
 <approved hash="4,16,1ad920eb610c9e1a"/>
