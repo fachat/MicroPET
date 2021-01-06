@@ -492,20 +492,24 @@ begin
 	   ipl_state,
 	   reset
 	);
+
+	-- CPU access to SPI registers
+	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
+	-- SPI serial data in
 	spi_in <= spi_in1 when ipl = '1' or spi_sel(0) = '1' else
 		spi_in2 when spi_sel(1) = '1' else
 		spi_in3 when spi_sel(2) = '1' else
 		'0';
-		
-	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
-	--spi_out <= ipl_out	when ipl = '1' 	else
-	boot(0) <= ipl_out	when ipl = '1' 	else
+	-- SPI serial data out
+	spi_out <= ipl_out	when ipl = '1' 	else
 		spi_outx;
-	boot(1) <= ipl_cnt(0)	when ipl = '1' and ipl_state = '0' else
+	-- SPI serial clock
+	spi_clk <= ipl_cnt(0)	when ipl = '1' and ipl_state = '0' else
 		spi_clkx;
 		
+	-- SPI select lines
 	-- select flash chip
 	nflash <= '1'		when reset = '1' else
 		'0' 		when ipl = '1'	else
