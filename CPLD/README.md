@@ -118,26 +118,38 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 
 There are two control ports at $e800 and $e801. They are currently only writable.
 
-#### $e800 (59392)
+#### $e800 (59392) Video Control
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
 - Bit 3-5: unused, must be 0
+- Bit 7: 0= video enabled; 1= video disabled
+
+
+#### $e801 (59393) Memory Map Control
+
+- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
+- Bit 1-3: unused, must be 0
+- Bit 4: 0= $009xxx is writable, 1= write protected
+- Bit 5: 0= $00Axxx is writable, 1= write protected
+- Bit 6: 0= $00Bxxx is writable, 1= write protected
+- Bit 7: 0= $00C000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
+
+#### $e802 (59394) Low32k Bank
+
+- Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
+- Bit 4-7: unused, must be 0
+
+#### $e803 (59395) Speed Control
+
+- Bit 0-5: unused, must be 0
 - Bit 6/7: speed mode
   - 00 = 1 MHz
   - 01 = 2 MHz
   - 10 = 4 MHz
   - 11 = 8 MHz with wait states for video access to RAM
 
-
-#### $e801 (59393)
-
-- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
-- Bit 1-4: unused, must be 0
-- Bit 5: 0= $009xxx is writable, 1= write protected
-- Bit 6: 0= $00Axxx is writable, 1= write protected
-- Bit 7: 0= $00B000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
 
 ### 8296 control port
 

@@ -43,6 +43,7 @@ entity Video is
            h_sync : out  STD_LOGIC;
 	   pet_vsync : out std_logic;
 
+	   is_enable: in std_logic;	-- display enable
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
@@ -165,10 +166,10 @@ begin
 		if (rising_edge(qclk)) then
 	-- do we fetch character index?
 	-- not hires, and first cycle in streak
-	chr_fetch <= chr40 or chr80;
+	chr_fetch <= is_enable and (chr40 or chr80);
 
 	-- dot fetch
-	pxl_fetch <= pxl40 or pxl80;
+	pxl_fetch <= is_enable and (pxl40 or pxl80);
 	
 	-- video access?
 	is_vid <= chr_fetch or pxl_fetch;

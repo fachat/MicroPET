@@ -38,8 +38,6 @@ entity Top is
 	   nres : in std_logic;
 	
 	-- config
-	  -- boot: in std_logic_vector(1 downto 0);
-	   boot: out std_logic_vector(1 downto 0); -- for debug
 	   graphic: in std_logic;	-- from I/O, select charset
 	   
 	-- CPU interface
@@ -130,12 +128,15 @@ architecture Behavioral of Top is
 	signal mode : std_logic_vector(1 downto 0);
 	signal wp_rom9 : std_logic;
 	signal wp_romA : std_logic;
+	signal wp_romB : std_logic;
 	signal wp_romPET : std_logic;
 	signal is8296 : std_logic;
+	signal lowbank : std_logic_vector(3 downto 0);
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
 	signal vd_in: std_logic_vector(7 downto 0);
+	signal vis_enable: std_logic;
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
 	signal is_vid_out: std_logic;
@@ -162,7 +163,7 @@ architecture Behavioral of Top is
 	signal spi_sel : std_logic_vector(2 downto 0);
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
-	
+
 	-- bummer, not in schematic
 	constant vpb: std_logic:= '1';
 	constant e: std_logic:= '1';
@@ -212,9 +213,11 @@ architecture Behavioral of Top is
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
-	   
+
+	   lowbank: in std_logic_vector(3 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
+	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 	   
 	   dbgout: out std_logic
@@ -233,7 +236,8 @@ architecture Behavioral of Top is
            h_sync : out  STD_LOGIC;
 	   pet_vsync: out std_logic;	-- for the PET screen interrupt
 
-           is_80_in : in  STD_LOGIC;	-- is 80 column mode?
+	   is_enable: in std_logic;	-- is display enabled
+           is_80_in : in STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
 	   crtc_sel : in std_logic;	-- select line for CRTC
@@ -418,8 +422,10 @@ begin
 	   m_ffsel_out,
 	   m_iosel,
 	   m_ramsel_out,
+	   lowbank,
 	   wp_rom9,
 	   wp_romA,
+	   wp_romB,
 	   wp_romPET,
 	   dbg_map
 	);
@@ -449,6 +455,7 @@ begin
 		vsync,
 		hsync,
 		pet_vsync,
+		vis_enable,
 		vis_80_in,
 		vis_hires_in,
 		vgraphic,
@@ -534,25 +541,32 @@ begin
 		if (reset = '1') then
 			vis_hires_in <= '0';
 			vis_80_in <= '0';
+			vis_enable <= '1';
 			mode <= "00";
 			map_char <= '1';
 			wp_rom9 <= '0';
 			wp_romA <= '0';
 			wp_romPET <= '0';
 			is8296 <= '0';
-		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0') then
+			lowbank <= (others => '0');
+		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
-			case (ca_in(3 downto 0)) is
-			when x"0" =>
+			case (ca_in(1 downto 0)) is
+			when "00" =>
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
-				mode(1 downto 0) <= D(7 downto 6); -- speed bits
-			when x"1" =>
+				vis_enable <= not(D(7));
+			when "01" =>
 				is8296 <= D(0);
-				wp_rom9 <= D(5);
-				wp_romA <= D(6);
+				wp_rom9 <= D(4);
+				wp_romA <= D(5);
+				wp_romB <= D(6);
 				wp_romPET <= D(7);
+			when "10" =>
+				lowbank <= D(3 downto 0);
+			when "11" =>
+				mode(1 downto 0) <= D(1 downto 0); -- speed bits
 			when others =>
 				null;
 			end case;
@@ -597,7 +611,7 @@ begin
 			and rwb='1' 
 			and m_ramsel_out ='1' 
 			and phi2_int='1'
-		else 
+		else
 		spi_dout when spi_cs = '1'
 			and rwb = '1'
 		else

@@ -50,8 +50,10 @@ entity Mapper is
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
 	   
+	   lowbank: in std_logic_vector(3 downto 0);
    	   wp_rom9: in std_logic;
-	   wp_romA: in std_logic;
+   	   wp_romA: in std_logic;
+	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 
 	   dbgout: out std_logic
@@ -65,10 +67,12 @@ architecture Behavioral of Mapper is
 	
 	-- convenience
 	signal low64k: std_logic;
+	signal low32k: std_logic;
 	signal c8296ram: std_logic;
 	signal petrom: std_logic;
 	signal petrom9: std_logic;
 	signal petromA: std_logic;
+	signal petromB: std_logic;
 	signal petio: std_logic;
 	signal wprot: std_logic;
 	signal screen: std_logic;
@@ -113,6 +117,7 @@ begin
 	bank <= bankl;
 	
 	low64k <= '1' when bank = "00000000" else '0';
+	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
 	
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
@@ -122,13 +127,17 @@ begin
 	-- of ROM area in the upper half of bank 0
 	-- Is evaluated in bank 0 only, so low64k can be ignored here
 	petrom <= '1' when A(15) = '1' and			-- upper half
-			(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
+			--(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
+			A(14) = '1' -- upper 16k
 			else '0';
 			
 	petrom9 <= '1' when A(15 downto 12) = x"9"
 			else '0';
 
 	petromA <= '1' when A(15 downto 12) = x"A"
+			else '0';
+
+	petromB <= '1' when A(15 downto 12) = x"B"
 			else '0';
 
 	screen <= '1' when A(15 downto 12) = x"8" 
@@ -164,6 +173,8 @@ begin
 				else
 			'1' when petromA = '1' and wp_romA = '1'
 				else
+			'1' when petromB = '1' and wp_romB = '1'
+				else
 			'0';
 			 
 	-----------------------------------
@@ -171,10 +182,12 @@ begin
 	
 	-- banks 2-15
 	RA(18 downto 17) <= 
+			lowbank(3 downto 2) when low32k = '1' else
 			bank(2 downto 1);			-- just map
 	
 	-- bank 0/1
 	RA(16) <= 
+			lowbank(1) when low32k = '1' else
 			bank(0) when low64k = '0' else  	-- CPU is not in low 64k
 			'1' 	when c8296ram = '1' 		-- 8296 enabled,
 					and A(15) = '1' 	-- upper half of bank0
@@ -183,7 +196,7 @@ begin
 			
 	-- within bank0
 	RA(15) <= A(15) when low64k = '0' else		-- some upper bank
-			'0' when A(15) = '0' else	-- lower half of bank0
+			lowbank(0) when A(15) = '0' else-- lower half of bank0
 			'1' when c8296ram = '0' else	-- upper half of bank0, no 8296 mapping
 			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
