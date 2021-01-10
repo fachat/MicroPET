@@ -75,10 +75,12 @@ entity Top is
 	   spi_in1  : in std_logic;
 	   spi_in2  : in std_logic;
 	   spi_in3  : in std_logic;
+	   spi_in4  : in std_logic;
 	   -- selects
 	   nflash : out std_logic;
 	   spi_nsel2 : out std_logic;	
 	   spi_nsel3 : out std_logic;	
+	   spi_nsel4 : out std_logic;
 	   
 	-- Debug
 	   dbg_out: out std_logic
@@ -113,7 +115,7 @@ architecture Behavioral of Top is
 	signal phi2_int: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
-	
+		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
 	signal ma_out: std_logic_vector(18 downto 12);
@@ -160,11 +162,11 @@ architecture Behavioral of Top is
 	signal spi_dout : std_logic_vector(7 downto 0);
 	signal spi_cs : std_logic;
 	signal spi_in : std_logic;
-	signal spi_sel : std_logic_vector(2 downto 0);
+	signal spi_sel : std_logic_vector(3 downto 0);
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
-
-	-- bummer, not in schematic
+	
+	-- to be replaced with inputs
 	constant vpb: std_logic:= '1';
 	constant e: std_logic:= '1';
 	
@@ -271,7 +273,7 @@ architecture Behavioral of Top is
 	   serin: in std_logic;
 	   serout: out std_logic;
 	   serclk: out std_logic;
-	   sersel: out std_logic_vector(2 downto 0);	   
+	   sersel: out std_logic_vector(3 downto 0);	   
 	   spiclk : in std_logic;
 	   
 	   ipl: in std_logic;
@@ -507,6 +509,7 @@ begin
 	spi_in <= spi_in1 when ipl = '1' or spi_sel(0) = '1' else
 		spi_in2 when spi_sel(1) = '1' else
 		spi_in3 when spi_sel(2) = '1' else
+		spi_in4 when spi_sel(3) = '1' else
 		'0';
 	
 	-- SPI serial data out
@@ -526,6 +529,8 @@ begin
 		not(spi_sel(1));
 	spi_nsel3 <= '1'	when reset = '1' else
 		not(spi_sel(2));
+	spi_nsel4 <= '1'	when reset = '1' else
+		not(spi_sel(3));
 		
 	------------------------------------------------------
 	-- control
