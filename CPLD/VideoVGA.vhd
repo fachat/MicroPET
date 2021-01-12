@@ -219,7 +219,7 @@ begin
 			end if;
 			
 			-- sync
-			if (slot_cnt >= 82 and slot_cnt <= 94) then
+			if (slot_cnt >= 84 and slot_cnt <= 96) then
 				h_sync_int <= '1';
 			else
 				h_sync_int <= '0';
