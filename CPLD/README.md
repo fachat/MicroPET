@@ -6,8 +6,8 @@ I programmed it in VHDL.
 
 ## Memory Map
 
-The memory map looks as follows. There are 512k RAM, and 512k ROM, 
-that make up banks 0-7 and banks 8-15 respectively. 
+The memory map looks as follows. There are 512k RAM
+that make up banks 0-7. 
 
 RAM bank 7 is the "video" bank in that hires graphics and character ROMs 
 are mapped here. The character data can be mapped there as well using bit 2
@@ -17,16 +17,6 @@ RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
 upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
 	normal
-	+----+ $0FFFFF
-	|    |         ROM
-	|    |         bank 15
-	+----+ $0F0000
-	|    |
-      	 ...
-	|    |
-	+----+ $090000
-	|    |         ROM
-	|    |         bank 8
 	+----+ $080000
 	|    |         RAM
 	|    |         bank 7 (video)
