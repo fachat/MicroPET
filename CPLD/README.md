@@ -133,12 +133,12 @@ There are two control ports at $e800 and $e801. They are currently only writable
 
 #### $e803 (59395) Speed Control
 
-- Bit 0-5: unused, must be 0
-- Bit 6/7: speed mode
+- Bit 0/1: speed mode
   - 00 = 1 MHz
   - 01 = 2 MHz
   - 10 = 4 MHz
   - 11 = 8 MHz with wait states for video access to RAM
+- Bit 2-7: unused, must be 0
 
 
 ### 8296 control port
