@@ -144,7 +144,7 @@ begin
 	-- Otherwise 40col would start to display a slot later (1/2 40col char).
 	-- Which also happens in every 2nd line if not reset at the end of the line
 	-- and total slots/line is an odd number
-	in_slot_cnt_p: process(in_slot, slotclk, reset)
+	in_slot_cnt_p: process(in_slot, slotclk, reset, last_slot_of_line)
 	begin
 		if (reset = '1' or last_slot_of_line = '1') then
 			in_slot <= '1';
