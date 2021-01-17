@@ -83,7 +83,8 @@ entity Top is
 	   spi_nsel4 : out std_logic;
 	   
 	-- Debug
-	   dbg_out: out std_logic
+	   dbg_out: out std_logic;
+	   test: in std_logic
 	 );
 end Top;
 
@@ -113,6 +114,7 @@ architecture Behavioral of Top is
 	signal clk4m: std_logic;
 	
 	signal phi2_int: std_logic;
+	signal phi2_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
 		
@@ -389,10 +391,14 @@ begin
 	end process;
 	
 
-	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), the I/O timers
-	-- will always count on 8MHz - which is not what we want
+	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
+	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
 	phi2_int <= memclk or wait_int_d;
-	rdy <= '1';
+	phi2_out <= phi2_int;
+--	phi2_out <= memclk or wait_int_d; --(wait_int_d and mode(0) and mode(1));
+--	phi2_out <= memclk and test;
+	
+	rdy <= not(wait_int_d);
 	
 	--boot(0) <= spi_out;
 	--boot(1) <= spi_clk;
@@ -400,7 +406,8 @@ begin
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
-	phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
+	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
+	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
 	
 	------------------------------------------------------
 	-- CPU memory mapper
@@ -615,7 +622,7 @@ begin
 	D <= 	VD when is_vid_out='0' 
 			and rwb='1' 
 			and m_ramsel_out ='1' 
-			and phi2_int='1'
+			and phi2_int='1' 
 		else
 		spi_dout when spi_cs = '1'
 			and rwb = '1'
@@ -627,7 +634,7 @@ begin
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
 			'0'	when ipl = '1' else	-- IPL loads data into RAM
 			'0' 	when is_vid_out='1' else
-			'0' 	when phi2_int ='1' and m_ramsel_out ='1' and is_cpu='1' else
+			'0' 	when wait_int_d = '0' and m_ramsel_out ='1' else
 			'1';
 		
 	
