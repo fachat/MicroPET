@@ -1,0 +1,170 @@
+
+
+   18 gosub 13000
+ 1000 rem run tests #################
+ 1001 rem install benchmark
+ 1003 rem gosub 14000: rem read next routine from data
+ 1006 rem
+ 1400 gosub 13900: rem print header
+ 1420 gosub 8000
+ 1440 gosub 9900:rem wait for key
+ 1490 rem
+ 1999 end
+ 8000 rem ###########################
+ 8005 print"cpu speed test:":print
+ 8100 sp=0:il=0:rem 1mhz
+ 8120 gosub 9000
+ 8200 sp=1:il=0:rem 2mhz
+ 8220 gosub 9000
+ 8300 sp=2:il=0:rem 4mhz
+ 8320 gosub 9000
+ 8330 sp=3:il=0:rem 8mhz
+ 8340 gosub 9000
+ 8343 gosub 9900:gosub 13900
+ 8344 sp=2:il=0:rem 4mhz
+ 8345 gosub 9000
+ 8346 sp=2:il=1:rem 4mhz / interlace
+ 8347 gosub 9000
+ 8350 sp=2:il=2:rem 4mhz / screen off
+ 8360 gosub 9000
+ 8400 sp=3:il=0:rem full speed
+ 8420 gosub 9000
+ 8430 sp=3:il=1:rem full speed / interlace
+ 8440 gosub 9000
+ 8450 sp=3:il=2:rem full speed / screen off
+ 8440 gosub 9000
+ 8910 return
+ 9000 rem ############################
+ 9010 rem common test sequence
+ 9100 gosub 11000
+ 9110 gosub 10000
+ 9120 gosub 12000
+ 9200 return
+ 9900 rem ############################
+ 9910 print:print"press key to continue";
+ 9920 geta$:iflen(a$)=0then9920
+ 9925 print:print
+ 9930 return
+ 10000 rem ###########################
+ 10005 rem run a benchmark with the given parameters and return the value
+ 10020 rem input: sp=speed register val ($e803)
+ 10021 rem input: il=interlace ($e800, CRTC reg. 8)
+ 10030 rem output: c1=number of sys cycles cpu loop
+ 10030 rem output: c2=number of sys cycles for one vsync 
+ 10100 rem #### apply config
+ 10120 poke 59395, sp:rem config
+ 10122 on il+1 goto 10130, 10132, 10134
+ 10130 poke va,vr:poke ca,8:poke ca+1,0:goto 10140
+ 10132 poke va,vr:poke ca,8:poke ca+1,1:goto 10140
+ 10134 poke va,vr+128:poke ca,8:poke ca+1,0:goto 10140
+ 10140 gosub 15030
+ 10220 rem done
+ 10225 poke va,vr:poke ca,8:poke ca+1,0
+ 10230 return
+ 11000 rem ###########################
+ 11010 rem print config line output
+ 11020 rem input: sp,il
+ 11030 on sp+1 goto 11040, 11060, 11080, 11100
+ 11040 print "1 mhz";:goto 11200
+ 11060 print "2 mhz";:goto 11200
+ 11080 print "4 mhz";:goto 11200
+ 11100 print "full mhz";:goto 11200
+ 11120 rem
+ 11200 on il+1 goto 11220, 11240, 11260
+ 11220 print "";:goto 11300
+ 11240 print ", interlace off";:goto 11300
+ 11260 print ", screen off";:goto 11300
+ 11280 rem
+ 11300 print
+ 11310 return
+ 12000 rem ###########################
+ 12010 rem print a reverse line relative to speed value (cycles)
+ 12030 rem input: cc, cl =current cycles
+ 12040 rem input: co=base columns
+ 12050 rem input: cm=max columns
+ 12100 rt=mc:c=cc
+ 12105 s =mc
+ 12110 n$="system"
+ 12120 gosub 12200
+ 12130 rt=ml:c=cl:remrt=cl/xl:c=cl
+ 12135 s =ml
+ 12140 n$="cpu"
+ 12200 cf=int(co*rt):rem cols to fill
+ 12205 if cf > cm then 12300
+ 12210 print"{rvon}";left$(s$,cf);"{rvof}";spc(cm-cf);
+ 12220 goto 12600
+ 12300 print"{rvon}";left$(s$,cm-1);">{rvof}";
+ 12600 rem s=bc / rt:rem speed in absolute mhz
+ 12605 print" ";sc$;c;" cycles, ";int(s*10+.5)/10;" mhz (" n$ ")"
+ 12610 return
+ 13000 rem ###########################
+ 13101 rem reset speed setting
+ 13102 poke 59395,0:rem 1mhz
+ 13103 rem determine system speed, output is bc (system clk), cc (cpu clk)
+ 13105 gosub 13110:gosub 13900: gosub 14000: gosub 15100: gosub 9900
+ 13106 return
+ 13110 rem #### determine screen width
+ 13115 s$="                                                                   "
+ 13120 va=59392:rem video control register
+ 13125 ca=59520:rem CRTC register
+ 13200 rem check 40/80 cols
+ 13210 poke32768+40*25,21:rem one byte behind 40 cols
+ 13220 print"{clr}"
+ 13230 v=40
+ 13240 if peek(32768+40*25)=32 then v=80
+ 13400 if v=80 then goto 13600:rem 80 cols
+ 13500 rem 40 cols ####################
+ 13510 co=4: rem base cols
+ 13520 cm=35: rem max cols
+ 13525 vr=0:poke va,vr
+ 13530 sc$=chr$(13): rem separator
+ 13550 goto13700
+ 13600 rem 80 cols ####################
+ 13610 co=4: rem base cols
+ 13620 cm=35: rem max cols
+ 13625 vr=2:poke va,vr
+ 13630 sc$=", ": rem separator
+ 13700 return
+ 13900 rem #########################
+ 13901 rem print page header
+ 13905 print"{clr}micro pet benchmark";sc$;
+ 13910 print"(c) 2021 a. fachat":print
+ 13990 return
+ 14000 rem #########################
+ 14010 rem read the next code from the data sections
+ 14100 read a, l
+ 14110 e=a+l-1
+ 14120 for i=a to e: read d: if d<0 then d=d+256
+ 14125 poke i,d: next
+ 14130 return
+ 15000 rem #########################
+ 15010 rem calibrate the system
+ 15020 rem a,e are start/end address as given by read routine
+ 15025 poke va,vr:poke ca,8:poke ca+1,0
+ 15030 sys a
+ 15040 tl=peek(e+1) + 256*peek(e+2)
+ 15050 tc=peek(e+3) + 256*peek(e+4)
+ 15055 tx=peek(e+5):rem timer overflow vsync
+ 15065 rem print tc "," tl "," tx
+ 15060 cl = 65536 - tl
+ 15061 cc = 65536 - tc + tx*65536
+ 15065 rem cl = cl / 2: rem test fixup
+ 15070 rem mc=cc/bc is system speedup vs. vsync (1mhz)
+ 15075 mc = int(cc / bc * 10 + 0.5) / 10
+ 15080 rem bl/cl is cpu speedup vs. system
+ 15081 rem ml=mc*bl/cl is cpu speedup vs. vsync (1mhz)
+ 15085 ml = mc * int(bl / cl * 100 + 0.5) / 100:
+ 15090 return
+ 15100 rem ####
+ 15110 bc=1:rem fake
+ 15115 gosub 15000
+ 15120 bc=16000: rem 60hz video
+ 15130 if cc < 20000 then 15150
+ 15140 bc = 20025: rem base cycles vsync 50Hz@1mhz
+ 15150 bl = 1284 * 20: rem base cycles cpu loop @1mhz
+ 15160 gosub 15000
+ 15170 print"System running at " mc " MHz (" cc " sys cycles / screen)"
+ 15180 print"CPU running at " ml " MHz (" cl " sys cycles / cpu loop)"
+ 15190 return
+ 60000 rem #########################
+ 60010 rem data section with benchmark code

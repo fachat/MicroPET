@@ -38,8 +38,6 @@ entity Top is
 	   nres : in std_logic;
 	
 	-- config
-	  -- boot: in std_logic_vector(1 downto 0);
-	   boot: out std_logic_vector(1 downto 0); -- for debug
 	   graphic: in std_logic;	-- from I/O, select charset
 	   
 	-- CPU interface
@@ -58,27 +56,49 @@ entity Top is
 	   ramrwb : out std_logic;
 
 	-- ROM, I/O (on CPU bus)
-	   RA: out std_logic_vector (18 downto 12);
 	   nsel1 : out STD_LOGIC;
 	   nsel2 : out STD_LOGIC;
 	   nsel4 : out STD_LOGIC;
-	   nromsel : out STD_LOGIC;
-	   npgm: out std_logic;
 	   
 	-- video out
            pxl : out  STD_LOGIC;
            vsync : out  STD_LOGIC;
            hsync : out  STD_LOGIC;
+	   dclk : out std_logic;
+	   dena : out std_logic;
+	   pet_vsync: out std_logic;
+	   
+	-- SPI
+	   spi_out : out std_logic;
+	   spi_clk : out std_logic;
+	   -- MISO
+	   spi_in1  : in std_logic;
+	   spi_in2  : in std_logic;
+	   spi_in3  : in std_logic;
+	   spi_in4  : in std_logic;
+	   -- selects
+	   nflash : out std_logic;
+	   spi_nsel2 : out std_logic;	
+	   spi_nsel3 : out std_logic;	
+	   spi_nsel4 : out std_logic;
 	   
 	-- Debug
-	   dbg_out: out std_logic
+	   dbg_out: out std_logic;
+	   test: in std_logic
 	 );
 end Top;
 
 architecture Behavioral of Top is
 
-	-- system
-	signal init: std_logic;		-- if true, is running from top of ROM
+	-- Initial program load
+	signal ipl: std_logic;		-- Initial program load from SPI flash
+	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
+--	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during PET boot)
+	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
+	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
+	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
+	signal ipl_out: std_logic;	-- SPI output from IPL to flash
+	signal ipl_next: std_logic;	-- start next phase
 	
 	-- clock
 	signal dotclk: std_logic;
@@ -94,19 +114,17 @@ architecture Behavioral of Top is
 	signal clk4m: std_logic;
 	
 	signal phi2_int: std_logic;
+	signal phi2_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
-	
+		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
 	signal ma_out: std_logic_vector(18 downto 12);
 	signal m_ramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
-	signal m_endinit_out: std_logic;
 	signal nramsel_int: std_logic;
-	signal nromsel_int: std_logic;
 	signal m_iosel: std_logic;
-	signal m_romsel: std_logic;
 
 	signal sel0 : std_logic;
 	signal sel8 : std_logic;
@@ -114,11 +132,15 @@ architecture Behavioral of Top is
 	signal mode : std_logic_vector(1 downto 0);
 	signal wp_rom9 : std_logic;
 	signal wp_romA : std_logic;
+	signal wp_romB : std_logic;
 	signal wp_romPET : std_logic;
+	signal is8296 : std_logic;
+	signal lowbank : std_logic_vector(3 downto 0);
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
 	signal vd_in: std_logic_vector(7 downto 0);
+	signal vis_enable: std_logic;
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
 	signal is_vid_out: std_logic;
@@ -130,7 +152,6 @@ architecture Behavioral of Top is
 	signal ca_in: std_logic_vector(15 downto 0);
 	signal cd_in: std_logic_vector(7 downto 0);
 	signal reset: std_logic;
-	signal wait_rom: std_logic;
 	signal wait_ram: std_logic;
 	signal wait_int: std_logic;
 	signal wait_int_d: std_logic;
@@ -139,8 +160,17 @@ architecture Behavioral of Top is
 	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
 	
-	-- bummer, not in schematic
+	-- SPI
+	signal spi_dout : std_logic_vector(7 downto 0);
+	signal spi_cs : std_logic;
+	signal spi_in : std_logic;
+	signal spi_sel : std_logic_vector(3 downto 0);
+	signal spi_outx : std_logic;
+	signal spi_clkx : std_logic;
+	
+	-- to be replaced with inputs
 	constant vpb: std_logic:= '1';
+	constant e: std_logic:= '1';
 	
 	-- debug
 	signal dbg_vid: std_logic;
@@ -178,7 +208,6 @@ architecture Behavioral of Top is
 	   vda: in std_logic;
 	   vpb: in std_logic;
 	   rwb : in std_logic;
-	   init : in std_logic;
 	   
 	   qclk : in std_logic;
 	   
@@ -186,13 +215,13 @@ architecture Behavioral of Top is
 	   
            RA : out  STD_LOGIC_VECTOR (18 downto 12);
 	   ffsel: out std_logic;
-	   endinit: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
-	   romsel: out std_logic;
-	   
+
+	   lowbank: in std_logic_vector(3 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
+	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 	   
 	   dbgout: out std_logic
@@ -206,10 +235,13 @@ architecture Behavioral of Top is
 	   CPU_D : in std_logic_vector (7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
+	   dena   : out std_logic;	-- display enable
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
+	   pet_vsync: out std_logic;	-- for the PET screen interrupt
 
-           is_80_in : in  STD_LOGIC;	-- is 80 column mode?
+	   is_enable: in std_logic;	-- is display enabled
+           is_80_in : in STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
 	   crtc_sel : in std_logic;	-- select line for CRTC
@@ -231,6 +263,34 @@ architecture Behavioral of Top is
 	   reset : in std_logic
 	 );
 	end component;
+
+	component SPI is
+	  Port ( 
+	   DIN : in  STD_LOGIC_VECTOR (7 downto 0);
+	   DOUT : out  STD_LOGIC_VECTOR (7 downto 0);
+	   RS: in std_logic_vector(1 downto 0);
+	   RWB: in std_logic;
+	   CS: in std_logic;	-- includes clock
+	   
+	   serin: in std_logic;
+	   serout: out std_logic;
+	   serclk: out std_logic;
+	   sersel: out std_logic_vector(3 downto 0);	   
+	   spiclk : in std_logic;
+	   
+	   ipl: in std_logic;
+	   reset : in std_logic
+	 );
+	end component;
+
+	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
+	begin
+		if L then
+			return('1');
+		else
+			return('0');
+		end if;
+	end function To_Std_Logic;
 
 begin
 
@@ -271,17 +331,22 @@ begin
 		end if;
 	end process;
 
-	reset <= not(nres);
+	reset_p: process(q50m)
+	begin
+		if (rising_edge(q50m)) then
+			reset <= not(nres);
+		end if;
+	end process;
 	
 	-- WAIT is used to slow 
 	-- 1) access to the slow ROM (which is independent from video bus) and
 	-- 2) access to the RAM when video access is needed
 	--
-	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
-			'0';
+--	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
+--			'0';
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
-	wait_int <= wait_ram or wait_rom or not(is_cpu);
+	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
 	
 	wait_p: process(wait_int, release_int, memclk, reset)
 	begin
@@ -308,7 +373,7 @@ begin
 		if (reset = '1') then
 			release_int2 <= '0';
 		elsif (rising_edge(q50m)) then
-			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and wait_ram = '0') then
+			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and ipl='0' and wait_ram = '0') then
 				release_int2 <= '1';
 			else
 				release_int2 <= '0';
@@ -326,18 +391,23 @@ begin
 	end process;
 	
 
-	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), the I/O timers
-	-- will always count on 8MHz - which is not what we want
+	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
+	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
 	phi2_int <= memclk or wait_int_d;
-	rdy <= '1';
+	phi2_out <= phi2_int;
+--	phi2_out <= memclk or wait_int_d; --(wait_int_d and mode(0) and mode(1));
+--	phi2_out <= memclk and test;
 	
-	boot(0) <= m_iosel;
-	boot(1) <= wait_int;
+	rdy <= not(wait_int_d);
+	
+	--boot(0) <= spi_out;
+	--boot(1) <= spi_clk;
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
-	phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
+	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
+	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
 	
 	------------------------------------------------------
 	-- CPU memory mapper
@@ -355,36 +425,31 @@ begin
 	   vda,
 	   vpb,
 	   rwb,
-	   init,
 	   q50m,
            cfgld_in,
 	   ma_out,
 	   m_ffsel_out,
-	   m_endinit_out,
 	   m_iosel,
 	   m_ramsel_out,
-	   m_romsel,
+	   lowbank,
 	   wp_rom9,
 	   wp_romA,
+	   wp_romB,
 	   wp_romPET,
 	   dbg_map
 	);
 
 		
-	cfgld_in <= '1' when m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
+	cfgld_in <= '1' when is8296 = '1' and m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
 
 	-- internal selects
 	sel0 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"0" else '0';
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
-
-	dbg_out <= init;
 	
 	-- external selects are inverted
 	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
 	nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
 	nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
-	
-	npgm <= '1';
 	
 	------------------------------------------------------
 	-- video
@@ -395,8 +460,11 @@ begin
 		vd_in,
 		cd_in, 
 		pxl,
+		dena,
 		vsync,
 		hsync,
+		pet_vsync,
+		vis_enable,
 		vis_80_in,
 		vis_hires_in,
 		vgraphic,
@@ -419,25 +487,62 @@ begin
 
 	vgraphic <= graphic;
 	
+	dclk <= dotclk;
+	
+	------------------------------------------------------
+	-- SPI interface
+	
+	spi_comp: SPI
+	port map (
+	   cd_in,
+	   spi_dout,
+	   ca_in(1 downto 0),
+	   rwb,
+	   spi_cs,
+	   spi_in,
+	   spi_outx,
+	   spi_clkx,
+	   spi_sel,
+	   memclk,
+	   
+	   ipl_state,
+	   reset
+	);
+
+	-- CPU access to SPI registers
+	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
+	
+	-- SPI serial data in
+	spi_in <= spi_in1 when ipl = '1' or spi_sel(0) = '1' else
+		spi_in2 when spi_sel(1) = '1' else
+		spi_in3 when spi_sel(2) = '1' else
+		spi_in4 when spi_sel(3) = '1' else
+		'0';
+	
+	-- SPI serial data out
+	spi_out <= ipl_out	when ipl = '1' 	else
+		spi_outx;
+	-- SPI serial clock
+	spi_clk <= ipl_cnt(0)	when ipl = '1' and ipl_state = '0' else
+		spi_clkx;
+		
+	-- SPI select lines
+	-- select flash chip
+	nflash <= '1'		when reset = '1' else
+		'0' 		when ipl = '1'	else
+		not(spi_sel(0));
+		
+	spi_nsel2 <= '1'	when reset = '1' else
+		not(spi_sel(1));
+	spi_nsel3 <= '1'	when reset = '1' else
+		not(spi_sel(2));
+	spi_nsel4 <= '1'	when reset = '1' else
+		not(spi_sel(3));
+		
 	------------------------------------------------------
 	-- control
-
-	-- release initial mapping after first write to $ffxx
-	-- but only if write is coming from low memory
-	-- (otherwise init could not copy over OS ROM to its boot place)
-	--
-	Init_P: process(m_ffsel_out, phi2_int, rwb, reset)
-	begin
-		if (reset='1') then
-			init <= '1';
-		elsif (falling_edge(phi2_int)) then
-			if (m_endinit_out = '1') then
-				init <= '0';
-			end if;
-		end if;
-	end process;
 	
-	-- store video control register $fff1
+	-- store video control register $e800
 	--
 	-- D0 	: 1= hires
 	-- D1	: 1= 80 column
@@ -448,22 +553,32 @@ begin
 		if (reset = '1') then
 			vis_hires_in <= '0';
 			vis_80_in <= '0';
+			vis_enable <= '1';
 			mode <= "00";
 			map_char <= '1';
 			wp_rom9 <= '0';
 			wp_romA <= '0';
 			wp_romPET <= '0';
-		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0') then
+			is8296 <= '0';
+			lowbank <= (others => '0');
+		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
-			case (ca_in(3 downto 0)) is
-			when x"0" =>
+			case (ca_in(1 downto 0)) is
+			when "00" =>
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
-				wp_rom9 <= D(3);
-				wp_romA <= D(4);
-				wp_romPET <= D(5);
-				mode(1 downto 0) <= D(7 downto 6); -- speed bits
+				vis_enable <= not(D(7));
+			when "01" =>
+				is8296 <= D(0);
+				wp_rom9 <= D(4);
+				wp_romA <= D(5);
+				wp_romB <= D(6);
+				wp_romPET <= D(7);
+			when "10" =>
+				lowbank <= D(3 downto 0);
+			when "11" =>
+				mode(1 downto 0) <= D(1 downto 0); -- speed bits
 			when others =>
 				null;
 			end case;
@@ -471,11 +586,17 @@ begin
 	end process;
 
 	-- RAM address
-	VA(11 downto 0) <= 	ca_in(11 downto 0) 	when is_vid_out = '0' 	else 
-				va_out(11 downto 0);
-	VA(15 downto 12) <= 	ma_out(15 downto 12) 	when is_vid_out = '0' 	else 
-				va_out(15 downto 12);
-	VA(18 downto 16) <= 	ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
+	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
+				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
+				va_out(7 downto 0);
+	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
+				ca_in(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(11 downto 8);					-- Video
+	VA(15 downto 12) <= 	ipl_addr(15 downto 12)	when ipl = '1'		else	-- IPL
+				ma_out(15 downto 12) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(15 downto 12);					-- Video
+	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
+				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
 				"000"			when is_char_out = '1' and map_char='1' else	-- $x08000 for characters like in PET
 				"111";							-- hires and charrom pixel data in bank 7
 				
@@ -485,45 +606,101 @@ begin
 	
 	-- RAM R/W
 	ramrwb_int <= 
-		'1' 	when is_vid_out ='1' else 
-		'1'	when m_ramsel_out ='0' else
-		'1'	when memclk='0' else
+		'0'	when ipl = '1' else		-- IPL loads data into RAM
+		'1' 	when is_vid_out ='1' else 	-- Video reads
+		'1'	when m_ramsel_out ='0' else	-- not selected
+		'1'	when memclk='0' else		-- protect during memclk low
 		rwb;
 		
 	ramrwb <= ramrwb_int;
 	
 	-- data transfer between CPU data bus and video/memory data bus
-	VD <= 	D when ramrwb_int = '0'
-		else
-			(others => 'Z');
+	VD <= 	spi_dout	when ipl = '1' 		else	-- IPL
+		D 		when ramrwb_int = '0'	else	-- CPU write
+		(others => 'Z');
 		
 	D <= 	VD when is_vid_out='0' 
 			and rwb='1' 
 			and m_ramsel_out ='1' 
-			and phi2_int='1'
-		else 
+			and phi2_int='1' 
+		else
+		spi_dout when spi_cs = '1'
+			and rwb = '1'
+		else
 			(others => 'Z');
 	
-	-- ROM (4k) page address
-	RA(18 downto 12) <= ma_out(18 downto 12);
-
-	-- RA(18 downto 12) <= (others => '1');
 		
 	-- select RAM
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
+			'0'	when ipl = '1' else	-- IPL loads data into RAM
 			'0' 	when is_vid_out='1' else
-			'0' 	when phi2_int ='1' and m_ramsel_out ='1' and is_cpu='1' else
+			'0' 	when wait_int_d = '0' and m_ramsel_out ='1' else
 			'1';
 		
 	
 	nramsel <= nramsel_int;
 
-	-- select ROM
-	nromsel_int <= 	'1'	when phi2_int = '0' else
-			'0'	when m_romsel = '1' else
-			'1';
-
-	nromsel <= nromsel_int;
+	
+	------------------------------------------------------
+	-- IPL logic
+	ipl_p: process(memclk, reset)
+	begin
+		if (reset = '1') then 
+			ipl_state <= '0';
+			ipl_cnt <= (others => '0');
+			ipl_out <= '0';
+			ipl <= '1';
+		elsif (falling_edge(memclk) and ipl = '1') then
+		
+			--ipl <= '0';	-- block IPL to test
+			
+			if (ipl_state_d = '0') then
+				-- initial count and SPI Flash read command
+				if (ipl_cnt >= "000000001011"
+					and ipl_cnt <= "000000001110") then
+					ipl_out <= '1';
+				else
+					ipl_out <= '0';
+				end if;
+				
+				if (ipl_next = '1') then
+					ipl_state <= '1';
+					ipl_cnt <= (others => '0');
+				else
+					ipl_cnt <= ipl_cnt + 1;
+				end if;
+			else
+				-- read block
+				if (ipl_next = '1') then
+					ipl <= '0';
+					ipl_state <= '0';
+				else
+					ipl_cnt <= ipl_cnt + 1;
+				end if;
+				ipl_out <= '0';
+			end if;
+		end if;
+	end process;
+	
+	ipl_state_p: process(reset, memclk, ipl_state)
+	begin
+		if (reset = '1') then
+			ipl_state_d <= '0';
+		elsif (rising_edge(memclk)) then
+			ipl_state_d <= ipl_state;
+			
+			ipl_next <= '0';
+			if (ipl_state = '0') then
+				if (ipl_cnt = "000001000000") then
+					ipl_next <= '1';
+				end if;
+			else
+				if (ipl_cnt = "111111111111") then
+					ipl_next <= '1';
+				end if;
+			end if;
+		end if;
+	end process;
 	
 end Behavioral;
 

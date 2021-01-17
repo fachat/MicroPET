@@ -40,7 +40,6 @@ entity Mapper is
 	   vda: in std_logic;
 	   vpb: in std_logic;
 	   rwb : in std_logic;
-	   init: in std_logic;
 	   
 	   qclk: in std_logic;
 	   
@@ -48,13 +47,13 @@ entity Mapper is
 	   
            RA : out  STD_LOGIC_VECTOR (18 downto 12);
 	   ffsel: out std_logic;
-	   endinit: out std_logic;	-- when set, de-assert init
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
-	   romsel: out std_logic;
 	   
+	   lowbank: in std_logic_vector(3 downto 0);
    	   wp_rom9: in std_logic;
-	   wp_romA: in std_logic;
+   	   wp_romA: in std_logic;
+	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 
 	   dbgout: out std_logic
@@ -68,10 +67,12 @@ architecture Behavioral of Mapper is
 	
 	-- convenience
 	signal low64k: std_logic;
+	signal low32k: std_logic;
 	signal c8296ram: std_logic;
 	signal petrom: std_logic;
 	signal petrom9: std_logic;
 	signal petromA: std_logic;
+	signal petromB: std_logic;
 	signal petio: std_logic;
 	signal wprot: std_logic;
 	signal screen: std_logic;
@@ -79,12 +80,9 @@ architecture Behavioral of Mapper is
 	signal scrpeek: std_logic;
 
 	signal avalid: std_logic;
-	signal is_init: std_logic;
 	
 	signal bank: std_logic_vector(7 downto 0);
 	
-	constant init_bank: std_logic_vector(7 downto 0) := "00000111"; -- top most bank - boot loader
-
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
 		if L then
@@ -99,16 +97,6 @@ begin
 	
 	avalid <= vda or vpa;
 	
-	-- bummer, vpb is not connected to the CPLD
-	-- and unfortunately vector pulls are vpa=0,vda=1,vpb=0
-	-- so checking for vpa only does not work
-	-- so let's at least do reads only ...
-	-- but only on the upper 32k of bank0, as we need
-	-- access to stack RAM to change data bank via stack ops(bummer!)
-	is_init <= init and rwb --and (vpa or not(vpb)) -- read program or vectors
-		and A(15) and A(14) 		-- in upper 16k (in all banks!)
-		and To_Std_Logic(bankl = "00000000")
-		and To_Std_Logic(A(15 downto 8) /= x"E8");
 	
 	-----------------------------------
 
@@ -126,12 +114,11 @@ begin
 		end if;
 	end process;
 	
-	bank <= init_bank when is_init = '1' else bankl;
+	bank <= bankl;
 	
 	low64k <= '1' when bank = "00000000" else '0';
+	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
 	
-	-- we may disable petio completely during init, our crude first boot loader just copies ROM over the
-	-- the I/O area and triggers writes to I/O space
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
 		else '0';
@@ -140,13 +127,17 @@ begin
 	-- of ROM area in the upper half of bank 0
 	-- Is evaluated in bank 0 only, so low64k can be ignored here
 	petrom <= '1' when A(15) = '1' and			-- upper half
-			(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
+			--(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
+			A(14) = '1' -- upper 16k
 			else '0';
 			
 	petrom9 <= '1' when A(15 downto 12) = x"9"
 			else '0';
 
 	petromA <= '1' when A(15 downto 12) = x"A"
+			else '0';
+
+	petromB <= '1' when A(15 downto 12) = x"B"
 			else '0';
 
 	screen <= '1' when A(15 downto 12) = x"8" 
@@ -182,6 +173,8 @@ begin
 				else
 			'1' when petromA = '1' and wp_romA = '1'
 				else
+			'1' when petromB = '1' and wp_romB = '1'
+				else
 			'0';
 			 
 	-----------------------------------
@@ -189,10 +182,12 @@ begin
 	
 	-- banks 2-15
 	RA(18 downto 17) <= 
+			lowbank(3 downto 2) when low32k = '1' else
 			bank(2 downto 1);			-- just map
 	
 	-- bank 0/1
 	RA(16) <= 
+			lowbank(1) when low32k = '1' else
 			bank(0) when low64k = '0' else  	-- CPU is not in low 64k
 			'1' 	when c8296ram = '1' 		-- 8296 enabled,
 					and A(15) = '1' 	-- upper half of bank0
@@ -201,7 +196,7 @@ begin
 			
 	-- within bank0
 	RA(15) <= A(15) when low64k = '0' else		-- some upper bank
-			'0' when A(15) = '0' else	-- lower half of bank0
+			lowbank(0) when A(15) = '0' else-- lower half of bank0
 			'1' when c8296ram = '0' else	-- upper half of bank0, no 8296 mapping
 			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
@@ -210,7 +205,6 @@ begin
 	RA(14 downto 12) <= A(14 downto 12);
 
 	ramsel <= '0' when avalid='0' else
-			'0' when is_init = '1' else	-- not in init (reads)
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
@@ -218,15 +212,6 @@ begin
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
 			'0' when petio = '1' else	-- not in I/O space
 			'1';
-	
-	dbgout <= low64k; -- bank(3);
-	
-	romsel <= '0' when avalid='0' else
-			'0' when rwb = '0' else		-- ignore writes
-			'0' when petio = '1' else	-- ignore in PET I/O window
-			'1' when is_init = '1' else	-- all reads during init (only upper 16k in each bank)
-			'1' when bank(3) = '1' else	-- upper half of 1M address space is ROM (ignoring bits 4-7)
-			'0';
 	
 	iosel <= '0' when avalid='0' else 
 			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
@@ -237,12 +222,7 @@ begin
 			'1' when low64k ='1' 
 				and A(15 downto 8) = x"FF" else 
 			'0';
-	
-	endinit <= '0' when avalid='0' else
-			'0' when rwb = '1' else		-- ignore reads
-			'1' when bank(3)='1' else	-- writes to upper memory (ROM)
-			'0';
-			
+				
 	-----------------------------------
 	-- cfg
 	
@@ -251,7 +231,7 @@ begin
 		if (reset ='1') then
 			cfg_mp <= (others => '0');
 		elsif (falling_edge(phi2)) then
-			if (init = '0' and cfgld = '1' and rwb = '0') then
+			if (cfgld = '1' and rwb = '0') then
 				cfg_mp <= D;
 			end if;
 		end if;

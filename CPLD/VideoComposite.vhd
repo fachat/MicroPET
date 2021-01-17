@@ -38,9 +38,12 @@ entity Video is
 	   CPU_D : in std_logic_vector (7 downto 0);
 	   
 	   pxl_out: out std_logic;	-- video bitstream
+	   dena   : out std_logic;	-- display enable
            v_sync : out  STD_LOGIC;
            h_sync : out  STD_LOGIC;
+	   pet_vsync : out std_logic;
 
+	   is_enable: in std_logic;	-- display enable
            is_80_in : in  STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
@@ -136,10 +139,15 @@ architecture Behavioral of Video is
 	
 begin
 
-	in_slot_cnt_p: process(in_slot, slotclk, reset)
+	-- On end of line, in_slot is set to 1, to start with chr40,
+	-- which is valid on both 40 and 80 columns.
+	-- Otherwise 40col would start to display a slot later (1/2 40col char).
+	-- Which also happens in every 2nd line if not reset at the end of the line
+	-- and total slots/line is an odd number
+	in_slot_cnt_p: process(in_slot, slotclk, reset, last_slot_of_line)
 	begin
-		if (reset = '1') then
-			in_slot <= '0';
+		if (reset = '1' or last_slot_of_line = '1') then
+			in_slot <= '1';
 		elsif (falling_edge(slotclk)) then
 			in_slot <= not(in_slot);
 		end if;
@@ -163,10 +171,10 @@ begin
 		if (rising_edge(qclk)) then
 	-- do we fetch character index?
 	-- not hires, and first cycle in streak
-	chr_fetch <= chr40 or chr80;
+	chr_fetch <= is_enable and (chr40 or chr80);
 
 	-- dot fetch
-	pxl_fetch <= pxl40 or pxl80;
+	pxl_fetch <= is_enable and (pxl40 or pxl80);
 	
 	-- video access?
 	is_vid <= chr_fetch or pxl_fetch;
@@ -199,14 +207,14 @@ begin
 	begin
 		if (falling_edge(slotclk)) then
 			-- end of line
-			if(slot_cnt = 127) then
+			if(slot_cnt = 132) then
 				last_slot_of_line <= '1';
 			else
 				last_slot_of_line <= '0';
 			end if;
 			
 			-- sync
-			if (slot_cnt >= 96 and slot_cnt <= 112) then
+			if (slot_cnt >= 99 and slot_cnt <= 108) then
 				h_sync_int <= '1';
 			else
 				h_sync_int <= '0';
@@ -229,7 +237,7 @@ begin
 		end if;
 	end process;
 
-	h_sync <= h_sync_int and not(v_sync_int);
+	h_sync <= h_sync_int xor v_sync_int;
 	
 	-----------------------------------------------------------------------------
 	-- vertical geometry calculation
@@ -344,6 +352,7 @@ begin
 	end process;
 
 	v_sync <= v_sync_int;
+	pet_vsync <= v_sync_int;
 	
 	-----------------------------------------------------------------------------
 	-- address calculations
@@ -461,6 +470,8 @@ begin
 	
 	pxl_out <= (pxlhold(7)) and enable;
 
+	dena <= enable;
+	
 	--------------------------------------------
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now

@@ -1,11 +1,12 @@
 
 ; this lets the CPU a) init the video memory and then
-; b) increase the video memory byte by byte in a never ending loop.
+; b) show a boot menu to select which boot option to use
+; from 3032, 4032 and 8032(8296) version.
 ;
 ; Note that during init (after reset) the uPET CPLD has a 
 ; memory mapping that maps some upper ROM into the upper half
-; of bank 0. Only when the control port is written
-; to move out of init mode, the real bank address is used.
+; of bank 0. Only when a write access to the ROM is found as 
+; trigger, the real bank address is used.
 
 
 	*=$f000

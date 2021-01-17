@@ -6,8 +6,8 @@ I programmed it in VHDL.
 
 ## Memory Map
 
-The memory map looks as follows. There are 512k RAM, and 512k ROM, 
-that make up banks 0-7 and banks 8-15 respectively. 
+The memory map looks as follows. There are 512k RAM
+that make up banks 0-7. 
 
 RAM bank 7 is the "video" bank in that hires graphics and character ROMs 
 are mapped here. The character data can be mapped there as well using bit 2
@@ -17,16 +17,6 @@ RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
 upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
 	normal
-	+----+ $0FFFFF
-	|    |         ROM
-	|    |         bank 15
-	+----+ $0F0000
-	|    |
-      	 ...
-	|    |
-	+----+ $090000
-	|    |         ROM
-	|    |         bank 8
 	+----+ $080000
 	|    |         RAM
 	|    |         bank 7 (video)
@@ -58,13 +48,23 @@ and start the main program.
 
 ## CRTC emulation
 
-The Video code emulates two CRTC registers:
+The Video code (partially) emulates three CRTC registers:
 
+- Register 8: control register bit 0 (interlace)
 - Register 9: number of pixel rows per character -1
 - Register 12: start of video memory high
 
 All the other registers are not emulated, so any program or demo that
 uses them will fail.
+
+### Interlace
+
+In normal mode (after reset), the VGA video circuit runs in interlace mode,
+i.e. only every second raster line is displayed with video data.
+
+Writing a "1" into CRTC register 8, interlace is switched off, and every
+single line is displayed with video data. I.e. every rasterline is 
+displayed twice, to get to the same height as in interlace mode.
 
 ### Video memory mapping
 
@@ -116,19 +116,40 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 
 ### Micro-PET
 
-There is a control port at $e800. It is currently only writable.
+There are two control ports at $e800 and $e801. They are currently only writable.
+
+#### $e800 (59392) Video Control
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
-- Bit 3: 0= $009xxx is writable, 1= write protected
-- Bit 4: 0= $00Axxx is writable, 1= write protected
-- Bit 5: 0= $00B000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
-- Bit 6/7: speed mode
+- Bit 3-5: unused, must be 0
+- Bit 7: 0= video enabled; 1= video disabled
+
+
+#### $e801 (59393) Memory Map Control
+
+- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
+- Bit 1-3: unused, must be 0
+- Bit 4: 0= $009xxx is writable, 1= write protected
+- Bit 5: 0= $00Axxx is writable, 1= write protected
+- Bit 6: 0= $00Bxxx is writable, 1= write protected
+- Bit 7: 0= $00C000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
+
+#### $e802 (59394) Low32k Bank
+
+- Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
+- Bit 4-7: unused, must be 0
+
+#### $e803 (59395) Speed Control
+
+- Bit 0/1: speed mode
   - 00 = 1 MHz
   - 01 = 2 MHz
   - 10 = 4 MHz
   - 11 = 8 MHz with wait states for video access to RAM
+- Bit 2-7: unused, must be 0
+
 
 ### 8296 control port
 
