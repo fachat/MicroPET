@@ -48,13 +48,23 @@ and start the main program.
 
 ## CRTC emulation
 
-The Video code emulates two CRTC registers:
+The Video code (partially) emulates three CRTC registers:
 
+- Register 8: control register bit 0 (interlace)
 - Register 9: number of pixel rows per character -1
 - Register 12: start of video memory high
 
 All the other registers are not emulated, so any program or demo that
 uses them will fail.
+
+### Interlace
+
+In normal mode (after reset), the VGA video circuit runs in interlace mode,
+i.e. only every second raster line is displayed with video data.
+
+Writing a "1" into CRTC register 8, interlace is switched off, and every
+single line is displayed with video data. I.e. every rasterline is 
+displayed twice, to get to the same height as in interlace mode.
 
 ### Video memory mapping
 
