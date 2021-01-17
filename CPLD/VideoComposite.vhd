@@ -139,10 +139,15 @@ architecture Behavioral of Video is
 	
 begin
 
-	in_slot_cnt_p: process(in_slot, slotclk, reset)
+	-- On end of line, in_slot is set to 1, to start with chr40,
+	-- which is valid on both 40 and 80 columns.
+	-- Otherwise 40col would start to display a slot later (1/2 40col char).
+	-- Which also happens in every 2nd line if not reset at the end of the line
+	-- and total slots/line is an odd number
+	in_slot_cnt_p: process(in_slot, slotclk, reset, last_slot_of_line)
 	begin
-		if (reset = '1') then
-			in_slot <= '0';
+		if (reset = '1' or last_slot_of_line = '1') then
+			in_slot <= '1';
 		elsif (falling_edge(slotclk)) then
 			in_slot <= not(in_slot);
 		end if;
@@ -202,14 +207,14 @@ begin
 	begin
 		if (falling_edge(slotclk)) then
 			-- end of line
-			if(slot_cnt = 127) then
+			if(slot_cnt = 132) then
 				last_slot_of_line <= '1';
 			else
 				last_slot_of_line <= '0';
 			end if;
 			
 			-- sync
-			if (slot_cnt >= 96 and slot_cnt <= 112) then
+			if (slot_cnt >= 99 and slot_cnt <= 108) then
 				h_sync_int <= '1';
 			else
 				h_sync_int <= '0';
@@ -232,7 +237,7 @@ begin
 		end if;
 	end process;
 
-	h_sync <= h_sync_int and not(v_sync_int);
+	h_sync <= h_sync_int xor v_sync_int;
 	
 	-----------------------------------------------------------------------------
 	-- vertical geometry calculation

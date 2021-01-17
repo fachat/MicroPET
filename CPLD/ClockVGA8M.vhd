@@ -50,7 +50,7 @@ end Clock;
 architecture Behavioral of Clock is
 
 	signal clk_cnt : std_logic_vector(3 downto 0);
-	signal cpu_cnt1 : std_logic_vector(2 downto 0);
+	signal cpu_cnt1 : std_logic_vector(3 downto 0);
 	signal memclk_int : std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
@@ -148,17 +148,18 @@ begin
 	cpu_cnt1_p: process(reset, cpu_cnt1, memclk_int)
 	begin
 		if (reset = '1') then
-			cpu_cnt1 <= "000";
+			cpu_cnt1 <= "0000";
 		elsif (rising_edge(memclk_int)) then	
 			if (cpu_cnt1 = "1001") then
-				cpu_cnt1 <= "000";
+				cpu_cnt1 <= "0000";
 			else
 				cpu_cnt1 <= cpu_cnt1 + 1;
 			end if;
 		end if;
 	end process;
 
-	-- count 6 qclk cycles = ~8 MHz, then transform into clk1m/2m/4m
+	-- generate clk1m/2m/4m
+	-- note: those are sampled at rising edge of memclk
 	cpu_cnt2_p: process(qclk, reset, cpu_cnt1)
 	begin
 		if (reset = '1') then
@@ -166,9 +167,29 @@ begin
 			clk2m <= '0';
 			clk1m <= '0';
 		elsif (rising_edge(qclk)) then	
-			clk4m <= cpu_cnt1(0);
-			clk2m <= To_Std_Logic(cpu_cnt1(1 downto 0) = "11");
-			clk1m <= To_Std_Logic(cpu_cnt1(2 downto 0) = "000");
+			clk4m <= '0';
+			clk2m <= '0';
+			clk1m <= '0';
+			case (cpu_cnt1) is
+			when "0000" =>
+				clk1m <= '1';
+				clk2m <= '1';
+				clk4m <= '1';
+			when "0010" =>
+				clk4m <= '1';
+			when "0100" => 
+				clk2m <= '1';
+			when "0101" => 
+				clk4m <= '1';
+			when "1000" =>
+				clk4m <= '1';
+			when others =>
+				null;
+			end case;
+			
+--			clk4m <= To_Std_Logic(cpu_cnt1(1 downto 0) = "00");
+--			clk2m <= To_Std_Logic(cpu_cnt1(2 downto 0) = "000");
+--			clk1m <= To_Std_Logic(cpu_cnt1(3 downto 0) = "0000");
 			
 		end if;
 	end process;
