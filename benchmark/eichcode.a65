@@ -3,9 +3,11 @@
 // time loop executions and store the result in $2000-$2003
 
 VIA	=$e840
+VPB	=VIA + 0
 T2L	=VIA + 8
 T2H	=VIA + 9
 ACR	=VIA + 11
+IFR	=VIA + 13
 
 	*=$0292
 
@@ -17,30 +19,53 @@ ACR	=VIA + 11
 	sta ACR
 	
 	lda #0
-	sta T2L
-	sta T2H
+	sta crtc+2
 
-	; delay loop to check
-	ldx #0
-l1 	dex
-	bne l1
+	sta T2L
+	sta T2H		; start timer
+
+	; delay loop to check relation of CPU clock to VIA clock
+	ldy #20		; same as multiplier in benchmark.basic
+	ldx #0		; 2 cy 
+l1 	dex		;   2 cy
+	bne l1		;   3 cy -> inner loop has 1280 cy
+	dey		; 2 cy
+	bne l1		; 3 cy
 	lda T2L
 	ldx T2H
 	sta loop
 	stx loop+1
 
-	ldy #0
-	lda #$20
-l0	bit $e840	; wait retrace end
+	; measure distance between vsync signals using VIA timers
+	; (relation between VIA clock and real world clock)
+	ldy #<-1
+	lda #%00100000	; note vsync input on VIA port B (reg #0) is bit as T2 underflow in IFR
+l0	bit VPB		; wait retrace end
 	bne l0
-l2	bit $e840	; wait for start of vertical retrace
+l2	bit VPB		; wait for start of vertical retrace
 	beq l2
+	; start of vsync - start timer
 	sty T2L
-	sty T2H		; start timer
-l3	bit $e840
-	bne l3		; wait end vertical retrace
-l4	bit $e840
+	sty T2H		; set to 0, start
+	; wait for vsync end
+l3	bit VPB
+	beq l4		; wait end vertical retrace
+	bit IFR
+	beq l3		; no timer underflow
+	inc crtc+2
+	sty T2H		; clear int flag, restart timer
+	jmp l3
+
+	; wait for vsync start	
+l4	bit VPB
+	bne l5
+	bit IFR
 	beq l4		; wait for start of 2nd vertical retrace
+	inc crtc+2
+	sty T2H		; clear int flag, restart timer
+	jmp l4
+l5
+	; capture timer value
 	lda T2L
 	ldx T2H		; read timer
 	sta crtc

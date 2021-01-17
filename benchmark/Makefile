@@ -11,7 +11,7 @@ BENCH: BENCH.basic
 	cat BENCH.basic | petcat -w2 -l 0401 > BENCH
 
 
-BENCH.basic: eichcode.data benchcode.data benchmark.basic 
+BENCH.basic: eichcode.data benchmark.basic 
 	cat benchmark.basic > BENCH.basic
 	cat eichcode.data >> BENCH.basic
 	#cat benchcode.data >> BENCH.basic
