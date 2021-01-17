@@ -63,12 +63,15 @@ architecture Behavioral of Clock is
 
 begin
 
+	-- generate an approximate 16 MHz clock counter in clk_cnt2
+	-- this is used to trigger CPU accesses at approx. 1, 2, 4 MHz
 	clk_p: process(qclk, reset, clk_cnt1, clk_cnt2)
 	begin
 		if (reset = '1') then 
 			clk_cnt1 <= (others => '0');
 			clk_cnt2 <= (others => '0');
 		elsif rising_edge(qclk) then
+			-- divide by 3 -> 16.7 MHz in clk_cnt2
 			if (clk_cnt1 = "10") then
 				clk_cnt1 <= "00";
 				clk_cnt2 <= clk_cnt2 + 1;
@@ -78,6 +81,7 @@ begin
 		end if;
 	end process;
 	
+	-- create dotclk, memclk, slotclk
 	out_p: process(qclk, reset, clk_cnt2)
 	begin
 		if (reset = '1') then
