@@ -85,7 +85,7 @@ entity Top is
 	-- Debug
 	   dbg_out: out std_logic;
 	   phi2_io: out std_logic;
-	   test: in std_logic
+	   test: out std_logic
 	 );
 end Top;
 
@@ -161,6 +161,8 @@ architecture Behavioral of Top is
 	signal release_int: std_logic;
 	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
+	signal do_cpu : std_logic;
+	signal memclk_d : std_logic;
 	
 	-- SPI
 	signal spi_dout : std_logic_vector(7 downto 0);
@@ -312,27 +314,6 @@ begin
 	   sr_load
 	);
 
-	-- define CPU slots. clk2=1 is reserved for video
-	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
-
-	is_cpu_trigger <= '1'	when mode = "11" else
-			clk4m	when mode = "10" else
-			clk2m	when mode = "01" else
-			clk1m;
-	
-	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int, memclk)
-	begin
-		if (reset = '1' or release_int = '1') then
-			is_cpu <= '0';
-		elsif (mode = "11") then
-			is_cpu <= '1';
-		elsif falling_edge(memclk) then
-			if (is_cpu_trigger = '1') then
-				is_cpu <= '1';
-			end if;
-		end if;
-	end process;
-
 	reset_p: process(q50m)
 	begin
 		if (rising_edge(q50m)) then
@@ -340,12 +321,33 @@ begin
 		end if;
 	end process;
 	
-	-- WAIT is used to slow 
-	-- 1) access to the slow ROM (which is independent from video bus) and
-	-- 2) access to the RAM when video access is needed
-	--
---	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
---			'0';
+	-- define CPU slots.
+	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
+
+	is_cpu_trigger <= '1'	when mode = "11" else
+			clk4m	when mode = "10" else
+			clk2m	when mode = "01" else
+			clk1m;
+
+	-- depending on mode, goes high when we have a CPU access pending,
+	-- and else low when a CPU access is done
+	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int, memclk)
+	begin
+		if (reset = '1') then
+			is_cpu <= '0';
+		elsif (mode = "11") then
+			is_cpu <= '1';
+		elsif falling_edge(memclk) then
+			if (is_cpu_trigger = '1') then
+				is_cpu <= '1';
+			elsif (do_cpu = '1') then
+				is_cpu <= '0';
+			end if;
+		end if;
+	end process;
+
+--	test <= is_cpu;
+	test <= wait_ram;
 	
 	-- note: 
 	-- m_ramsel_out depends on bankl, which is qualified with rising edge of qclk
@@ -355,74 +357,61 @@ begin
 	-- so is_vid is early, but goes low at same falling edge as memclk
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
+	-- delay until rising memclk; 
 	wait_rd: process(wait_ram, release_int, memclk, reset)
 	begin
 		if (reset = '1') then
 			wait_ram_d <= '1';
-		elsif (release_int = '1') then
-			wait_ram_d <= '0';
 		elsif (rising_edge(memclk)) then
 			wait_ram_d <= wait_ram;
 		end if;
 	end process;
 	
---	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
-	wait_int <= not(is_cpu) or ipl; 
+	-- stretch clock such that we approx. one cycle per is_cpu_trigger (1, 2, 4MHz)
+	-- wait_int rises with falling edge of memclk (see trigger above), or is 
+	-- constant low (full speed)
+	wait_int <= not(is_cpu) or ipl;
 	
-	wait_p: process(wait_int, release_int, memclk, reset)
+	wait_p: process(memclk, reset)
 	begin
 		if (reset = '1') then
 			wait_int_d <= '1';
-		elsif (release_int = '1') then
-			wait_int_d <= '0';
 		elsif (rising_edge(memclk)) then
 			wait_int_d <= wait_int;
 		end if;
 	end process;
-	
-	wait_p2: process(wait_int_d, release_int, memclk, reset)
+
+	memclk_p: process(memclk, q50m)
 	begin
-		if (reset = '1' or release_int = '1') then
-			wait_int_d2 <= '0';
-		elsif (rising_edge(memclk)) then
-			wait_int_d2 <= wait_int_d or wait_ram_d;
+		if (falling_edge(q50m)) then
+			memclk_d <= memclk;
 		end if;
 	end process;
-
-	release2_p: process(wait_int_d2, dotclk, is_vid_out, q50m, reset)
+	
+	release2_p: process(memclk_d, reset)
 	begin
 		if (reset = '1') then
-			release_int2 <= '0';
-		elsif (rising_edge(q50m)) then
-			if (memclk = '1' 
-				and wait_int_d2 = '1' 
+			do_cpu <= '0';
+		elsif (rising_edge(memclk_d)) then
+			if (wait_ram = '0' 
 				and is_cpu='1'
 				and ipl='0'
-				and wait_ram_d = '0') 
-				then
-				release_int2 <= '1';
+				) then
+				do_cpu <= '1';
 			else
-				release_int2 <= '0';
+				do_cpu <= '0';
 			end if;
-		end if;
-	end process;
-
-	release_p: process(release_int2, q50m, reset)
-	begin
-		if (reset = '1') then
-			release_int <= '0';
-		elsif (falling_edge(q50m)) then
-			release_int <= release_int2;
 		end if;
 	end process;
 	
 
 	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
 	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
-	phi2_int <= memclk or wait_int_d or wait_ram_d;
---	phi2_out <= phi2_int; 
-	phi2_out <= memclk or wait_int_d or wait_ram_d;
-	phi2_io <= memclk or wait_int_d; -- or wait_ram_d;
+	phi2_int <= memclk or not(do_cpu);
+	phi2_out <= phi2_int; 
+--	phi2_io <= phi2_int;
+	phi2_io <= memclk when mode="11" else
+			memclk or not(do_cpu);
 	
 --	rdy <= not(wait_int_d);
 	rdy <= '1';
