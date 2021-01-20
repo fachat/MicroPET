@@ -84,6 +84,7 @@ entity Top is
 	   
 	-- Debug
 	   dbg_out: out std_logic;
+	   phi2_io: out std_logic;
 	   test: in std_logic
 	 );
 end Top;
@@ -153,6 +154,7 @@ architecture Behavioral of Top is
 	signal cd_in: std_logic_vector(7 downto 0);
 	signal reset: std_logic;
 	signal wait_ram: std_logic;
+	signal wait_ram_d: std_logic;
 	signal wait_int: std_logic;
 	signal wait_int_d: std_logic;
 	signal wait_int_d2: std_logic;
@@ -344,9 +346,28 @@ begin
 	--
 --	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
 --			'0';
+	
+	-- note: 
+	-- m_ramsel_out depends on bankl, which is qualified with rising edge of qclk
+	-- memclk is created at falling edge of qclk
+	-- is_vid is qualified with rising edge of qclk, but depends on pxl/char_window
+	-- that is created at same falling edge of qclk as when memclk falls low
+	-- so is_vid is early, but goes low at same falling edge as memclk
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
-	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
+	wait_rd: process(wait_ram, release_int, memclk, reset)
+	begin
+		if (reset = '1') then
+			wait_ram_d <= '1';
+		elsif (release_int = '1') then
+			wait_ram_d <= '0';
+		elsif (rising_edge(memclk)) then
+			wait_ram_d <= wait_ram;
+		end if;
+	end process;
+	
+--	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
+	wait_int <= not(is_cpu) or ipl; 
 	
 	wait_p: process(wait_int, release_int, memclk, reset)
 	begin
@@ -364,7 +385,7 @@ begin
 		if (reset = '1' or release_int = '1') then
 			wait_int_d2 <= '0';
 		elsif (rising_edge(memclk)) then
-			wait_int_d2 <= wait_int_d;
+			wait_int_d2 <= wait_int_d or wait_ram_d;
 		end if;
 	end process;
 
@@ -373,7 +394,12 @@ begin
 		if (reset = '1') then
 			release_int2 <= '0';
 		elsif (rising_edge(q50m)) then
-			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and ipl='0' and wait_ram = '0') then
+			if (memclk = '1' 
+				and wait_int_d2 = '1' 
+				and is_cpu='1'
+				and ipl='0'
+				and wait_ram_d = '0') 
+				then
 				release_int2 <= '1';
 			else
 				release_int2 <= '0';
@@ -393,12 +419,14 @@ begin
 
 	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
 	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
-	phi2_int <= memclk or wait_int_d;
-	phi2_out <= phi2_int;
---	phi2_out <= memclk or wait_int_d; --(wait_int_d and mode(0) and mode(1));
---	phi2_out <= memclk and test;
+	phi2_int <= memclk or wait_int_d or wait_ram_d;
+--	phi2_out <= phi2_int; 
+	phi2_out <= memclk or wait_int_d or wait_ram_d;
+	phi2_io <= memclk or wait_int_d; -- or wait_ram_d;
 	
-	rdy <= not(wait_int_d);
+--	rdy <= not(wait_int_d);
+	rdy <= '1';
+--	rdy <= not(wait_ram_d);
 	
 	--boot(0) <= spi_out;
 	--boot(1) <= spi_clk;
