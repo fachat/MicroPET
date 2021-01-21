@@ -154,12 +154,8 @@ architecture Behavioral of Top is
 	signal cd_in: std_logic_vector(7 downto 0);
 	signal reset: std_logic;
 	signal wait_ram: std_logic;
-	signal wait_ram_d: std_logic;
 	signal wait_int: std_logic;
 	signal wait_int_d: std_logic;
-	signal wait_int_d2: std_logic;
-	signal release_int: std_logic;
-	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
 	signal do_cpu : std_logic;
 	signal memclk_d : std_logic;
@@ -331,7 +327,7 @@ begin
 
 	-- depending on mode, goes high when we have a CPU access pending,
 	-- and else low when a CPU access is done
-	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int, memclk)
+	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, do_cpu, mode, memclk)
 	begin
 		if (reset = '1') then
 			is_cpu <= '0';
@@ -357,15 +353,6 @@ begin
 	-- so is_vid is early, but goes low at same falling edge as memclk
 	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
-	-- delay until rising memclk; 
-	wait_rd: process(wait_ram, release_int, memclk, reset)
-	begin
-		if (reset = '1') then
-			wait_ram_d <= '1';
-		elsif (rising_edge(memclk)) then
-			wait_ram_d <= wait_ram;
-		end if;
-	end process;
 	
 	-- stretch clock such that we approx. one cycle per is_cpu_trigger (1, 2, 4MHz)
 	-- wait_int rises with falling edge of memclk (see trigger above), or is 
@@ -381,9 +368,13 @@ begin
 		end if;
 	end process;
 
-	memclk_p: process(memclk, q50m)
+	-- delay needed in defining do_cpu, as it needs to wait
+	-- for the address decoding to happen
+	memclk_p: process(memclk, q50m, reset)
 	begin
-		if (falling_edge(q50m)) then
+		if (reset = '1') then
+			memclk_d <= '0';
+		elsif (falling_edge(q50m)) then
 			memclk_d <= memclk;
 		end if;
 	end process;
