@@ -46,8 +46,8 @@ entity Top is
            vda : in  STD_LOGIC;
            vpa : in  STD_LOGIC;
 	   rwb : in std_logic;
-           phi2 : inout  STD_LOGIC;
-	   rdy : out std_logic;
+           phi2 : inout  STD_LOGIC;	-- with pull-up to go to 5V
+	   rdy : inout std_logic;	-- with pull-up to go to 5V
 
 	-- V/RAM interface
 	   VA : out std_logic_vector (18 downto 0);
@@ -118,6 +118,7 @@ architecture Behavioral of Top is
 	signal phi2_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
+	signal rdy_out: std_logic;
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
@@ -144,6 +145,7 @@ architecture Behavioral of Top is
 	signal vis_enable: std_logic;
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
+	signal vis_double_in: std_logic;
 	signal is_vid_out: std_logic;
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
@@ -244,6 +246,7 @@ architecture Behavioral of Top is
            is_80_in : in STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
+--	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -399,23 +402,26 @@ begin
 	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
 	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
 	phi2_int <= memclk or not(do_cpu);
-	phi2_out <= phi2_int; 
---	phi2_io <= phi2_int;
+	
+	-- split phi2, stretched phi2 for the CPU to accomodate for waits.
+	-- for full speed, don't delay VIA timers
+	phi2_out <= phi2_int;
 	phi2_io <= memclk when mode="11" else
-			memclk or not(do_cpu);
+			phi2_int;
+
+	-- to run the VIA timers at full speed all the time use this
+	--phi2_out <= memclk;
+	--phi2_io <= memclk;
 	
---	rdy <= not(wait_int_d);
-	rdy <= '1';
---	rdy <= not(wait_ram_d);
-	
-	--boot(0) <= spi_out;
-	--boot(1) <= spi_clk;
+--	rdy_out <= do_cpu;
+	rdy_out <= '1';
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
 	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
+	rdy  <= rdy_out when ((rdy_out and rdy) = '0') else 'Z';
 	
 	------------------------------------------------------
 	-- CPU memory mapper
@@ -475,6 +481,7 @@ begin
 		vis_enable,
 		vis_80_in,
 		vis_hires_in,
+		--vis_double_in,
 		vgraphic,
 		sel8,
 		ca_in(0),
@@ -562,6 +569,7 @@ begin
 			vis_hires_in <= '0';
 			vis_80_in <= '0';
 			vis_enable <= '1';
+			vis_double_in <= '0';
 			mode <= "00";
 			map_char <= '1';
 			wp_rom9 <= '0';
@@ -576,6 +584,7 @@ begin
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
+				vis_double_in <= D(3);
 				vis_enable <= not(D(7));
 			when "01" =>
 				is8296 <= D(0);
