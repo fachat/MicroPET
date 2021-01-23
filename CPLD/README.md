@@ -123,6 +123,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
+- Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 3-5: unused, must be 0
 - Bit 7: 0= video enabled; 1= video disabled
 
