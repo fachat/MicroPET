@@ -45,10 +45,12 @@ entity Mapper is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out  STD_LOGIC_VECTOR (18 downto 12);
+	   -- mapped address lines
+           RA : out std_logic_vector (18 downto 15);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
-	   ramsel: out std_logic;
+	   vramsel: out std_logic;
+	   framsel: out std_logic;
 	   
 	   lowbank: in std_logic_vector(3 downto 0);
    	   wp_rom9: in std_logic;
@@ -56,6 +58,11 @@ entity Mapper is
 	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 
+	   -- force bank0 (used in emulation mode)
+	   forceb0: in std_logic;
+	   -- is screen in bank0?
+	   screenb0: in std_logic;
+	   
 	   dbgout: out std_logic
 	);
 end Mapper;
@@ -96,9 +103,10 @@ begin
 
 	
 	avalid <= vda or vpa;
-	
-	
-	-----------------------------------
+		
+	-----------------------------------------------------------------------
+	-- CPU address space analysis
+	--
 
 	-- note: simply latching D at rising phi2 does not work,
 	-- as in the logical part after the latch, the changing D already
@@ -110,7 +118,11 @@ begin
 		if (reset ='1') then
 			bankl <= (others => '0');
 		elsif (rising_edge(qclk) and phi2='0') then
-			bankl <= D;
+			if (forceb0 = '1') then
+				bankl <= (others => '0');
+			else
+				bankl <= D;
+			end if;
 		end if;
 	end process;
 	
@@ -177,8 +189,9 @@ begin
 				else
 			'0';
 			 
-	-----------------------------------
-	-- addr output
+	-----------------------------------------------------------------------
+	-- physical address space generation
+	--
 	
 	-- banks 2-15
 	RA(18 downto 17) <= 
@@ -200,11 +213,17 @@ begin
 			'1' when c8296ram = '0' else	-- upper half of bank0, no 8296 mapping
 			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
-	
-	-- the nice thing is that all mapping happens at A15/A16
-	RA(14 downto 12) <= A(14 downto 12);
 
-	ramsel <= '0' when avalid='0' else
+		
+	-- VRAM is second 512k of CPU, plus 4k write-window on $008000 ($088000 in VRAM) if screenb0 is set
+	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
+	-- CPU then reads from FRAM, while video reads from VRAM
+	vramsel <= '0' when avalid = '0' else
+			'1' when bank(3) = '1' else	-- second 512k
+			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='1' else
+			'0';
+			
+	framsel <= '0' when avalid='0' else
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0

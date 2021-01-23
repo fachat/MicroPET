@@ -46,6 +46,7 @@ entity Video is
            is_80_in : in std_logic;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
+	   is_double: in std_logic;
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
 	   crtc_rwb : in std_logic;
@@ -137,6 +138,8 @@ architecture Behavioral of Video is
 	signal pxl_fetch : std_logic;
 	signal sr_load_d : std_logic;
 	signal dot2clk_d : std_logic;
+	
+	signal next_row : std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
@@ -248,6 +251,8 @@ begin
 	-----------------------------------------------------------------------------
 	-- vertical geometry calculation
 
+	next_row <= rline_cnt(0) or is_double;
+	
 	LineCnt: process(h_sync_int, last_line_of_screen, rline_cnt, cline_cnt, reset)
 	begin
 		if (reset = '1') then
@@ -262,7 +267,7 @@ begin
 				
 				if (last_line_of_char = '1') then
 					cline_cnt <= (others => '0');
-				elsif (rline_cnt(0) = '1') then
+				elsif (next_row = '1') then
 					-- display each char line twice
 					cline_cnt <= cline_cnt + 1;
 				end if;
@@ -291,7 +296,7 @@ begin
 		    if (is_9rows = '1' or is_10rows = '1') then
 			-- timing for 9 pixel rows per character
 			-- end of character line
-			if ((is_hires = '1' or cline_cnt = 8) and rline_cnt(0) = '1') then
+			if ((is_hires = '1' or cline_cnt = 8) and next_row = '1') then
 				-- if hires, everyone
 				last_line_of_char <= '1';
 			else
@@ -307,7 +312,7 @@ begin
 		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
-			if ((is_hires = '1' or cline_cnt = 7) and rline_cnt(0) = '1') then
+			if ((is_hires = '1' or cline_cnt = 7) and next_row = '1') then
 				-- if hires, everyone
 				last_line_of_char <= '1';
 			else
@@ -387,10 +392,11 @@ begin
 			charhold(5 downto 0);
 	a_out(10) <= vid_addr(10) when is_hires ='1' else
 			charhold(6) when pxl_fetch ='1' else 
-				vid_addr(10) when is_80 ='1' else 
+				vid_addr(10) when is_80 ='1' or is_double='1' else 
 					vpage(2);
 	a_out(11) <= vid_addr(11) when is_hires ='1' else
 			charhold(7) when pxl_fetch ='1' else
+				vid_addr(11) when is_80 ='1' and is_double='1' else
 				vpage(3);
 	a_out(12) <= vid_addr(12) when is_hires ='1' else
 			is_graph when pxl_fetch ='1' else

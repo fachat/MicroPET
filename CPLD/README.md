@@ -82,7 +82,7 @@ Register 12 is used as follows:
 - Bit 0: - unused -
 - Bit 1: - unused -
 - Bit 2: A10 of character memory in 40 column mode
-- Bit 3: A11 of character memory
+- Bit 3: A11 of character memory 
 - Bit 4: A12 of character memory (inverted)
 - Bit 5: A13 of character pixel data
 - Bit 6: A14 of character pixel data
@@ -123,14 +123,16 @@ There are two control ports at $e800 and $e801. They are currently only writable
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
+- Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 3-5: unused, must be 0
 - Bit 7: 0= video enabled; 1= video disabled
 
 
 #### $e801 (59393) Memory Map Control
 
-- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
-- Bit 1-3: unused, must be 0
+- Bit 0: 0= allow cross-bank access in emulation mode, 1= lock CPU into bank 0 in emulation mode
+- Bit 1-2: unused, must be 0
+- Bit 3: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
 - Bit 4: 0= $009xxx is writable, 1= write protected
 - Bit 5: 0= $00Axxx is writable, 1= write protected
 - Bit 6: 0= $00Bxxx is writable, 1= write protected

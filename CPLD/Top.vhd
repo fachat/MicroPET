@@ -47,12 +47,19 @@ entity Top is
            vpa : in  STD_LOGIC;
 	   rwb : in std_logic;
            phi2 : inout  STD_LOGIC;	-- with pull-up to go to 5V
-	   rdy : inout std_logic;	-- with pull-up to go to 5V
-
+	   rdy_in : in std_logic;	-- is input only (bi-dir on '816, but hardware only allows in)
+	   vpb : in std_logic;
+	   e : in std_logic;
+	   mlb: in std_logic;
+	   mx : in std_logic;
+	   
 	-- V/RAM interface
-	   VA : out std_logic_vector (18 downto 0);
+	   VA : out std_logic_vector (18 downto 0);	-- 512k
+	   FA : out std_logic_vector (18 downto 15);	-- 512k, mappable in 32k blocks
 	   VD : inout std_logic_vector (7 downto 0);
-	   nramsel : out STD_LOGIC;
+	   
+	   nvramsel : out STD_LOGIC;
+	   nframsel : out STD_LOGIC;
 	   ramrwb : out std_logic;
 
 	-- ROM, I/O (on CPU bus)
@@ -94,7 +101,6 @@ architecture Behavioral of Top is
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
 	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
---	constant ipl_addr: std_logic_vector(18 downto 8) := "00010001000";	-- on top of video RAM (ignored during PET boot)
 	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
@@ -122,8 +128,9 @@ architecture Behavioral of Top is
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
-	signal ma_out: std_logic_vector(18 downto 12);
-	signal m_ramsel_out: std_logic;
+	signal ma_out: std_logic_vector(18 downto 15);
+	signal m_framsel_out: std_logic;
+	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
 	signal nramsel_int: std_logic;
 	signal m_iosel: std_logic;
@@ -138,6 +145,8 @@ architecture Behavioral of Top is
 	signal wp_romPET : std_logic;
 	signal is8296 : std_logic;
 	signal lowbank : std_logic_vector(3 downto 0);
+	signal lockb0 : std_logic;
+	signal forceb0 : std_logic;
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
@@ -149,7 +158,7 @@ architecture Behavioral of Top is
 	signal is_vid_out: std_logic;
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
-	signal map_char: std_logic;
+	signal screenb0: std_logic;
 	
 	-- cpu
 	signal ca_in: std_logic_vector(15 downto 0);
@@ -169,15 +178,7 @@ architecture Behavioral of Top is
 	signal spi_sel : std_logic_vector(3 downto 0);
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
-	
-	-- to be replaced with inputs
-	constant vpb: std_logic:= '1';
-	constant e: std_logic:= '1';
-	
-	-- debug
-	signal dbg_vid: std_logic;
-	signal dbg_map: std_logic;
-	
+		
 	-- components
 	
 	component Clock is
@@ -215,16 +216,20 @@ architecture Behavioral of Top is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out  STD_LOGIC_VECTOR (18 downto 12);
+           RA : out std_logic_vector (18 downto 15);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
-	   ramsel: out std_logic;
+	   vramsel: out std_logic;
+	   framsel: out std_logic;
 
 	   lowbank: in std_logic_vector(3 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
+
+	   forceb0: in std_logic;
+	   screenb0: in std_logic;
 	   
 	   dbgout: out std_logic
 	  );
@@ -246,7 +251,7 @@ architecture Behavioral of Top is
            is_80_in : in STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
---	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
+	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -262,7 +267,6 @@ architecture Behavioral of Top is
 	   
            is_vid : out STD_LOGIC;	-- true during video access phase
 	   is_char: out std_logic;	-- map character data fetch
-	   dbg_out : out std_logic;
 	   reset : in std_logic
 	 );
 	end component;
@@ -344,9 +348,6 @@ begin
 			end if;
 		end if;
 	end process;
-
---	test <= is_cpu;
-	test <= wait_ram;
 	
 	-- note: 
 	-- m_ramsel_out depends on bankl, which is qualified with rising edge of qclk
@@ -354,7 +355,7 @@ begin
 	-- is_vid is qualified with rising edge of qclk, but depends on pxl/char_window
 	-- that is created at same falling edge of qclk as when memclk falls low
 	-- so is_vid is early, but goes low at same falling edge as memclk
-	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
+	wait_ram <= '1' when m_vramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
 			'0';
 	
 	-- stretch clock such that we approx. one cycle per is_cpu_trigger (1, 2, 4MHz)
@@ -408,20 +409,24 @@ begin
 	phi2_out <= phi2_int;
 	phi2_io <= memclk when mode="11" else
 			phi2_int;
+	rdy_out <= '1';
 
 	-- to run the VIA timers at full speed all the time use this
 	--phi2_out <= memclk;
 	--phi2_io <= memclk;
+	--rdy_out <= do_cpu;
 	
---	rdy_out <= do_cpu;
-	rdy_out <= '1';
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
 	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
-	rdy  <= rdy_out when ((rdy_out and rdy) = '0') else 'Z';
+	
+	-- we do split phi2, i.e. CPU gets a stretched clock, while VIA timer a normal one.
+	-- this way we can avoid using RDY as control line to the CPU, which requires additional
+	-- parts to protect the CPU, as RDY on the '816 is a bidirectional pin!
+	--rdy  <= rdy_out when ((rdy_out and rdy) = '0') else 'Z';
 	
 	------------------------------------------------------
 	-- CPU memory mapper
@@ -444,15 +449,19 @@ begin
 	   ma_out,
 	   m_ffsel_out,
 	   m_iosel,
-	   m_ramsel_out,
+	   m_vramsel_out,
+	   m_framsel_out,
 	   lowbank,
 	   wp_rom9,
 	   wp_romA,
 	   wp_romB,
 	   wp_romPET,
-	   dbg_map
+	   forceb0,
+	   screenb0
 	);
 
+	forceb0 <= '1' when lockb0 = '1' and e = '1' else
+		'0';
 		
 	cfgld_in <= '1' when is8296 = '1' and m_ffsel_out ='1' and ca_in(7 downto 0) = x"F0" else '0';
 
@@ -481,7 +490,7 @@ begin
 		vis_enable,
 		vis_80_in,
 		vis_hires_in,
-		--vis_double_in,
+		vis_double_in,
 		vgraphic,
 		sel8,
 		ca_in(0),
@@ -496,7 +505,6 @@ begin
 		sr_load,
 		is_vid_out,
 		is_char_out,
-		dbg_vid,
 		reset
 	);
 
@@ -571,23 +579,25 @@ begin
 			vis_enable <= '1';
 			vis_double_in <= '0';
 			mode <= "00";
-			map_char <= '1';
+			screenb0 <= '1';
 			wp_rom9 <= '0';
 			wp_romA <= '0';
 			wp_romPET <= '0';
 			is8296 <= '0';
 			lowbank <= (others => '0');
+			lockb0 <= '0';
 		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
 			case (ca_in(1 downto 0)) is
 			when "00" =>
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
-				map_char <= not(D(2));
+				screenb0 <= not(D(2));
 				vis_double_in <= D(3);
 				vis_enable <= not(D(7));
 			when "01" =>
-				is8296 <= D(0);
+				lockb0 <= D(0);
+				is8296 <= D(3);
 				wp_rom9 <= D(4);
 				wp_romA <= D(5);
 				wp_romB <= D(6);
@@ -606,17 +616,20 @@ begin
 	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(7 downto 0);
-	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
-				ca_in(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(11 downto 8);					-- Video
-	VA(15 downto 12) <= 	ipl_addr(15 downto 12)	when ipl = '1'		else	-- IPL
-				ma_out(15 downto 12) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(15 downto 12);					-- Video
+	VA(14 downto 8) <= 	ipl_addr(14 downto 8) 	when ipl = '1'		else 	-- IPL
+				ca_in(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(14 downto 8);					-- Video
+	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
+				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
+				va_out(15);						-- Video
 	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
 				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
-				"000"			when is_char_out = '1' and map_char='1' else	-- $x08000 for characters like in PET
+				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
 				"111";							-- hires and charrom pixel data in bank 7
 				
+	FA(18 downto 16) <= 	ma_out(18 downto 16);
+	FA(15) <=		ma_out(15);
+	
 	-- RAM data in for video fetch
 	--vd_in <= x"EA"; --D; --VD;
 	vd_in <= VD;
@@ -625,7 +638,7 @@ begin
 	ramrwb_int <= 
 		'0'	when ipl = '1' else		-- IPL loads data into RAM
 		'1' 	when is_vid_out ='1' else 	-- Video reads
-		'1'	when m_ramsel_out ='0' else	-- not selected
+		'1'	when m_vramsel_out ='0' else	-- not selected
 		'1'	when memclk='0' else		-- protect during memclk low
 		rwb;
 		
@@ -638,7 +651,7 @@ begin
 		
 	D <= 	VD when is_vid_out='0' 
 			and rwb='1' 
-			and m_ramsel_out ='1' 
+			and m_vramsel_out ='1' 
 			and phi2_int='1' 
 		else
 		spi_dout when spi_cs = '1'
@@ -648,14 +661,18 @@ begin
 	
 		
 	-- select RAM
+	nframsel <= 	'0'	when memclk = '0' else
+			'1'	when m_framsel_out = '1' else
+			'0';
+	
 	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
 			'0'	when ipl = '1' else	-- IPL loads data into RAM
 			'0' 	when is_vid_out='1' else
-			'0' 	when wait_int_d = '0' and m_ramsel_out ='1' else
+			'0' 	when wait_int_d = '0' and m_vramsel_out ='1' else
 			'1';
 		
 	
-	nramsel <= nramsel_int;
+	nvramsel <= nramsel_int;
 
 	
 	------------------------------------------------------

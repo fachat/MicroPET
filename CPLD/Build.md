@@ -30,13 +30,15 @@ Finally, add the constraints file
 
 ![Add Pinout](images/add_pinout.png)
 
-In the process properties, set "Speed" as optimization goal, and optimization effort to "High".
+In the process properties, set "Area" as optimization goal, and optimization effort to "High".
 
 ![Synthesis properties](images/process_synthesis.png)
 
 Set "Optimize Density" for the Fitting.
 
 ![Fitting properties](images/process_fitting.png)
+
+Also, enable "advanced" build properties, and click "extensive fitting", to allow for slower, but better fitting.
 
 Then you can build the "Top.jed" file by clicking the green triangle to start the build.
 
