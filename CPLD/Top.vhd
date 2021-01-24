@@ -139,6 +139,7 @@ architecture Behavioral of Top is
 	signal sel8 : std_logic;
 
 	signal mode : std_logic_vector(1 downto 0);
+	signal boot : std_logic;
 	signal wp_rom9 : std_logic;
 	signal wp_romA : std_logic;
 	signal wp_romB : std_logic;
@@ -222,6 +223,7 @@ architecture Behavioral of Top is
 	   vramsel: out std_logic;
 	   framsel: out std_logic;
 
+	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
@@ -451,6 +453,7 @@ begin
 	   m_iosel,
 	   m_vramsel_out,
 	   m_framsel_out,
+	   boot,
 	   lowbank,
 	   wp_rom9,
 	   wp_romA,
@@ -585,6 +588,7 @@ begin
 			wp_romPET <= '0';
 			is8296 <= '0';
 			lowbank <= (others => '0');
+			boot <= '1';
 			lockb0 <= '0';
 		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
@@ -597,6 +601,7 @@ begin
 				vis_enable <= not(D(7));
 			when "01" =>
 				lockb0 <= D(0);
+				boot <= D(1);
 				is8296 <= D(3);
 				wp_rom9 <= D(4);
 				wp_romA <= D(5);

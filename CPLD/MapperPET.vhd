@@ -52,6 +52,7 @@ entity Mapper is
 	   vramsel: out std_logic;
 	   framsel: out std_logic;
 	   
+	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
    	   wp_rom9: in std_logic;
    	   wp_romA: in std_logic;
@@ -85,7 +86,7 @@ architecture Behavioral of Mapper is
 	signal screen: std_logic;
 	signal iopeek: std_logic;
 	signal scrpeek: std_logic;
-
+	signal boota19: std_logic;
 	signal avalid: std_logic;
 	
 	signal bank: std_logic_vector(7 downto 0);
@@ -215,16 +216,18 @@ begin
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
 
 		
+	boota19 <= bank(3) xor boot;
+	
 	-- VRAM is second 512k of CPU, plus 4k write-window on $008000 ($088000 in VRAM) if screenb0 is set
 	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
 	-- CPU then reads from FRAM, while video reads from VRAM
 	vramsel <= '0' when avalid = '0' else
-			'1' when bank(3) = '1' else	-- second 512k
+			'1' when boota19 = '1' else	-- second 512k
 			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='1' else
 			'0';
 			
 	framsel <= '0' when avalid='0' else
-			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
+			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
 			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
