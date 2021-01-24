@@ -1,0 +1,172 @@
+
+	.word $0401
+	*=$0401
+
+	.word link
+	.word 10
+	.byt $9e, "1040",0
+link	.word 0
+
+	.dsb 1040-*
+
+; Test goal:
+;
+; check that the "low32k bank mapping" feature works.
+; With this feature writing a bank number into $e802 maps
+; the lowest 32k of CPU address space to any 32k bank in
+; the 512k RAM. This can be used to run multiple programs 
+; in time-sharing parallel.
+;
+; Test principle:
+; 
+; Writing a signature value into (almost) each page of each
+; 32k bank, and see if it is still there in a second
+; pass. 
+; 
+
+;#### $e801 (59393) Memory Map Control
+;
+;- Bit 0: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
+;- Bit 1-3: unused, must be 0
+;- Bit 4: 0= $009xxx is writable, 1= write protected
+;- Bit 5: 0= $00Axxx is writable, 1= write protected
+;- Bit 6: 0= $00Bxxx is writable, 1= write protected
+;- Bit 7: 0= $00C000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
+;
+;#### $e802 (59394) Low32k Bank
+;
+;- Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
+;- Bit 4-7: unused, must be 0
+;
+
+CTRL	=$e801
+BANK	=$e802
+
+ptr	=1	; zp pointer, in every bank (reset after bank switch)
+
+start	
+	; first of all we need to ensure $9xxx is writable and we 
+	; copy our test code there so it does not get remapped
+	lda #%11000000
+	sta CTRL
+
+	ldx #0
+cpyloop	lda code,x
+	sta $9000,x
+	inx
+	cpx #end-$9000
+	bcc cpyloop
+
+	jmp $9000
+
+code
+	*=$9000
+
+	sei
+
+	; note: clear screen now, as test will actually conflict with
+	; this area
+	; note: we run in emulation mode, so wide X or A are not available.
+	ldy #0		; clear screen output
+	lda #$30
+clr	sta $8000+1*80,y
+	sta $8100+1*80,y
+	sta $8000+8*80,y
+	sta $8100+8*80,y
+	iny
+	bne clr
+
+	; pass 1
+	.(
+	lda #2		; start with bank 2 - as "bank1" is our ROM, the second 32k in CPU bank 0
+	sta bank
+
+bnkloop	
+	lda #5
+	sta page	; start page - we ignore zero/stack/basic stuff for now
+
+	lda bank
+	sta BANK
+pgloop
+	lda #0		; note: cannot optimize this, as is new in every bank
+	sta ptr
+	lda page
+	sta ptr+1
+
+	ldy #5
+	lda page
+	sta (ptr),y
+	iny
+	lda bank
+	sta (ptr),y
+
+	inc page
+	bpl pgloop
+
+	inc bank
+	lda bank
+	cmp #16
+	bcc bnkloop
+	.)
+
+
+	; pass 2
+	.(
+	ldx #0		; index 
+	
+	lda #2		; start bank 2
+	sta bank
+
+bnkloop		
+	lda #0
+	sta ptr
+
+	lda #5
+	sta page	; start page - we ignore zero/stack/basic stuff for now
+
+	lda bank
+	sta BANK
+pgloop
+	lda page
+	sta ptr+1
+
+	ldy #5
+	lda page
+	cmp (ptr),y
+	beq pgok
+mod1	inc $8000+1*80,x
+pgok
+	iny
+	lda bank
+	cmp (ptr),y
+	beq bnkok
+mod2	inc $8000+8*80,x
+bnkok
+	inx
+	bne incok
+	inc mod1+2
+	inc mod2+2
+incok
+	inc page
+	bpl pgloop
+	
+	inc bank
+	lda bank
+	cmp #16
+	bcc bnkloop
+
+	dec mod1+2
+	dec mod2+2
+	.)
+endtest
+	lda #0
+	sta BANK
+	cli
+	rts
+
+	
+bank	.byt 0
+page	.byt 0
+ 
+end
+

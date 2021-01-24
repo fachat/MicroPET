@@ -1,0 +1,72 @@
+
+CTRL	=$e801
+BANK	=$e802
+
+	.word $9000
+	*=$9000
+
+ac	.byt 0
+xr	.byt 0
+yr	.byt 0
+
+	jmp initcopy
+
+
+
+	; copy all low memory area into other bank
+	; pages 0-4, YR= target bank
+initcopy .(
+	lda ac
+	ldy yr
+	ldx xr
+	php
+	sei
+
+	lda #0
+	sta BANK
+	lda #%11000000
+	sta CTRL
+
+	ldx #0
+	; copy five pages
+tohigh
+	lda $0000,x
+	sta $a000,x
+	lda $0100,x
+	sta $a100,x
+	lda $0200,x
+	sta $a200,x
+	lda $0300,x
+	sta $a300,x
+	lda $0400,x
+	sta $a400,x
+	inx
+	bne tohigh
+
+	sty BANK
+	; copy five pages
+tolow
+	lda $a000,x
+	sta $0000,x
+	lda $a100,x
+	sta $0100,x
+	lda $a200,x
+	sta $0200,x
+	lda $a300,x
+	sta $0300,x
+	lda $a400,x
+	sta $0400,x
+	inx
+	bne tolow
+
+	lda #0
+	sta BANK
+
+	plp
+	sta ac
+	stx xr
+	sty yr
+	brk
+
+	.)
+
