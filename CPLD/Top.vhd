@@ -46,8 +46,8 @@ entity Top is
            vda : in  STD_LOGIC;
            vpa : in  STD_LOGIC;
 	   rwb : in std_logic;
-           phi2 : inout  STD_LOGIC;
-	   rdy : out std_logic;
+           phi2 : inout  STD_LOGIC;	-- with pull-up to go to 5V
+	   rdy : inout std_logic;	-- with pull-up to go to 5V
 
 	-- V/RAM interface
 	   VA : out std_logic_vector (18 downto 0);
@@ -84,7 +84,8 @@ entity Top is
 	   
 	-- Debug
 	   dbg_out: out std_logic;
-	   test: in std_logic
+	   phi2_io: out std_logic;
+	   test: out std_logic
 	 );
 end Top;
 
@@ -117,6 +118,7 @@ architecture Behavioral of Top is
 	signal phi2_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
+	signal rdy_out: std_logic;
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
@@ -143,6 +145,7 @@ architecture Behavioral of Top is
 	signal vis_enable: std_logic;
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
+	signal vis_double_in: std_logic;
 	signal is_vid_out: std_logic;
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
@@ -155,10 +158,9 @@ architecture Behavioral of Top is
 	signal wait_ram: std_logic;
 	signal wait_int: std_logic;
 	signal wait_int_d: std_logic;
-	signal wait_int_d2: std_logic;
-	signal release_int: std_logic;
-	signal release_int2: std_logic;
 	signal ramrwb_int: std_logic;
+	signal do_cpu : std_logic;
+	signal memclk_d : std_logic;
 	
 	-- SPI
 	signal spi_dout : std_logic_vector(7 downto 0);
@@ -244,6 +246,7 @@ architecture Behavioral of Top is
            is_80_in : in STD_LOGIC;	-- is 80 column mode?
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
+	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -310,27 +313,6 @@ begin
 	   sr_load
 	);
 
-	-- define CPU slots. clk2=1 is reserved for video
-	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
-
-	is_cpu_trigger <= '1'	when mode = "11" else
-			clk4m	when mode = "10" else
-			clk2m	when mode = "01" else
-			clk1m;
-	
-	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, mode, release_int, memclk)
-	begin
-		if (reset = '1' or release_int = '1') then
-			is_cpu <= '0';
-		elsif (mode = "11") then
-			is_cpu <= '1';
-		elsif falling_edge(memclk) then
-			if (is_cpu_trigger = '1') then
-				is_cpu <= '1';
-			end if;
-		end if;
-	end process;
-
 	reset_p: process(q50m)
 	begin
 		if (rising_edge(q50m)) then
@@ -338,76 +320,108 @@ begin
 		end if;
 	end process;
 	
-	-- WAIT is used to slow 
-	-- 1) access to the slow ROM (which is independent from video bus) and
-	-- 2) access to the RAM when video access is needed
-	--
---	wait_rom <= '1' when m_romsel='1' else 	-- start of ROM read;
---			'0';
-	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
-			'0';
-	wait_int <= wait_ram or not(is_cpu) or ipl; --  or wait_rom
-	
-	wait_p: process(wait_int, release_int, memclk, reset)
-	begin
-		if (reset = '1') then
-			wait_int_d <= '1';
-		elsif (release_int = '1') then
-			wait_int_d <= '0';
-		elsif (rising_edge(memclk)) then
-			wait_int_d <= wait_int;
-		end if;
-	end process;
-	
-	wait_p2: process(wait_int_d, release_int, memclk, reset)
-	begin
-		if (reset = '1' or release_int = '1') then
-			wait_int_d2 <= '0';
-		elsif (rising_edge(memclk)) then
-			wait_int_d2 <= wait_int_d;
-		end if;
-	end process;
+	-- define CPU slots.
+	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
 
-	release2_p: process(wait_int_d2, dotclk, is_vid_out, q50m, reset)
+	is_cpu_trigger <= '1'	when mode = "11" else
+			clk4m	when mode = "10" else
+			clk2m	when mode = "01" else
+			clk1m;
+
+	-- depending on mode, goes high when we have a CPU access pending,
+	-- and else low when a CPU access is done
+	is_cpu_p: process(reset, is_cpu_trigger, is_cpu, do_cpu, mode, memclk)
 	begin
 		if (reset = '1') then
-			release_int2 <= '0';
-		elsif (rising_edge(q50m)) then
-			if (memclk = '1' and wait_int_d2 = '1' and is_cpu='1' and ipl='0' and wait_ram = '0') then
-				release_int2 <= '1';
-			else
-				release_int2 <= '0';
+			is_cpu <= '0';
+		elsif (mode = "11") then
+			is_cpu <= '1';
+		elsif falling_edge(memclk) then
+			if (is_cpu_trigger = '1') then
+				is_cpu <= '1';
+			elsif (do_cpu = '1') then
+				is_cpu <= '0';
 			end if;
 		end if;
 	end process;
 
-	release_p: process(release_int2, q50m, reset)
+--	test <= is_cpu;
+	test <= wait_ram;
+	
+	-- note: 
+	-- m_ramsel_out depends on bankl, which is qualified with rising edge of qclk
+	-- memclk is created at falling edge of qclk
+	-- is_vid is qualified with rising edge of qclk, but depends on pxl/char_window
+	-- that is created at same falling edge of qclk as when memclk falls low
+	-- so is_vid is early, but goes low at same falling edge as memclk
+	wait_ram <= '1' when m_ramsel_out = '1' and is_vid_out = '1' else	-- video access in RAM
+			'0';
+	
+	-- stretch clock such that we approx. one cycle per is_cpu_trigger (1, 2, 4MHz)
+	-- wait_int rises with falling edge of memclk (see trigger above), or is 
+	-- constant low (full speed)
+	wait_int <= not(is_cpu) or ipl;
+	
+	wait_p: process(memclk, reset)
 	begin
 		if (reset = '1') then
-			release_int <= '0';
+			wait_int_d <= '1';
+		elsif (rising_edge(memclk)) then
+			wait_int_d <= wait_int;
+		end if;
+	end process;
+
+	-- delay needed in defining do_cpu, as it needs to wait
+	-- for the address decoding to happen
+	memclk_p: process(memclk, q50m, reset)
+	begin
+		if (reset = '1') then
+			memclk_d <= '0';
 		elsif (falling_edge(q50m)) then
-			release_int <= release_int2;
+			memclk_d <= memclk;
+		end if;
+	end process;
+	
+	release2_p: process(memclk_d, reset)
+	begin
+		if (reset = '1') then
+			do_cpu <= '0';
+		elsif (rising_edge(memclk_d)) then
+			if (wait_ram = '0' 
+				and is_cpu='1'
+				and ipl='0'
+				) then
+				do_cpu <= '1';
+			else
+				do_cpu <= '0';
+			end if;
 		end if;
 	end process;
 	
 
 	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
 	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
-	phi2_int <= memclk or wait_int_d;
+	phi2_int <= memclk or not(do_cpu);
+	
+	-- split phi2, stretched phi2 for the CPU to accomodate for waits.
+	-- for full speed, don't delay VIA timers
 	phi2_out <= phi2_int;
---	phi2_out <= memclk or wait_int_d; --(wait_int_d and mode(0) and mode(1));
---	phi2_out <= memclk and test;
+	phi2_io <= memclk when mode="11" else
+			phi2_int;
+
+	-- to run the VIA timers at full speed all the time use this
+	--phi2_out <= memclk;
+	--phi2_io <= memclk;
 	
-	rdy <= not(wait_int_d);
-	
-	--boot(0) <= spi_out;
-	--boot(1) <= spi_clk;
+--	rdy_out <= do_cpu;
+	rdy_out <= '1';
 	
 	-- use a pullup and this mechanism to drive a 5V signal from a 3.3V CPLD
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
 	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
+	rdy  <= rdy_out when ((rdy_out and rdy) = '0') else 'Z';
 	
 	------------------------------------------------------
 	-- CPU memory mapper
@@ -468,6 +482,7 @@ begin
 		vis_80_in,
 		vis_hires_in,
 		vgraphic,
+		vis_double_in,
 		sel8,
 		ca_in(0),
 		rwb,
@@ -554,6 +569,7 @@ begin
 			vis_hires_in <= '0';
 			vis_80_in <= '0';
 			vis_enable <= '1';
+			vis_double_in <= '0';
 			mode <= "00";
 			map_char <= '1';
 			wp_rom9 <= '0';
@@ -568,6 +584,7 @@ begin
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
+				vis_double_in <= D(3);
 				vis_enable <= not(D(7));
 			when "01" =>
 				is8296 <= D(0);

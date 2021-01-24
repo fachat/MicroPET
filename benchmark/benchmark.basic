@@ -161,7 +161,7 @@
  15120 bc=16000: rem 60hz video
  15130 if cc < 20000 then 15150
  15140 bc = 20025: rem base cycles vsync 50Hz@1mhz
- 15150 bl = 1284 * 20: rem base cycles cpu loop @1mhz
+ 15150 bl = 1285 * 10: rem base cycles cpu loop @1mhz
  15160 gosub 15000
  15170 print"System running at " mc " MHz (" cc " sys cycles / screen)"
  15180 print"CPU running at " ml " MHz (" cl " sys cycles / cpu loop)"

@@ -36,15 +36,11 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 ### Init Map
 
 When the CPU boots, it tries to do so from bank 0. Here we have RAM, so we have to provide some 
-initial mapping.
+initial program load.
 
-Therefore, on reset, the uppermost 16k of bank 15 (ROM) is mapped into bank 0, with the exception of the I/O space
-at $e8xx.
-
-This mapping can be disabled by writing to the ROM area (bank(3)=1). To boot, the boot loader will
-set up the memory as desired, jump to a location outside the boot ROM, disable the initial boot mapping,
-and start the main program.
-
+This is done by loading the lowermost 256 byte from the SPI Flash chip into the uppermost page
+of bank 0. For this, the CPLD takes over control of the SPI lines, sends the READ command and address
+to the SPI Flash, and stores the data in RAM. before it releases the reset signal to the CPU.
 
 ## CRTC emulation
 
@@ -66,6 +62,19 @@ Writing a "1" into CRTC register 8, interlace is switched off, and every
 single line is displayed with video data. I.e. every rasterline is 
 displayed twice, to get to the same height as in interlace mode.
 
+### Double mode
+
+As VGA runs in 640x400 resolution, each pixel row is normally displayed twice, to get 
+an appropriate width/height ratio on the screen.
+
+However, using the Video control register the video output can be switched into double mode.
+This means that pixel rows are not displayed twice, but one time only, resulting in
+400 real pixel rows.
+
+In character mode this means up to 50 lines (with 8 pixel rows per char), or 400 pixel vertical resolution.
+So, we get additional hires resolutions of 320x400 pixel (40 column) and 640x400 (80 column).
+Interlace must be switched off for this. 
+
 ### Video memory mapping
 
 The video memory is defined as follows:
@@ -81,8 +90,8 @@ Register 12 is used as follows:
 
 - Bit 0: - unused -
 - Bit 1: - unused -
-- Bit 2: A10 of character memory in 40 column mode
-- Bit 3: A11 of character memory
+- Bit 2: A10 of character memory (40 column mode)
+- Bit 3: A11 of character memory (80 column double mode)
 - Bit 4: A12 of character memory (inverted)
 - Bit 5: A13 of character pixel data
 - Bit 6: A14 of character pixel data
@@ -91,13 +100,15 @@ Register 12 is used as follows:
 As you can see, the character memory can be mapped in pages of screen size, and using
 as many pages to fill up 8k of RAM.
 For 40 column mode this means 8 screen pages, or 4 screen pages in 80 column mode.
+Character memory is mapped into the upper half of bank 7, i.e. starting from $078000 up to $079FFF
 Character memory is mapped to bank 0 at boot, but can be mapped to bank 7 using the control port below.
 Note that Bit 4 is inverted, as the Commodore PET ROM sets address bit 12 to 1 on boot.
 
 The character set is 8k in size: two character sets of 4k each, switchable with the 
 VIA I/O pin given to the CRTC as in the PET. Register 12 can be used to select
 one of 8 such 8k sets.
-Character pixel data is mapped to bank 7.
+Character pixel data is mapped to bank 7 and can be mapped in the full 64k bank in steps of 8k 
+using control bits 5,6 and 7. After reset it is at $070000.
 
 #### Hires mode
 
@@ -109,7 +120,7 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 - Bit 3: - unused -
 - Bit 4: - unused -
 - Bit 5: A13 of hires data (in 320x200 mode)
-- Bit 6: A14 of hires data
+- Bit 6: A14 of hires data (in 320x200, 640x200 or 320x400 mode)
 - Bit 7: A15 of hires data
 
 ## Control Ports
@@ -123,6 +134,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
+- Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 3-5: unused, must be 0
 - Bit 7: 0= video enabled; 1= video disabled
 

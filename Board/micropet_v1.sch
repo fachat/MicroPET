@@ -19860,7 +19860,6 @@ Distributor: Bürklin 71F972&lt;br&gt;</description>
 <part name="J2" library="con-amp" deviceset="FLOP-4W" device="827001"/>
 <part name="V16" library="supply2" deviceset="VCC" device=""/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
-<part name="JP8" library="jumper" deviceset="JP2E" device=""/>
 <part name="JP9" library="jumper" deviceset="JP2E" device=""/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
 <part name="C17" library="rcl" deviceset="C-EU" device="025-025X050"/>
@@ -19910,8 +19909,8 @@ Distributor: Bürklin 71F972&lt;br&gt;</description>
 <sheet>
 <description>I/O</description>
 <plain>
-<text x="271.78" y="-93.98" size="2.54" layer="92">MICROPET-V1.1A-20210601</text>
-<text x="271.78" y="-71.12" size="3.81" layer="92">MICROPET-V1.1A</text>
+<text x="271.78" y="-93.98" size="2.54" layer="92">MICROPET-V1.1B-20210622</text>
+<text x="271.78" y="-71.12" size="3.81" layer="92">MICROPET-V1.1B</text>
 <text x="271.78" y="-76.2" size="2.54" layer="92">(C) A. Fachat</text>
 <text x="271.78" y="154.94" size="1.778" layer="91">Killer Poke Protection</text>
 <text x="147.32" y="127" size="1.778" layer="91">$E82x</text>
@@ -20420,7 +20419,7 @@ with C64 keyboard</text>
 <pinref part="IC10" gate="G$1" pin="RS0"/>
 </segment>
 </net>
-<net name="PHI2" class="0">
+<net name="PHI2_IO" class="0">
 <segment>
 <wire x1="-99.06" y1="144.78" x2="-2.54" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="-2.54" y1="144.78" x2="111.76" y2="144.78" width="0.1524" layer="91"/>
@@ -21979,8 +21978,8 @@ with C64 keyboard</text>
 <sheet>
 <description>RAM,ROM,CPU</description>
 <plain>
-<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V1.0F-20210106</text>
-<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V1.1A</text>
+<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V1.1B-20210122</text>
+<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V1.1B</text>
 <text x="271.78" y="17.78" size="2.54" layer="92">(C) A. Fachat</text>
 <text x="337.82" y="20.32" size="2.54" layer="92">SHEET 2/3</text>
 <text x="279.4" y="33.02" size="2.54" layer="94">1.0B: replace VCC with V33 as ref voltage on jtag con.</text>
@@ -21991,6 +21990,7 @@ with C64 keyboard</text>
 <text x="279.4" y="53.34" size="2.54" layer="94">1.0F: don't pull CON pin of the clock oscillator to gnd
          (disables oscillators with Tri-state input)</text>
 <text x="279.4" y="60.96" size="2.54" layer="94">1.1A: replace parallel ROM with SPI Flash</text>
+<text x="279.4" y="66.04" size="2.54" layer="94">1.1B: separate out PHI2_IO</text>
 </plain>
 <instances>
 <instance part="FRAME2" gate="G$1" x="-58.42" y="-7.62"/>
@@ -22010,7 +22010,6 @@ with C64 keyboard</text>
 <instance part="JP1" gate="1" x="-25.4" y="40.64"/>
 <instance part="SUPPLY1" gate="G$1" x="-38.1" y="40.64"/>
 <instance part="GND20" gate="1" x="101.6" y="55.88"/>
-<instance part="JP8" gate="1" x="2.54" y="215.9" rot="R90"/>
 <instance part="JP9" gate="1" x="2.54" y="228.6" rot="R90"/>
 <instance part="GND24" gate="1" x="7.62" y="205.74"/>
 <instance part="SV1" gate="1" x="236.22" y="7.62" rot="R180"/>
@@ -22163,11 +22162,7 @@ with C64 keyboard</text>
 <pinref part="JP9" gate="1" pin="1"/>
 <pinref part="GND24" gate="1" pin="GND"/>
 <wire x1="5.08" y1="226.06" x2="7.62" y2="226.06" width="0.1524" layer="91"/>
-<wire x1="7.62" y1="226.06" x2="7.62" y2="213.36" width="0.1524" layer="91"/>
-<pinref part="JP8" gate="1" pin="1"/>
-<wire x1="7.62" y1="213.36" x2="7.62" y2="208.28" width="0.1524" layer="91"/>
-<wire x1="5.08" y1="213.36" x2="7.62" y2="213.36" width="0.1524" layer="91"/>
-<junction x="7.62" y="213.36"/>
+<wire x1="7.62" y1="226.06" x2="7.62" y2="208.28" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="228.6" y1="12.7" x2="210.82" y2="12.7" width="0.1524" layer="91"/>
@@ -22893,12 +22888,8 @@ with C64 keyboard</text>
 <wire x1="-22.86" y1="35.56" x2="-10.16" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="JP8" gate="1" pin="3"/>
-<wire x1="5.08" y1="218.44" x2="10.16" y2="218.44" width="0.1524" layer="91"/>
-<wire x1="10.16" y1="218.44" x2="10.16" y2="231.14" width="0.1524" layer="91"/>
 <pinref part="JP9" gate="1" pin="3"/>
 <wire x1="5.08" y1="231.14" x2="10.16" y2="231.14" width="0.1524" layer="91"/>
-<junction x="10.16" y="231.14"/>
 <wire x1="10.16" y1="231.14" x2="10.16" y2="238.76" width="0.1524" layer="91"/>
 <wire x1="10.16" y1="238.76" x2="17.78" y2="238.76" width="0.1524" layer="91"/>
 <label x="12.7" y="238.76" size="1.6764" layer="95"/>
@@ -23033,25 +23024,6 @@ with C64 keyboard</text>
 <label x="256.54" y="160.02" size="1.27" layer="95" rot="R90"/>
 </segment>
 </net>
-<net name="PHI2" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="PH2-IN"/>
-<wire x1="66.04" y1="58.42" x2="55.88" y2="58.42" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="58.42" x2="40.64" y2="58.42" width="0.1524" layer="91"/>
-<wire x1="40.64" y1="58.42" x2="40.64" y2="162.56" width="0.1524" layer="91"/>
-<pinref part="U$2" gate="G$3" pin="GTS0"/>
-<wire x1="40.64" y1="162.56" x2="124.46" y2="162.56" width="0.1524" layer="91"/>
-<wire x1="124.46" y1="162.56" x2="124.46" y2="170.18" width="0.1524" layer="91"/>
-<label x="48.26" y="58.42" size="1.27" layer="95"/>
-<label x="111.76" y="162.56" size="1.27" layer="95"/>
-<wire x1="40.64" y1="162.56" x2="20.32" y2="162.56" width="0.1524" layer="91"/>
-<junction x="40.64" y="162.56"/>
-<label x="22.86" y="162.56" size="1.27" layer="95"/>
-<pinref part="R12" gate="G$1" pin="2"/>
-<wire x1="55.88" y1="35.56" x2="55.88" y2="58.42" width="0.1524" layer="91"/>
-<junction x="55.88" y="58.42"/>
-</segment>
-</net>
 <net name="R/-W" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="R/WB"/>
@@ -23144,16 +23116,16 @@ with C64 keyboard</text>
 <label x="134.62" y="210.82" size="1.27" layer="95" rot="R90"/>
 </segment>
 </net>
-<net name="MODE1" class="0">
+<net name="PHI2_IO" class="0">
 <segment>
-<pinref part="JP8" gate="1" pin="2"/>
-<wire x1="5.08" y1="215.9" x2="22.86" y2="215.9" width="0.1524" layer="91"/>
-<wire x1="22.86" y1="215.9" x2="22.86" y2="233.68" width="0.1524" layer="91"/>
 <pinref part="U$2" gate="G$3" pin="FB9MC14"/>
-<wire x1="22.86" y1="233.68" x2="132.08" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="233.68" x2="132.08" y2="233.68" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="233.68" x2="132.08" y2="208.28" width="0.1524" layer="91"/>
 <label x="71.12" y="233.68" size="1.6764" layer="95"/>
 <label x="132.08" y="210.82" size="1.27" layer="95" rot="R90"/>
+<wire x1="20.32" y1="167.64" x2="30.48" y2="167.64" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="167.64" x2="30.48" y2="233.68" width="0.1524" layer="91"/>
+<label x="22.86" y="167.64" size="1.27" layer="95"/>
 </segment>
 </net>
 <net name="TCK" class="0">
@@ -23268,6 +23240,25 @@ with C64 keyboard</text>
 <pinref part="U$2" gate="G$3" pin="FB2MC5"/>
 <wire x1="167.64" y1="124.46" x2="172.72" y2="124.46" width="0.1524" layer="91"/>
 <wire x1="172.72" y1="124.46" x2="172.72" y2="170.18" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="PHI2" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="PH2-IN"/>
+<wire x1="66.04" y1="58.42" x2="55.88" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="58.42" x2="40.64" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="58.42" x2="40.64" y2="162.56" width="0.1524" layer="91"/>
+<pinref part="U$2" gate="G$3" pin="GTS0"/>
+<wire x1="40.64" y1="162.56" x2="124.46" y2="162.56" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="162.56" x2="124.46" y2="170.18" width="0.1524" layer="91"/>
+<label x="48.26" y="58.42" size="1.27" layer="95"/>
+<label x="111.76" y="162.56" size="1.27" layer="95"/>
+<wire x1="40.64" y1="162.56" x2="20.32" y2="162.56" width="0.1524" layer="91"/>
+<junction x="40.64" y="162.56"/>
+<label x="22.86" y="162.56" size="1.27" layer="95"/>
+<pinref part="R12" gate="G$1" pin="2"/>
+<wire x1="55.88" y1="35.56" x2="55.88" y2="58.42" width="0.1524" layer="91"/>
+<junction x="55.88" y="58.42"/>
 </segment>
 </net>
 </nets>

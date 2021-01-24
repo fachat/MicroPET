@@ -17,24 +17,9 @@ IFR	=VIA + 13
 	lda ACR
 	and #%11011111
 	sta ACR
-	
-	lda #0
+
+	lda #0	
 	sta crtc+2
-
-	sta T2L
-	sta T2H		; start timer
-
-	; delay loop to check relation of CPU clock to VIA clock
-	ldy #20		; same as multiplier in benchmark.basic
-	ldx #0		; 2 cy 
-l1 	dex		;   2 cy
-	bne l1		;   3 cy -> inner loop has 1280 cy
-	dey		; 2 cy
-	bne l1		; 3 cy
-	lda T2L
-	ldx T2H
-	sta loop
-	stx loop+1
 
 	; measure distance between vsync signals using VIA timers
 	; (relation between VIA clock and real world clock)
@@ -70,6 +55,24 @@ l5
 	ldx T2H		; read timer
 	sta crtc
 	stx crtc+1
+
+
+	lda #0
+
+	sta T2L
+	sta T2H		; start timer
+
+	; delay loop to check relation of CPU clock to VIA clock
+	ldy #10		; same as multiplier in benchmark.basic
+	ldx #0		; 2 cy 
+l1 	dex		;   2 cy
+	bne l1		;   3 cy -> inner loop has 1280 cy
+	dey		; 2 cy
+	bne l1		; 3 cy
+	lda T2L
+	ldx T2H
+	sta loop
+	stx loop+1
 
 	plp
 	rts
