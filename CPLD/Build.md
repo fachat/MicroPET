@@ -39,6 +39,8 @@ Set "Optimize Density" for the Fitting.
 ![Fitting properties](images/process_fitting.png)
 
 Also, enable "advanced" build properties, and click "extensive fitting", to allow for slower, but better fitting.
+The r2 managed to be fitted with pterm limit: 12 and input limit: 17 - so this may be a worth a try to shorten
+the fitting time (with full levels it took over 2-3h...).
 
 Then you can build the "Top.jed" file by clicking the green triangle to start the build.
 
