@@ -62,11 +62,12 @@ end Mapper;
 
 architecture Behavioral of Mapper is
 
+	signal cfg_mp: std_logic_vector(7 downto 0);
 	signal bankl: std_logic_vector(7 downto 0);
 	
 	-- convenience
-	signal low32k: std_logic;
 	signal low64k: std_logic;
+	signal low32k: std_logic;
 	signal petrom: std_logic;
 	signal petrom9: std_logic;
 	signal petromA: std_logic;
@@ -91,7 +92,8 @@ begin
 
 	
 	avalid <= vda or vpa;
-		
+	
+	
 	-----------------------------------
 
 	-- note: simply latching D at rising phi2 does not work,
@@ -113,8 +115,6 @@ begin
 	low64k <= '1' when bank = "00000000" else '0';
 	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
 	
-	-- we may disable petio completely during init, our crude first boot loader just copies ROM over the
-	-- the I/O area and triggers writes to I/O space
 	petio <= '1' when low64k ='1'
 			and A(15 downto 8) = x"E8"
 		else '0';
@@ -124,7 +124,7 @@ begin
 	-- Is evaluated in bank 0 only, so low64k can be ignored here
 	petrom <= '1' when A(15) = '1' and			-- upper half
 			--(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
-			A(14) = '1'				-- upper 16k
+			A(14) = '1' -- upper 16k
 			else '0';
 			
 	petrom9 <= '1' when A(15 downto 12) = x"9"
@@ -135,6 +135,7 @@ begin
 
 	petromB <= '1' when A(15 downto 12) = x"B"
 			else '0';
+
 
 	-- write should not happen (only evaluated in upper half of bank 0)
 	wprot <= '0' when rwb = '1' else			-- read access are ok
@@ -162,10 +163,9 @@ begin
 			bank(0);
 			
 	-- within bank0
-	RA(15) <= 
-			lowbank(0) when low32k = '1' else
+	RA(15) <= 	lowbank(0) when low32k = '1' else -- lower half of bank0
 			A(15);
-			
+	
 	-- the nice thing is that all mapping happens at A15/A16
 	RA(14 downto 12) <= A(14 downto 12);
 
@@ -173,19 +173,15 @@ begin
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
+			'0' when wprot = '1' else	-- write protect - upper half of bank0
 			'0' when petio = '1' else	-- not in I/O space
 			'1';
 	
-	dbgout <= low64k; -- bank(3);
-		
 	iosel <= '0' when avalid='0' else 
 			'1' when petio ='1' else 
 			'0';
 			
-	ffsel <= '0' when avalid='0' else
-			'1' when low64k ='1' 
-				and A(15 downto 8) = x"FF" else 
-			'0';
-					
+	ffsel <= '1';	
+	
 end Behavioral;
 
