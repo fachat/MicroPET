@@ -238,11 +238,11 @@ begin
 			
 			-- enable
 			-- note:  falling edge of enable may be used to count lines
-			if (slot_cnt < 80) then
-				h_enable <= '1';
-			else
+			if (last_vis_slot_of_line = '1') then
 				h_enable <= '0';
-			end if;			
+			elsif (slot_cnt = 0) then
+				h_enable <= '1';
+			end if;
 		end if;
 	end process;
 
