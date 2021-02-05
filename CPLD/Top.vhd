@@ -85,11 +85,14 @@ entity Top is
 	-- Debug
 	   dbg_out: out std_logic;
 	   phi2_io: out std_logic;
-	   test: out std_logic
+	   test: in std_logic
 	 );
+	 
 end Top;
 
 architecture Behavioral of Top is
+
+	 attribute NOREDUCE : string;
 
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
@@ -122,7 +125,7 @@ architecture Behavioral of Top is
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
-	signal ma_out: std_logic_vector(18 downto 12);
+	signal ma_out: std_logic_vector(18 downto 8);
 	signal m_ramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
 	signal nramsel_int: std_logic;
@@ -146,6 +149,8 @@ architecture Behavioral of Top is
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
 	signal vis_double_in: std_logic;
+	signal vis_nowrap_in: std_logic;
+	
 	signal is_vid_out: std_logic;
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
@@ -215,7 +220,7 @@ architecture Behavioral of Top is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out  STD_LOGIC_VECTOR (18 downto 12);
+           RA : out  STD_LOGIC_VECTOR (18 downto 8);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
@@ -235,6 +240,7 @@ architecture Behavioral of Top is
 	   A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
 	   CPU_D : in std_logic_vector (7 downto 0);
+	   phi2 : in std_logic;
 	   
 	   pxl_out: out std_logic;	-- video bitstream
 	   dena   : out std_logic;	-- display enable
@@ -247,6 +253,8 @@ architecture Behavioral of Top is
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
 	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
+	   is_nowrap: in std_logic;	-- when set, don't wrap screen mem at 1k/2k limits
+	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -313,12 +321,12 @@ begin
 	   sr_load
 	);
 
-	reset_p: process(q50m)
-	begin
-		if (rising_edge(q50m)) then
+--	reset_p: process(q50m)
+--	begin
+--		if (rising_edge(q50m)) then
 			reset <= not(nres);
-		end if;
-	end process;
+--		end if;
+--	end process;
 	
 	-- define CPU slots.
 	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
@@ -346,7 +354,7 @@ begin
 	end process;
 
 --	test <= is_cpu;
-	test <= wait_ram;
+--	test <= wait_ram;
 	
 	-- note: 
 	-- m_ramsel_out depends on bankl, which is qualified with rising edge of qclk
@@ -473,6 +481,7 @@ begin
 		va_out,
 		vd_in,
 		cd_in, 
+		phi2_int,
 		pxl,
 		dena,
 		vsync,
@@ -483,6 +492,7 @@ begin
 		vis_hires_in,
 		vgraphic,
 		vis_double_in,
+		vis_nowrap_in,
 		sel8,
 		ca_in(0),
 		rwb,
@@ -570,6 +580,7 @@ begin
 			vis_80_in <= '0';
 			vis_enable <= '1';
 			vis_double_in <= '0';
+			vis_nowrap_in <= '0';
 			mode <= "00";
 			map_char <= '1';
 			wp_rom9 <= '0';
@@ -585,6 +596,7 @@ begin
 				vis_80_in <= D(1);
 				map_char <= not(D(2));
 				vis_double_in <= D(3);
+				vis_nowrap_in <= D(4);
 				vis_enable <= not(D(7));
 			when "01" =>
 				is8296 <= D(0);
@@ -607,7 +619,7 @@ begin
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(7 downto 0);
 	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
-				ca_in(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				ma_out(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
 				va_out(11 downto 8);					-- Video
 	VA(15 downto 12) <= 	ipl_addr(15 downto 12)	when ipl = '1'		else	-- IPL
 				ma_out(15 downto 12) 	when is_vid_out = '0' 	else 	-- CPU

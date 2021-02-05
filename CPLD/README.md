@@ -88,11 +88,11 @@ In character mode (see control port below) two memory areas are used:
 
 Register 12 is used as follows:
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: A10 of character memory (40 column mode)
-- Bit 3: A11 of character memory (80 column double mode)
-- Bit 4: A12 of character memory (inverted)
+- Bit 0: A8 of character memory start address
+- Bit 1: A9 of character memory start address
+- Bit 2: A10 of character memory start address
+- Bit 3: A11 of character memory start address
+- Bit 4: A12 of character memory start address (inverted)
 - Bit 5: A13 of character pixel data
 - Bit 6: A14 of character pixel data
 - Bit 7: A15 of character pixel data
@@ -114,14 +114,14 @@ using control bits 5,6 and 7. After reset it is at $070000.
 
 Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 or 640x200 pixels.
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: - unused -
-- Bit 3: - unused -
-- Bit 4: - unused -
-- Bit 5: A13 of hires data (in 320x200 mode)
-- Bit 6: A14 of hires data (in 320x200, 640x200 or 320x400 mode)
-- Bit 7: A15 of hires data
+- Bit 0: A8 of start of hires data
+- Bit 1: A9 of start of hires data
+- Bit 2: A10 of start of hires data
+- Bit 3: A11 of start of hires data
+- Bit 4: A12 of start of hires data
+- Bit 5: A13 of start of hires data (in 320x200 mode)
+- Bit 6: A14 of start of hires data (in 320x200, 640x200 or 320x400 mode)
+- Bit 7: A15 of start of hires data
 
 ## Control Ports
 
