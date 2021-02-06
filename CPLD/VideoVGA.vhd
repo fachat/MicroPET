@@ -377,11 +377,14 @@ begin
 			if (last_vis_slot_of_line = '1') then
 				if (last_line_of_screen = '1') then
 					if(is_hires_int = '1') then
+						-- hires
 						vid_addr_hold(13) <= vpage(5);
+						vid_addr_hold(12) <= vpage(4);
 					else
+						-- character memory
 						vid_addr_hold(13) <= '0';
+						vid_addr_hold(12) <= not(vpage(4));
 					end if;
-					vid_addr_hold(12)	<= not(vpage(4));
 					vid_addr_hold(11 downto 8) <= vpage(3 downto 0);
 					vid_addr_hold(7 downto 0) <= vpagelo;
 				else
