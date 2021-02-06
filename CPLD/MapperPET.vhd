@@ -45,7 +45,7 @@ entity Mapper is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out  STD_LOGIC_VECTOR (18 downto 12);
+           RA : out  STD_LOGIC_VECTOR (18 downto 8);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   ramsel: out std_logic;
@@ -203,6 +203,7 @@ begin
 	
 	-- the nice thing is that all mapping happens at A15/A16
 	RA(14 downto 12) <= A(14 downto 12);
+	RA(11 downto 8) <= A(11 downto 8);
 
 	ramsel <= '0' when avalid='0' else
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)

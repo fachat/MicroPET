@@ -35,6 +35,7 @@ entity Video is
     Port ( A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
 	   CPU_D: in std_logic_vector(7 downto 0);
+	   phi2: in std_logic;
 	   
 	   pxl_out: out std_logic;	-- video bitstream
 	   dena   : out std_logic;	-- display enable
@@ -47,6 +48,8 @@ entity Video is
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
 	   is_double: in std_logic;
+	   is_nowrap: in std_logic;
+	   
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
 	   crtc_rwb : in std_logic;
