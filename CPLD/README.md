@@ -2,7 +2,22 @@
 # CPLD code for the MicroPET 1.0
 
 The CPLD is a Xilinx xc95288xl chip, a 5V tolerable CPLD running with 3.3V supply voltage.
-I programmed it in VHDL.
+It is programmed in VHDL.
+
+## Modes
+
+The CPLD can be programmed in three modes:
+
+- Composite mode - video output produces composite video timing, with full memory mapping (Note that this will go away in Release 2)
+- VGA mode - VGA video output and full memory mapping, but rather basic CRTC emulation
+- 4032 mode - VGA video output with a much more detailled CRTC emulation, but only 4032 memory mapping
+
+The VGA and 4032 modes had to be separated due to resource restrictions in the CPLD.
+
+See notes below which feature is available in which mode (but 8296 features are not in 4032 mode even if not mentioned).
+Most notably also the 80 column and hires modes are not available in 4032.
+
+Please see the [Build document](Build.md) for how to build the different versions.
 
 ## Memory Map
 
@@ -46,9 +61,12 @@ to the SPI Flash, and stores the data in RAM. before it releases the reset signa
 
 The Video code (partially) emulates three CRTC registers:
 
+- Register 1: characters per line (4032 mode only - fixed to 40 and 80 for 40 column and 80 column modes respectively))
+- Register 6: character lines per screen (4032 mode only)
 - Register 8: control register bit 0 (interlace)
-- Register 9: number of pixel rows per character -1
-- Register 12: start of video memory high
+- Register 9: number of pixel rows per character -1 (full for 4032, only check on > 8 else)
+- Register 12: start of video memory high (see below)
+- Register 13: start of video memory low (4032 only)
 
 All the other registers are not emulated, so any program or demo that
 uses them will fail.
@@ -88,11 +106,11 @@ In character mode (see control port below) two memory areas are used:
 
 Register 12 is used as follows:
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: A10 of character memory (40 column mode)
-- Bit 3: A11 of character memory (80 column double mode)
-- Bit 4: A12 of character memory (inverted)
+- Bit 0: A8 of character memory start address
+- Bit 1: A9 of character memory start address
+- Bit 2: A10 of character memory start address
+- Bit 3: A11 of character memory start address
+- Bit 4: A12 of character memory start address (inverted)
 - Bit 5: A13 of character pixel data
 - Bit 6: A14 of character pixel data
 - Bit 7: A15 of character pixel data
@@ -110,18 +128,49 @@ one of 8 such 8k sets.
 Character pixel data is mapped to bank 7 and can be mapped in the full 64k bank in steps of 8k 
 using control bits 5,6 and 7. After reset it is at $070000.
 
+
+Register 9: pixel rows per characters (stored minus 1)
+
+- Bit 0: Bit 0 of number of pixel rows per char - 1 (4032 only)
+- Bit 1: Bit 1 of number of pixel rows per char - 1 (4032 only)
+- Bit 2: Bit 2 of number of pixel rows per char - 1 (4032 only)
+- Bit 3: Bit 3 of number of pixel rows per char - 1
+
+
+In 4032 mode, the following registers are also implemented:
+
+Register 13: start of video memory low
+
+- Bit 0-3: ignored
+- Bit 4: A4 of character memory start address
+- Bit 5: A5 of character memory start address
+- Bit 6: A6 of character memory start address
+- Bit 7: A7 of character memory start address
+
+Register 1: Number of characters per line
+
+- Bit 0-5: Number of characters per line (up to 63)
+- Bit 6-7: ignored
+
+Register 6: Number of character lines per screen
+
+- Bit 0-6: Number of character lines per screen (up to 127)
+- Bit 7: ignored
+
+
 #### Hires mode
 
 Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 or 640x200 pixels.
+Note: it is not available in 4032 mode.
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: - unused -
-- Bit 3: - unused -
-- Bit 4: - unused -
-- Bit 5: A13 of hires data (in 320x200 mode)
-- Bit 6: A14 of hires data (in 320x200, 640x200 or 320x400 mode)
-- Bit 7: A15 of hires data
+- Bit 0: A8 of start of hires data
+- Bit 1: A9 of start of hires data
+- Bit 2: A10 of start of hires data
+- Bit 3: A11 of start of hires data
+- Bit 4: A12 of start of hires data
+- Bit 5: A13 of start of hires data (in 320x200 mode)
+- Bit 6: A14 of start of hires data (in 320x200, 640x200 or 320x400 mode)
+- Bit 7: A15 of start of hires data
 
 ## Control Ports
 

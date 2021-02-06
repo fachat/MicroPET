@@ -48,7 +48,7 @@ entity Video is
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
 	   is_double: in std_logic;
-	   is_nowrap: in std_logic;	-- (ignored)
+	   is_nowrap: in std_logic;	-- when set, don't wrap screen mem at 1k/2k border
 	   
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
@@ -88,7 +88,7 @@ architecture Behavioral of Video is
 	signal rows_per_char: std_logic_vector(3 downto 0);
 	signal slots_per_line: std_logic_vector(6 downto 0);
 	signal clines_per_screen: std_logic_vector(6 downto 0);
-
+	
 	signal vpage : std_logic_vector(7 downto 0);
 	signal vpagelo : std_logic_vector(7 downto 0);
 	
@@ -176,7 +176,7 @@ begin
 		end if;
 	end process;
 	
-	is_hires_int <= is_hires;
+	is_hires_int <= '0'; -- is_hires;
 	
 	-- access indicators
 	--
@@ -255,17 +255,19 @@ begin
 			else 
 				last_vis_slot_of_line <= '0';
 			end if;
-			
-			-- enable
-			-- note:  falling edge of enable may be used to count lines
+
+		end if;
+	end process;
+
+	h_en_p: process(last_vis_slot_of_line, slot_cnt)
+	begin
 			if (last_vis_slot_of_line = '1') then
 				h_enable <= '0';
 			elsif (slot_cnt = 0) then
 				h_enable <= '1';
 			end if;
-		end if;
 	end process;
-
+	
 	h_sync <= not(h_sync_int); -- and not(v_sync_int));
 	
 	-----------------------------------------------------------------------------
@@ -309,6 +311,7 @@ begin
 					v_sync_int <= '0';
 				end if;
 			end if;
+			
 		end if;
 	end process;
 
@@ -326,12 +329,6 @@ begin
 				last_line_of_char <= '0';
 			end if;
 
-			-- venable
-			if (rline_cnt < 450) then
-				v_enable <= '1';
-			else
-				v_enable <= '0';
-			end if;
 		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
@@ -341,14 +338,23 @@ begin
 			else
 				last_line_of_char <= '0';
 			end if;
-
-			-- venable
-			if (rline_cnt < 400) then
-				v_enable <= '1';
-			else
-				v_enable <= '0';
-			end if;
+						
 		    end if; -- crtc_is_9rows
+
+			if (cline_cnt = clines_per_screen) then
+--			if (v_sync_int = '1') then 
+				--last_vis_line_of_screen <= '1';
+				v_enable <= '0';
+--			else
+--				last_vis_line_of_screen <= '0';
+--			end if;
+--			
+--			if (last_vis_line_of_screen = '1') then
+--				v_enable <= '0';
+			--elsif (rline_cnt = 0) then
+			elsif (last_line_of_screen = '1') then
+				v_enable <= '1';
+			end if;
 
 		    -- common for 8/9 pixel rows per char
 		    
@@ -376,16 +382,13 @@ begin
 		elsif (rising_edge(slotclk)) then
 			if (last_vis_slot_of_line = '1') then
 				if (last_line_of_screen = '1') then
-					if(is_hires_int = '1') then
-						-- hires
+					if (is_hires = '1') then
 						vid_addr_hold(13) <= vpage(5);
-						vid_addr_hold(12) <= vpage(4);
 					else
-						-- character memory
 						vid_addr_hold(13) <= '0';
-						vid_addr_hold(12) <= not(vpage(4));
 					end if;
-					vid_addr_hold(11 downto 8) <= vpage(3 downto 0);
+					vid_addr_hold(12) 	<= not(vpage(4));					
+					vid_addr_hold(11 downto 8) <= vpage(3 downto 0);					
 					vid_addr_hold(7 downto 0) <= vpagelo;
 				else
 					if (last_line_of_char = '1') then
@@ -403,11 +406,18 @@ begin
 		elsif (falling_edge(slotclk)) then
 			if (last_line_of_screen = '1' and last_slot_of_line = '1') then
 				vid_addr <= (others => '0');
-				is_80 <= is_80_in;
+				is_80 <= '0'; -- reduce resources is_80_in;
 			else
 				if (last_slot_of_line = '0') then
 					if (is_80 = '1' or in_slot = '1') then
-						vid_addr <= vid_addr + 1;
+						vid_addr(9 downto 0) <= vid_addr(9 downto 0) + 1;
+--						vid_addr <= vid_addr + 1;
+--						if (is_hires = '0' and is_nowrap = '0') then -- wrap
+--							vid_addr(11) <= '0';
+--							if (is_80 = '0') then
+--								vid_addr(10) <= '0';
+--							end if;
+--						end if;
 					end if;
 				else
 					vid_addr <= vid_addr_hold;
@@ -430,7 +440,7 @@ begin
 	a_out(15 downto 14) <= vpage(7 downto 6) when is_hires_int = '1' or pxl_fetch = '1' else
 				"10";		-- $8000 for PET character data
 
-	A <= a_out;
+	A <= a_out; -- when pxl_fetch ='1' or chr_fetch = '1' else (others => 'Z');
 
 	-----------------------------------------------------------------------------
 	-- char hold
@@ -512,7 +522,6 @@ begin
 			clines_per_screen <= "0011001";	-- 25
 			vpage <= x"10"; -- inverted for PET
 			interlace <= '0';
-			vpagelo <= (others => '0');
 		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
 				and crtc_rs='1' 
@@ -520,18 +529,17 @@ begin
 				) then
 			case (crtc_reg) is
 			when x"1" =>
-				-- we only allow to write up to 63, to save one CPLD register
+				-- we only allow to write up to 63, to save one register
 				-- (bit 7 is constant)
-				--slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
-			when x"6" => 
-				--clines_per_screen <= CPU_D(6 downto 0);
+				slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
+			when x"6" =>
+				clines_per_screen <= CPU_D(6 downto 0);
 			when x"9" =>
-				rows_per_char(3) <= CPU_D(3);
-				--rows_per_char <= CPU_D(3 downto 0);
+				rows_per_char <= CPU_D(3 downto 0);
 			when x"c" =>
 				vpage <= CPU_D;
 			when x"d" =>
-				--vpagelo <= CPU_D;
+				vpagelo(7 downto 4) <= CPU_D(7 downto 4);
 			when x"8" =>
 				interlace <= CPU_D(0);
 			when others =>

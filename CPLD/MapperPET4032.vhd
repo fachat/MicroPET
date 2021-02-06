@@ -68,16 +68,13 @@ architecture Behavioral of Mapper is
 	-- convenience
 	signal low64k: std_logic;
 	signal low32k: std_logic;
-	signal c8296ram: std_logic;
 	signal petrom: std_logic;
 	signal petrom9: std_logic;
 	signal petromA: std_logic;
 	signal petromB: std_logic;
 	signal petio: std_logic;
-	signal wprot: std_logic;
 	signal screen: std_logic;
-	signal iopeek: std_logic;
-	signal scrpeek: std_logic;
+	signal wprot: std_logic;
 
 	signal avalid: std_logic;
 	
@@ -117,9 +114,13 @@ begin
 	bank <= bankl;
 	
 	low64k <= '1' when bank = "00000000" else '0';
-	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
+	
+	-- The following are evaluated in bank 0 only, so low64k can be ignored here
 	
 	petio <= '1' when A(15 downto 8) = x"E8"
+		else '0';
+
+	screen <= '1' when A(15 downto 11) = "10000"	-- 2k at $8000
 		else '0';
 	
 	-- the following are only used to determine write protect
@@ -139,33 +140,9 @@ begin
 	petromB <= '1' when A(15 downto 12) = x"B"
 			else '0';
 
-	screen <= '1' when A(15 downto 12) = x"8" 
-			else '0';
-
-	-- 8296 specifics. *peek allow using the IO and screen memory windows despite mapping RAM
-	
-	iopeek <= '1' when petio = '1' and cfg_mp(6)='1' else '0';
-			 
-	scrpeek <= '1' when screen = '1' and cfg_mp(5)='1' else '0';
-
-	-- when c8296 is set, upper 16k of bank0 are mapped to RAM (with holes on *peek)
-	-- evaluated in bank0 only, so low64k ignored here
-	c8296ram <= '1' when cfg_mp(7) = '1'
-				and iopeek = '0' 
-				and scrpeek = '0'
-				else '0';
 
 	-- write should not happen (only evaluated in upper half of bank 0)
 	wprot <= '0' when rwb = '1' else			-- read access are ok
-			'0' when cfg_mp(7) = '1' and		-- ignore I/O window
-				petio = '1' and iopeek = '1' 
-				else
-			'1' when cfg_mp(7) = '1' and		-- 8296 enabled
-				((A(14)='1' and cfg_mp(1)='1')	-- upper 16k write protected
-				or (A(14)='0' and cfg_mp(0)='1')) -- lower 16k write protected
-				else 
-			'0' when cfg_mp(7) = '1' 		-- 8296 RAM but no wp
-				else
 			'1' when petrom = '1' and wp_romPET = '1'
 				else
 			'1' when petrom9 = '1' and wp_rom9 = '1'
@@ -181,63 +158,39 @@ begin
 	
 	-- banks 2-15
 	RA(18 downto 17) <= 
-			lowbank(3 downto 2) when low32k = '1' else
 			bank(2 downto 1);			-- just map
 	
 	-- bank 0/1
 	RA(16) <= 
-			lowbank(1) when low32k = '1' else
-			bank(0) when low64k = '0' else  	-- CPU is not in low 64k
-			'1' 	when c8296ram = '1' 		-- 8296 enabled,
-					and A(15) = '1' 	-- upper half of bank0
-					else  			 
-			'0';
+			bank(0);
 			
 	-- within bank0
-	RA(15) <= A(15) when low64k = '0' else		-- some upper bank
-			lowbank(0) when A(15) = '0' else-- lower half of bank0
-			'1' when c8296ram = '0' else	-- upper half of bank0, no 8296 mapping
-			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
-			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
+	RA(15) <= 	
+			A(15);
 	
 	-- the nice thing is that all mapping happens at A15/A16
-	RA(14 downto 12) <= A(14 downto 12);
-	RA(11 downto 8) <= A(11 downto 8);
+	RA(14 downto 11) <= A(14 downto 11);
 
+--	RA(10) <= A(10);
+	RA(10) <= '0' when low64k = '1' and screen = '1' else
+			A(10);
+			
+	RA(9 downto 8) <= A(9 downto 8);
+	
 	ramsel <= '0' when avalid='0' else
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
-			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
-			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
+			'0' when wprot = '1' else	-- write protect - upper half of bank0
 			'0' when petio = '1' else	-- not in I/O space
 			'1';
 	
 	iosel <= '0' when avalid='0' else 
 			'0' when low64k = '0' else
-			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
 			'1' when petio ='1' else 
 			'0';
 			
-	ffsel <= '0' when avalid='0' else
-			'1' when low64k ='1' 
-				and A(15 downto 8) = x"FF" else 
-			'0';
-				
-	-----------------------------------
-	-- cfg
-	
-	CfgMP: process(reset, phi2, rwb, cfgld, D)
-	begin
-		if (reset ='1') then
-			cfg_mp <= (others => '0');
-		elsif (falling_edge(phi2)) then
-			if (cfgld = '1' and rwb = '0') then
-				cfg_mp <= D;
-			end if;
-		end if;
-	end process;
-	
+	ffsel <= '1';	
 	
 end Behavioral;
 
