@@ -84,8 +84,6 @@ architecture Behavioral of Video is
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now
 	signal crtc_reg: std_logic_vector(3 downto 0);	
-	signal is_9rows: std_logic;
-	signal is_10rows: std_logic;
 	
 	signal rows_per_char: std_logic_vector(3 downto 0);
 	signal slots_per_line: std_logic_vector(6 downto 0);
@@ -111,6 +109,8 @@ architecture Behavioral of Video is
 	signal rline_cnt : std_logic_vector (9 downto 0) := (others => '0');
 	-- count raster lines per character lines
 	signal rcline_cnt : std_logic_vector (3 downto 0) := (others => '0');
+	-- count character lines
+	signal cline_cnt : std_logic_vector (6 downto 0) := (others => '0');
 	
 	-- computed video memory address
 	signal vid_addr : std_logic_vector (13 downto 0) := (others => '0');
@@ -127,6 +127,8 @@ architecture Behavioral of Video is
 	signal last_line_of_char : std_logic := '0';
 	-- pulse at end of screen
 	signal last_line_of_screen : std_logic := '0';
+	-- last visible line of screen
+	signal last_vis_line_of_screen : std_logic := '0';
 	
 	-- enable
 	signal h_enable : std_logic := '0';	
@@ -276,22 +278,25 @@ begin
 		if (reset = '1') then
 			rline_cnt <= (others => '0');
 			rcline_cnt <= (others => '0');
+			cline_cnt <= (others => '0');
 		elsif (rising_edge(h_sync_int)) then
 			if (last_line_of_screen = '1') then
 				rline_cnt <= (others => '0');
 				rcline_cnt <= (others => '0');
+				cline_cnt <= (others => '0');
 			else
 				rline_cnt <= rline_cnt + 1;
 				
 				if (last_line_of_char = '1') then
 					rcline_cnt <= (others => '0');
+					cline_cnt <= cline_cnt + 1;
 				elsif (next_row = '1') then
 					-- display each char line twice
 					rcline_cnt <= rcline_cnt + 1;
 				end if;
 			end if;
 			
-			if (is_9rows = '1' or is_10rows = '1') then
+			if (rows_per_char(3) = '1') then
 				if (rline_cnt >= 467 and rline_cnt < 469) then
 					v_sync_int <= '1';
 				else
@@ -311,8 +316,8 @@ begin
 	begin
 		if (falling_edge(h_sync_int)) then
 			
-		    if (is_9rows = '1' or is_10rows = '1') then
-			-- timing for 9 pixel rows per character
+		    if (rows_per_char(3) = '1') then
+			-- timing for 9 or more pixel rows per character
 			-- end of character line
 			if ((is_hires_int = '1' or rcline_cnt = 8) and next_row = '1') then
 				-- if hires, everyone
@@ -330,7 +335,7 @@ begin
 		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
-			if ((is_hires_int = '1' or rcline_cnt = 7) and next_row = '1') then
+			if ((is_hires_int = '1' or rcline_cnt = rows_per_char) and next_row = '1') then
 				-- if hires, everyone
 				last_line_of_char <= '1';
 			else
@@ -411,7 +416,7 @@ begin
 	-----------------------------------------------------------------------------
 	-- address output
 	
-	a_out(3 downto 0) <= vid_addr(3 downto 0) when mem_addr = '1' else 
+	a_out(3 downto 0) <= vid_addr(3 downto 0) when mem_addr ='1' else 
 				rcline_cnt;
 	a_out(11 downto 4) <= vid_addr(11 downto 4) when mem_addr = '1' else 
 				charhold(7 downto 0);
@@ -420,12 +425,12 @@ begin
 	a_out(13) 	<= vid_addr(13) 	when mem_addr ='1' else
 				vpage(5);
 	a_out(15 downto 14) <= vpage(7 downto 6) when is_hires_int = '1' or pxl_fetch = '1' else
-			"10";		-- $8000 for PET character data
+				"10";		-- $8000 for PET character data
 
 	A <= a_out;
 
 	-----------------------------------------------------------------------------
-	-- char hold 
+	-- char hold
 	
 	CHold: process(chr_fetch, D, reset)
 	begin
@@ -499,8 +504,6 @@ begin
 	reg9: process(phi2, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
 	begin
 		if (reset = '1') then
-			is_9rows <= '0';
-			is_10rows <= '0';
 			rows_per_char <= X"7";
 			slots_per_line <= "1010000";	-- 80
 			clines_per_screen <= "0011001";	-- 25
@@ -520,13 +523,8 @@ begin
 			when x"6" => 
 				--clines_per_screen <= CPU_D(6 downto 0);
 			when x"9" =>
-				is_9rows <= '0';
-				is_10rows <= '0';
-				if (CPU_D = x"08") then
-					is_9rows <= '1';
-				elsif (CPU_D = x"09") then
-					is_10rows <= '1';
-				end if;
+				rows_per_char(3) <= CPU_D(3);
+				--rows_per_char <= CPU_D(3 downto 0);
 			when x"c" =>
 				vpage <= CPU_D;
 			when x"d" =>
