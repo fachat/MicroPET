@@ -119,8 +119,7 @@ begin
 	low64k <= '1' when bank = "00000000" else '0';
 	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
 	
-	petio <= '1' when low64k ='1'
-			and A(15 downto 8) = x"E8"
+	petio <= '1' when A(15 downto 8) = x"E8"
 		else '0';
 	
 	-- the following are only used to determine write protect
@@ -215,6 +214,7 @@ begin
 			'1';
 	
 	iosel <= '0' when avalid='0' else 
+			'0' when low64k = '0' else
 			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
 			'1' when petio ='1' else 
 			'0';
