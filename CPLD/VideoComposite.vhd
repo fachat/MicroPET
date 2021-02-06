@@ -36,6 +36,7 @@ entity Video is
 	   A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
 	   CPU_D : in std_logic_vector (7 downto 0);
+	   phi2 : in std_logic;
 	   
 	   pxl_out: out std_logic;	-- video bitstream
 	   dena   : out std_logic;	-- display enable
@@ -48,6 +49,8 @@ entity Video is
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
 	   is_double: in std_logic;	-- unused
+	   is_nowrap: in std_logic;
+	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -492,13 +495,13 @@ begin
 		end if;
 	end process;
 	
-	reg9: process(memclk, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
+	reg9: process(phi2, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
 	begin
 		if (reset = '1') then
 			is_9rows <= '0';
 			is_10rows <= '0';
 			vpage <= x"00";
-		elsif (falling_edge(memclk) 
+		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
 				and crtc_rs='1' 
 				and crtc_rwb = '0'
