@@ -23,7 +23,14 @@ Under the project, "Add Source" and add the "Top.vhd" VHDL file
 
 Then add the other VHDL files underneath by assigning the VHDL files to their respective components.
 Note that for the Video and Clock components, two options are available, Composite video out or VGA (640x480) output.
+For the VGA output, there are also separate 4032 options (see the [README](README.md) for the details.
 
+| Model | Clock | Mapper | Video | SPI |
+|---|---|---|---|---|
+| Base Composite video | ClockComposite8M.vhd | MapperPET.vhd | VideoComposite.vhd | SPI.vhd |
+| Base VGA video | ClockVGA8M.vhd | MapperPET.vhd | VideoVGA.vhd | SPI.vhd |
+| Base VGA video | ClockVGA8M.vhd | MapperPET4032.vhd | VideoVGA4032.vhd | SPI.vhd |
+ 
 ![Add other VHDL files](images/add_mapper_and_video.png)
 
 Finally, add the constraints file
