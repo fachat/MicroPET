@@ -80,14 +80,13 @@ entity Top is
 	   spi_clk : out std_logic;
 	   -- MISO
 	   spi_in1  : in std_logic;
-	   spi_in2  : in std_logic;
 	   spi_in3  : in std_logic;
-	   spi_in4  : in std_logic;
 	   -- selects
-	   nflash : out std_logic;
-	   spi_nsel2 : out std_logic;	
-	   spi_nsel3 : out std_logic;	
-	   spi_nsel4 : out std_logic;
+	   nflash : out std_logic;	-- in1
+	   spi_nsel2 : out std_logic;	-- in1
+	   spi_nsel3 : out std_logic;	-- sd card, in3
+	   spi_nsel4 : out std_logic;	-- in1
+	   spi_nsel5 : out std_logic;	-- in1
 	   
 	-- Debug
 	   dbg_out: out std_logic;
@@ -98,6 +97,8 @@ end Top;
 
 architecture Behavioral of Top is
 
+	attribute NOREDUCE : string;
+	
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
 	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
@@ -176,7 +177,7 @@ architecture Behavioral of Top is
 	signal spi_dout : std_logic_vector(7 downto 0);
 	signal spi_cs : std_logic;
 	signal spi_in : std_logic;
-	signal spi_sel : std_logic_vector(3 downto 0);
+	signal spi_sel : std_logic_vector(2 downto 0);
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
 		
@@ -242,6 +243,7 @@ architecture Behavioral of Top is
 	   A : out  STD_LOGIC_VECTOR (15 downto 0);
            D : in  STD_LOGIC_VECTOR (7 downto 0);
 	   CPU_D : in std_logic_vector (7 downto 0);
+	   phi2 : in std_logic;
 	   
 	   pxl_out: out std_logic;	-- video bitstream
 	   dena   : out std_logic;	-- display enable
@@ -254,6 +256,8 @@ architecture Behavioral of Top is
 	   is_hires : in std_logic;	-- is hires mode?
 	   is_graph : in std_logic;	-- from PET I/O
 	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
+	   is_nowrap: in std_logic;
+	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
 	   crtc_rwb : in std_logic;	-- r/-w
@@ -284,7 +288,7 @@ architecture Behavioral of Top is
 	   serin: in std_logic;
 	   serout: out std_logic;
 	   serclk: out std_logic;
-	   sersel: out std_logic_vector(3 downto 0);	   
+	   sersel: out std_logic_vector(2 downto 0);	   
 	   spiclk : in std_logic;
 	   
 	   ipl: in std_logic;
@@ -319,12 +323,12 @@ begin
 	   sr_load
 	);
 
-	reset_p: process(q50m)
-	begin
-		if (rising_edge(q50m)) then
+--	reset_p: process(q50m)
+--	begin
+--		if (rising_edge(q50m)) then
 			reset <= not(nres);
-		end if;
-	end process;
+--		end if;
+--	end process;
 	
 	-- define CPU slots.
 	-- mode(1 downto 0): 00=1MHz, 01=2MHz, 10=4MHz, 11=Max speed
@@ -423,7 +427,7 @@ begin
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
-	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
+	phi2 <= phi2_out; -- when ((phi2_out and phi2) = '0') else 'Z';
 	
 	-- we do split phi2, i.e. CPU gets a stretched clock, while VIA timer a normal one.
 	-- this way we can avoid using RDY as control line to the CPU, which requires additional
@@ -485,6 +489,7 @@ begin
 		va_out,
 		vd_in,
 		cd_in, 
+		phi2_int,
 		pxl,
 		dena,
 		vsync,
@@ -493,8 +498,9 @@ begin
 		vis_enable,
 		vis_80_in,
 		vis_hires_in,
-		vis_double_in,
 		vgraphic,
+		vis_double_in,
+		'1',
 		sel8,
 		ca_in(0),
 		rwb,
@@ -538,12 +544,9 @@ begin
 	-- CPU access to SPI registers
 	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
 	
-	-- SPI serial data in
-	spi_in <= spi_in1 when ipl = '1' or spi_sel(0) = '1' else
-		spi_in2 when spi_sel(1) = '1' else
-		spi_in3 when spi_sel(2) = '1' else
-		spi_in4 when spi_sel(3) = '1' else
-		'0';
+	-- SPI serial data in - shared except IN3 for SD card
+	spi_in <= spi_in3 when spi_sel = "011" else
+			spi_in1;
 	
 	-- SPI serial data out
 	spi_out <= ipl_out	when ipl = '1' 	else
@@ -555,15 +558,22 @@ begin
 	-- SPI select lines
 	-- select flash chip
 	nflash <= '1'		when reset = '1' else
-		'0' 		when ipl = '1'	else
-		not(spi_sel(0));
+			'0' 	when ipl = '1'	else
+			'0'	when spi_sel = "001" else
+			'1';
 		
 	spi_nsel2 <= '1'	when reset = '1' else
-		not(spi_sel(1));
+			'0' 	when spi_sel = "010" else
+			'1';
 	spi_nsel3 <= '1'	when reset = '1' else
-		not(spi_sel(2));
+			'0' 	when spi_sel = "011" else
+			'1';
 	spi_nsel4 <= '1'	when reset = '1' else
-		not(spi_sel(3));
+			'0' 	when spi_sel = "100" else
+			'1';
+	spi_nsel5 <= '1'	when reset = '1' else
+			'0' 	when spi_sel = "101" else
+			'1';
 		
 	------------------------------------------------------
 	-- control
