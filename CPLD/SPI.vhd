@@ -55,14 +55,16 @@ architecture Behavioral of SPI is
 	signal sr: std_logic_vector(7 downto 0);	-- rx/tx shift register
 	signal txd: std_logic_vector(7 downto 0);	-- tx data register
 	signal sel: std_logic_vector(2 downto 0);	
-	signal stat: std_logic_vector(3 downto 0);
+	signal stat: std_logic_vector(3 downto 0);	-- phase counter
 	
-	signal run_rx: std_logic;
-	signal run_rx_d: std_logic;
-	signal run_tx: std_logic;
-	signal run_tx_d: std_logic;
-	signal run_txd: std_logic;			-- txd is full
-	signal ack_txd: std_logic;			-- ack is now taken and empty
+	signal cpol: std_logic;				-- clock polarity
+	signal cpha: std_logic;				-- clock phase
+	
+	signal start_rx: std_logic;
+	signal run_sr_d: std_logic;
+	signal run_sr: std_logic;
+	signal txd_valid: std_logic;			-- txd is full
+	signal ack_txd: std_logic;			-- ack txd is now taken and empty
 	signal ack_rxtx: std_logic;
 	signal serin_d: std_logic;
 	
@@ -78,14 +80,14 @@ architecture Behavioral of SPI is
 begin
 
 	-- read registers
-	read_p: process (rs, rwb, cs, sr, sel, run_tx, run_txd, run_rx, ack_rxtx, ipl, reset)
+	read_p: process (rs, rwb, cs, sr, sel, cpol, cpha, run_sr, txd_valid, start_rx, ack_rxtx, ipl, reset)
 	begin
 		if (reset = '1') then
-			run_rx <= '0';
+			start_rx <= '0';
 		elsif (ack_rxtx = '1') then
-			run_rx <= '0';
+			start_rx <= '0';
 		elsif (falling_edge(cs) and rwb = '1' and rs = "01") then
-			run_rx <= '1';
+			start_rx <= '1';
 		end if;
 
 		if (ipl = '1') then
@@ -95,7 +97,9 @@ begin
 			when "00" =>
 				DOUT(7) <= run_rx or run_tx;
 				DOUT(6) <= run_txd;
-				DOUT(5 downto 3) <= (others => '0');
+				DOUT(5) <= cpol;
+				DOUT(4) <= cpha;
+				DOUT(3) <= '0';
 				DOUT(2 downto 0) <= sel(2 downto 0);
 			when "01" =>
 				DOUT <= sr;
@@ -112,24 +116,28 @@ begin
 	write_p: process (rs, rwb, cs, ack_txd, reset)
 	begin
 		if (reset = '1') then
-			run_txd <= '0';
+			txd_valid <= '0';
 		elsif (ack_txd = '1') then
-			run_txd <= '0';
+			txd_valid <= '0';
 		elsif (falling_edge(cs) 
 			-- with falling memclk
 			and rs = "01"
 			and rwb = '0') then
-			run_txd <= '1';
+			txd_valid <= '1';
 		end if;
 		
 		if (reset = '1') then
 			sel <= (others => '0');
 			txd <= (others => '0');
+			cpol <= '0';
+			cpha <= '0';
 		elsif (falling_edge(cs) 
 			and rwb = '0') then
 			
 			case rs is
 			when "00" =>
+				cpol <= DIN(5);
+				cpha <= DIN(4);
 				sel <= DIN(2 downto 0);
 			when "01" =>
 				txd <= DIN;
@@ -141,24 +149,27 @@ begin
 	
 	sersel <= sel;
 	
-	rxtx_p: process(sr, spiclk, run_rx, run_tx, serin, ack_rxtx, reset)
+	rxtx_p: process(sr, spiclk, serin, ack_rxtx, reset)
 	begin
 		if (reset = '1') then
 			stat <= (others => '0');
 			ack_txd <= '0';
-			run_tx <= '0';
+			run_sr <= '0';
 		elsif (rising_edge(spiclk)) then
 			-- with rising memclk
 
 			ack_txd <= '0';
 			
 			-- load SR
-			if (run_tx_d = '0' and run_rx_d = '0' and run_txd = '1') then
+			if (run_sr_d = '0' and txd_valid = '1') then
 				ack_txd <= '1';
 				sr <= txd;
-				run_tx <= '1';
+				run_sr <= '1';
 
-			elsif (ipl = '1' or run_tx_d = '1' or run_rx_d = '1') then
+			elsif (run_sr_d = '0' and start_rx = '1') then
+				run_sr <= '1';
+				
+			elsif (ipl = '1' or run_sr_d = '1') then
 
 				if (stat(0) = '0') then
 					-- sample at rising edge of spiclk
@@ -178,7 +189,7 @@ begin
 				end if;
 
 				if (stat = "1111") then
-					run_tx <= '0';
+					run_sr <= '0';
 				end if;
 				
 				stat <= stat + 1;
@@ -190,8 +201,7 @@ begin
 	ack_p: process(spiclk, stat)
 	begin
 		if (falling_edge(spiclk)) then
-			run_tx_d <= run_tx;
-			run_rx_d <= run_rx;
+			run_sr_d <= run_sr; -- or run_rx;
 			if (stat = "1111") then
 				ack_rxtx <= '1';
 			else 
@@ -201,7 +211,7 @@ begin
 	end process;
 	
 	serout <= sr(7);
-	serclk <= stat(0);
+	serclk <= stat(0) xor cpol xor (run_sr and cpha);
 	
 end Behavioral;
 

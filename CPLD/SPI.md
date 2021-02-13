@@ -11,8 +11,7 @@ Also, there are two registers to read the data - one that just returns the curre
 and another that automatically triggers reading a new byte from SPI.
 These two features are implemented to increase throughput.
 
-The SPI interface only implements Mode 0, i.e. CPHA=0, CPOL=0.
-This means that clock polarity between transfers is zero (low), and data is transferred at the rising clock edge.
+The CPHA and CPOL bits in the control register can be used to select the required SPI mode.
 
 ## Register Set
 
@@ -21,7 +20,10 @@ The SPI interface has four addresses, of which 3 are currently used:
 - $e808: control register (read/write)
   - Bit 0: SPI select output 1
   - Bit 1: SPI select output 2
-  - Bit 2-5: unused, must be zero
+  - Bit 2: SPI select output 3
+  - Bit 3: SPI select output 4
+  - Bit 4: CPHA
+  - Bit 5: CPOL
   - Bit 6: 1: tx data register is occupied; 0: tx data register is free, you can reload it (read only)
   - Bit 7: 1: shift register is in use (read only)
 
