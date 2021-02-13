@@ -95,8 +95,8 @@ begin
 		elsif (cs = '1' and rwb = '1') then
 			case rs is
 			when "00" =>
-				DOUT(7) <= run_rx or run_tx;
-				DOUT(6) <= run_txd;
+				DOUT(7) <= run_sr;
+				DOUT(6) <= txd_valid;
 				DOUT(5) <= cpol;
 				DOUT(4) <= cpha;
 				DOUT(3) <= '0';
