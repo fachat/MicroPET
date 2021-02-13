@@ -129,7 +129,7 @@ architecture Behavioral of Top is
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
-	signal ma_out: std_logic_vector(18 downto 15);
+	signal ma_out: std_logic_vector(18 downto 8);
 	signal m_framsel_out: std_logic;
 	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
@@ -218,7 +218,7 @@ architecture Behavioral of Top is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out std_logic_vector (18 downto 15);
+           RA : out std_logic_vector (18 downto 8);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -632,7 +632,7 @@ begin
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(7 downto 0);
 	VA(14 downto 8) <= 	ipl_addr(14 downto 8) 	when ipl = '1'		else 	-- IPL
-				ca_in(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				ma_out(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
 				va_out(14 downto 8);					-- Video
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU

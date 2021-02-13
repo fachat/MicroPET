@@ -46,7 +46,7 @@ entity Mapper is
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
 	   -- mapped address lines
-           RA : out std_logic_vector (18 downto 15);
+           RA : out std_logic_vector (18 downto 8);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -215,6 +215,8 @@ begin
 			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
 
+	-- map 1:1
+	RA(14 downto 8) <= A(14 downto 8);
 		
 	boota19 <= bank(3) xor boot;
 	
