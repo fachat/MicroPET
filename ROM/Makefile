@@ -1,28 +1,21 @@
 
-all: romtest01 romtest02 romtest01a romtest02a bootldr bootimg spiimg readflash iplldr
+all: spiimg 
 
-bootimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g bootldr
-	# Note: need to stay below upper 16k, as this is mapped to bank 15 on init
-	# 8k charrom, 8k basic2, 4k editor2 (2k reserve), 4k kernal2
-	# 4k edit80g (2k reserve), 12k basic4, 2k edit40g, 2k empty, 4k kernel4
-	cat chargen_pet16 				> bootimg	# 0-8k
-	cat basic2 edit2g zero kernal2 			>> bootimg	# 8-24k
-	cat edit80g zero				>> bootimg	# 24-28k
-	cat basic4 edit40g zero kernal4			>> bootimg	# 28-48k
-	cat zero zero zero zero zero zero		>> bootimg	# 48-60k
-	cat bootldr					>> bootimg	# 60-64k
+EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit40gx.bin
 
-spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr
-	# Note: need to stay below upper 16k, as this is mapped to bank 15 on init
-	# 8k charrom, 8k basic2, 4k editor2 (2k reserve), 4k kernal2
-	# 4k edit80g (2k reserve), 12k basic4, 2k edit40g, 2k empty, 4k kernel4
-	cat iplldr					> spiimg	# 0-4k
-	cat zero zero					>> spiimg	# 4-8k
-	cat chargen_pet16 				>> spiimg	# 8-16k
-	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k
-	cat edit80g zero				>> spiimg	# 32-36k
-	cat basic4 edit40g zero kernal4			>> spiimg	# 36-56k
-	cat zero zero zero zero 			>> spiimg	# 56-64k
+spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS)
+	cat iplldr					> spiimg	# 0-4k   : IPL loader
+	cat zero zero					>> spiimg	# 4-8k   : 4k reserve
+	cat chargen_pet16 				>> spiimg	# 8-16k  : 8k 16bytes/char PET character ROM
+	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k : BASIC2/Edit/Kernel ROMs (16k consecutive, $c000-$ffff)
+	#cat edit80g zero				>> spiimg	# 32-36k : BASIC 4 80 column editor ROM (graph keybd)
+	cat edit80gx.bin				>> spiimg	# 32-36k : sjgray BASIC 4 80 column editor w/ wedge by for(;;)
+	cat basic4 					>> spiimg	# 36-48k : BASIC4 ROMS (12k $b000-$dfff)
+	#cat edit40g zero 				>> spiimg	# 48-52k : original BASIC 4 editor ROM graph keybd
+	cat edit40gx.bin  				>> spiimg	# 48-52k : sjgray BASIC 4 40 column editor w/ wedge by for(;;)
+	cat kernal4					>> spiimg	# 52-56k : BASIC4 kernel (4k)
+	cat edit40gc.bin	 			>> spiimg	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
+	cat edit80gc.bin	 			>> spiimg	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1
@@ -35,9 +28,6 @@ charPet2Invers: charPet2Invers.c
 	
 char8to16: char8to16.c
 	gcc -o char8to16 char8to16.c
-
-bootldr: bootldr.a65
-	xa -w -o bootldr bootldr.a65
 
 iplldr: iplldr.a65
 	xa -w -o iplldr iplldr.a65
@@ -98,8 +88,8 @@ readflash: readflash.lst
 # Clean
 
 clean:
-	rm -f romtest01 romtest01a romtest02 romtest02a zero bootldr chargen_pet16 char8to16 charPet2Invers
-	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g bootimg spiimg
-	rm -f readflash iplldr
+	rm -f romtest01 romtest01a romtest02 romtest02a zero chargen_pet16 char8to16 charPet2Invers
+	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g 
+	rm -f iplldr
 
 	
