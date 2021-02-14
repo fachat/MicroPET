@@ -585,6 +585,7 @@ begin
 			map_char <= '1';
 			wp_rom9 <= '0';
 			wp_romA <= '0';
+			wp_romB <= '0';
 			wp_romPET <= '0';
 			is8296 <= '0';
 			lowbank <= (others => '0');
