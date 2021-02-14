@@ -158,7 +158,7 @@ basic2	.(
 	jsr flash2direct_xl
 
 	pla		; clear c64 flag (ignored right now)
-	lda #%1000000	; write protect $c000-$ffff
+	lda #%10000000	; write protect $c000-$ffff
 	jmp end
 	.)
 
@@ -186,7 +186,7 @@ basic4	.(
 	ldy #$1000
 	jsr flash2direct_xl
 
-notc64	lda #%10000000	; write protect $b000-$ffff
+notc64	lda #%11000000	; write protect $b000-$ffff
 	jmp end
 	.)
 
@@ -223,9 +223,9 @@ end8
 	dey
 	bne not8032
 
-	lda #%10000000	; write protect ROM $b000-$ffff
+	lda #%11000000	; write protect ROM $b000-$ffff
 	.byt $2c
-not8032	lda #%10000001	; 8296
+not8032	lda #%11000001	; 8296
 	; fallthrough
 	.)
 
