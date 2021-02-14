@@ -18,3 +18,17 @@ Note that it will mangle the system font, as it writes the RAM signature there a
 This are (will be) small routines that can be used from the machine language monitor to fill / exchange 
 data from other banks.
 
+## ROM tests
+
+### readflash
+
+Reads the flash memory from BASIC
+
+### romtest
+
+- romtest01(a).a65: This test program fills bank 1 continuously with an increasing value. This can be used to check the hires mode. The output o
+f its build has to be copied into the top 4k of the ROM to boot/run
+- romtest02(a).a65: This test program copies an 8k character ROM image from start of the ROM to start of bank 7, where the video code takes its 
+character information. Then fills the character screen, and continuously increase the value in the character screen at $008000. This tests the c
+haracter display output. The output of its build has to be copied into the top 4k of the ROM to boot/run
+
