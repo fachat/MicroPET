@@ -132,8 +132,11 @@ cloop	jsr checkkbd_xs
 	jsr clrscreen_xl
 
 	lda #0		
-	xba		; prima high byte of AC with 0
+	xba		; prime high byte of AC with 0
+
 	pla
+	pha
+	and #$7f
 	tay		; this is a wide operation, so AC high byte must be clear
 
 	lda #0
@@ -147,13 +150,15 @@ cloop	jsr checkkbd_xs
 basic2	.(
 	; -----------------------
 	; copy over PET ROM into low RAM
-	; $4000-$7fff in bootimg
+	; $4000-$7fff in bootimg to $c000-$ffff in RAM
 
 	lda #$40
 	ldx #$c000
 	ldy #$4000
 	jsr flash2direct_xl
-	lda #%1000000
+
+	pla		; clear c64 flag (ignored right now)
+	lda #%1000000	; write protect $c000-$ffff
 	jmp end
 	.)
 
@@ -170,18 +175,37 @@ basic4	.(
 	ply
 	dey
 	bne not4
-	lda #%10000000
+
+	; 4032
+	pla
+	bpl notc64
+
+	; copy over PET4 editor with C64 kbd mapping
+	lda #$e0
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct_xl
+
+notc64	lda #%10000000	; write protect $b000-$ffff
 	jmp end
 	.)
 
 	; 1=Basic4/80, 2=Basic4/8296
 not4	.(
 	; copying 80 col editor?
+	pla
 	phy
 
-	lda #%00000010
-	sta $e800	; 80 column
+	cmp #$80	; as y is wide, and a is narrow, is N-flag when set on tay from 8 or 16 bit?
+	bcc notc64
 
+	lda #$f0
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct_xl
+	jmp end8
+
+notc64
 	; BASIC4 with 80 column machines (with CRTC)
 	; as option for BASIC4 with 40 cols
 	; -----------------------
@@ -191,12 +215,15 @@ not4	.(
 	ldx #$e000
 	ldy #$1000
 	jsr flash2direct_xl
+end8
+	lda #%00000010
+	sta $e800	; 80 column
 
 	ply
 	dey
 	bne not8032
 
-	lda #%10000000
+	lda #%10000000	; write protect ROM $b000-$ffff
 	.byt $2c
 not8032	lda #%10000001	; 8296
 	; fallthrough
@@ -306,6 +333,16 @@ gotone	; x has number of key
 	beq is4
 	cpx #50		; 3/6 = "8"
 	beq is8
+
+	cpx #22		; 7/2 = "N" = "6" on C64 kbd
+	beq is8296c64
+	cpx #24		; 7/0 = "X" = "2" on C64 kbd
+	beq is2c64
+	cpx #23		; 7/1 = "V" = "4" on C64 kbd
+	beq is4c64
+	cpx #21		; 7/3 = "," = "8" on C64 kbd
+	beq is8c64
+
 	sec
 	rts
 is8296	lda #4
@@ -317,6 +354,15 @@ is4	lda #2
 is2	lda #1
 	clc
 	rts
+is8296c64 lda #4+128
+	.byt $2c
+is8c64	lda #3+128
+	.byt $2c
+is4c64	lda #2+128
+	.byt $2c
+is2c64	lda #1+128
+	clc
+	rts
 	.)
 
 	; ----------------------------
@@ -326,7 +372,7 @@ is2	lda #1
 	.xl
 
 clrscreen_xl .(
-	ldx #999
+	ldx #1999	; clear full 80 column screen
 	lda #$20
 loop	sta $8000,x
 	dex
