@@ -188,6 +188,13 @@ basic2	.(
 basic4	.(
 	phy
 	; -----------------------
+	; copy over @MON 
+	lda #$10
+	ldx #$a000
+	ldy #$1000
+	jsr flash2direct_xl
+	
+	; -----------------------
 	; copy over PET ROM for 40 columns into low RAM
 	; $9000-$dfff in bootimg
 	lda #$90

@@ -3,9 +3,10 @@ all: spiimg
 
 EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin
 
-spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS)
+spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
-	cat zero zero					>> spiimg	# 4-8k   : 4k reserve
+	#cat zero zero					>> spiimg	# 4-8k   : 4k reserve
+	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
 	cat chargen_pet16 				>> spiimg	# 8-16k  : 8k 16bytes/char PET character ROM
 	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k : BASIC2/Edit/Kernel ROMs (16k consecutive, $c000-$ffff)
 	#cat edit80g zero				>> spiimg	# 32-36k : BASIC 4 80 column editor ROM (graph keybd)
