@@ -1,7 +1,7 @@
 
 all: spiimg 
 
-EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit40gx.bin
+EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin
 
 spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS)
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
@@ -84,7 +84,13 @@ edit80g:
 readflash: readflash.lst
 	petcat -w40 -o readflash readflash.lst
 
+${EDITROMS}: %.bin: %.asm
+	test -e cbm-edit-rom || git clone https://github.com/sjgray/cbm-edit-rom.git
+	cp $< cbm-edit-rom/edit.asm
+	cd cbm-edit-rom && acme -r editrom.txt editrom.asm
+	cp cbm-edit-rom/editrom.bin $@
 
+ 
 # Clean
 
 clean:
