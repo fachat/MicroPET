@@ -176,7 +176,7 @@ Note: it is not available in 4032 mode.
 
 ### Micro-PET
 
-There are two control ports at $e800 and $e801. They are currently only writable.
+There are four control ports at $e800-$e803. They are currently only writable.
 
 #### $e800 (59392) Video Control
 
