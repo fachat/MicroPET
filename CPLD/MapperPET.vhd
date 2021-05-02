@@ -132,8 +132,7 @@ begin
 	low64k <= '1' when bank = "00000000" else '0';
 	low32k <= '1' when low64k = '1' and A(15) = '0' else '0';
 	
-	petio <= '1' when low64k ='1'
-			and A(15 downto 8) = x"E8"
+	petio <= '1' when A(15 downto 8) = x"E8"
 		else '0';
 	
 	-- the following are only used to determine write protect
@@ -224,10 +223,12 @@ begin
 	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
 	-- CPU then reads from FRAM, while video reads from VRAM
 	vramsel <= '0' when avalid = '0' else
-			'1' when boota19 = '1' else	-- second 512k
+			'1' when boota19 = '1' else	-- second 512k (or 1st 512k on boot)
+			--'0' when petio = '1' and boot = '1' else
+			--'0' when low64k = '1' and A(15)='1' and A(14)='1' and A(13) = '1' and A(12)='0' and A(11)='1' and boot = '1' else -- skip in I/O ($exxx, on boot (note: no petio due to compiler error?)
 			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='1' else
 			'0';
-			
+
 	framsel <= '0' when avalid='0' else
 			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
@@ -238,6 +239,7 @@ begin
 			'1';
 	
 	iosel <= '0' when avalid='0' else 
+			'0' when low64k = '0' else
 			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
 			'1' when petio ='1' else 
 			'0';
@@ -246,7 +248,7 @@ begin
 			'1' when low64k ='1' 
 				and A(15 downto 8) = x"FF" else 
 			'0';
-				
+
 	-----------------------------------
 	-- cfg
 	
