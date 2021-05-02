@@ -101,7 +101,7 @@ architecture Behavioral of Top is
 	
 	-- Initial program load
 	signal ipl: std_logic;		-- Initial program load from SPI flash
-	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page
+	constant ipl_addr: std_logic_vector(18 downto 8) := "00011111111";	-- top most RAM page in bank 0
 	signal ipl_state: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_state_d: std_logic;	-- 00 = send addr, 01=read block
 	signal ipl_cnt: std_logic_vector(11 downto 0); -- 11-4: block address count, 3-0: SPI state count
@@ -133,7 +133,8 @@ architecture Behavioral of Top is
 	signal m_framsel_out: std_logic;
 	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
-	signal nramsel_int: std_logic;
+	signal nvramsel_int: std_logic;
+	signal nframsel_int: std_logic;
 	signal m_iosel: std_logic;
 
 	signal sel0 : std_logic;
@@ -161,6 +162,8 @@ architecture Behavioral of Top is
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
 	signal screenb0: std_logic;
+
+	signal is_vid_out_x: std_logic;
 	
 	-- cpu
 	signal ca_in: std_logic_vector(15 downto 0);
@@ -477,9 +480,18 @@ begin
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
 	
 	-- external selects are inverted
-	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
-	nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
-	nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
+	--nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
+	--nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
+	--nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
+	
+	-- test when we have a CPU cycle
+	--nsel1 <= is_cpu;
+	--nsel1 <= is_vid_out;
+	nsel1 <= m_vramsel_out;
+	-- when do we have an SPI read data cycle
+	nsel2 <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1'
+			and ca_in(1) = '0' and ca_in(0)='1' and rwb = '1');
+	nsel4 <= boot;
 	
 	------------------------------------------------------
 	-- video
@@ -517,6 +529,9 @@ begin
 		reset
 	);
 
+	-- switch with is_vid_out to disable video memory accesses
+	is_vid_out_x <= '0';
+	
 	vgraphic <= graphic;
 	
 	dclk <= dotclk;
@@ -587,7 +602,7 @@ begin
 	Ctrl_P: process(sel0, phi2_int, rwb, reset, ca_in, D)
 	begin
 		if (reset = '1') then
-			vis_hires_in <= '0';
+			vis_hires_in <= '1'; --'0';
 			vis_80_in <= '0';
 			vis_enable <= '1';
 			vis_double_in <= '0';
@@ -611,7 +626,7 @@ begin
 				vis_enable <= not(D(7));
 			when "01" =>
 				lockb0 <= D(0);
-				boot <= D(1);
+				--boot <= D(1);
 				is8296 <= D(3);
 				wp_rom9 <= D(4);
 				wp_romA <= D(5);
@@ -633,14 +648,18 @@ begin
 				va_out(7 downto 0);
 	VA(14 downto 8) <= 	ipl_addr(14 downto 8) 	when ipl = '1'		else 	-- IPL
 				ma_out(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(14 downto 8);					-- Video
+--				va_out(14 downto 8);					-- Video
+				"0001000";	-- show $8800 where boot code is loaded
+--				"1111111";	-- show init ROM area (as IPL'd from SPI)
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
-				va_out(15);						-- Video
+--				va_out(15);						-- Video
+				'1';
 	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
 				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
-				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
-				"111";							-- hires and charrom pixel data in bank 7
+--				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
+--				"111";							-- hires and charrom pixel data in bank 7
+				"000";
 				
 	FA(18 downto 16) <= 	ma_out(18 downto 16);
 	FA(15) <=		ma_out(15);
@@ -649,7 +668,7 @@ begin
 	--vd_in <= x"EA"; --D; --VD;
 	vd_in <= VD;
 	
-	-- RAM R/W
+	-- RAM R/W (only for video RAM, FRAM gets /WE from CPU's RWB)
 	ramrwb_int <= 
 		'0'	when ipl = '1' else		-- IPL loads data into RAM
 		'1' 	when is_vid_out ='1' else 	-- Video reads
@@ -660,38 +679,42 @@ begin
 	ramrwb <= ramrwb_int;
 	
 	-- data transfer between CPU data bus and video/memory data bus
+	
 	VD <= 	spi_dout	when ipl = '1' 		else	-- IPL
 		D 		when ramrwb_int = '0'	else	-- CPU write
 		(others => 'Z');
 		
 	D <= 	VD when is_vid_out='0' 
+--		x"EA" when is_vid_out='0'	-- NOP sled
 			and rwb='1' 
 			and m_vramsel_out ='1' 
 			and phi2_int='1' 
+			--and is_cpu='1' 	-- do not bleed video access into system bus when waiting but breaks timing
 		else
 		spi_dout when spi_cs = '1'
 			and rwb = '1'
 		else
 			(others => 'Z');
-	
 		
 	-- select RAM
-	nframsel <= 	'0'	when memclk = '0' else
-			'1'	when m_framsel_out = '1' else
-			'0';
 	
-	nramsel_int <= 	'1'	when memclk = '0' else	-- inactive after previous access
+	nframsel_int <= '1'	when memclk = '0' else
+			'0'	when m_framsel_out = '1' else
+			'1';
+	
+	nvramsel_int <= '1'	when memclk = '0' else	-- inactive after previous access
 			'0'	when ipl = '1' else	-- IPL loads data into RAM
 			'0' 	when is_vid_out='1' else
 			'0' 	when wait_int_d = '0' and m_vramsel_out ='1' else
 			'1';
 		
-	
-	nvramsel <= nramsel_int;
+	nframsel <= nframsel_int;
+	nvramsel <= nvramsel_int;
 
 	
 	------------------------------------------------------
 	-- IPL logic
+	
 	ipl_p: process(memclk, reset)
 	begin
 		if (reset = '1') then 
