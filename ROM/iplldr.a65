@@ -8,6 +8,8 @@
 ; PET ROM images to copy from. 
 ;
 
+VBANK	=$0f0000
+
 SPICTRL	=$e808
 SPIDATA	=$e809
 SPIPEEK	=$e80a
@@ -17,6 +19,12 @@ ADRDIFF	=$ff00-$8800
 
 	*=$ff00
 vreset	.(
+	; test loop for hardware debugging. E.g. Trigger on A2
+	;nop
+	;nop
+	;nop
+	;jmp vreset
+
 	; init the CPU
 	sei
 	cld
@@ -27,18 +35,31 @@ vreset	.(
 	clc
 	xce
 
-	; set ac to single byte ...
-	sep #%00100000
+	; set ac and index to single byte ...
+	sep #%00110000
 	; ... and tell the assembler about it
 	.as
+	.xs
+
+	; copy over boot code to fast RAM (2nd 512k)
+	ldx #0
+bootl	lda $ff00,x
+	sta $08ff00,x
+	inx
+	bne bootl
+	; enable fast RAM
+	lda #0
+	sta $e801
+
 
 	; set X/Y registers to 16 bit ...
 	rep #%00010000
 	; ... and tell the assembler about it
 	.xl
 
+spiread
 	; -----------------------
-	; copy the boot code to $9000 (for now)
+	; copy the boot code to RUNADDR
 	lda #1
 	sta SPICTRL	; enable Flash
 	lda #3
@@ -64,6 +85,7 @@ readloop
 	sta SPICTRL	; deselect Flash
 
 	jmp RUNADDR
+
 
 vcop
 vbrk
@@ -110,7 +132,7 @@ jmpboot
 	ldx #0
 copy
 	lda $a000,x	; location in test ROM bank
-	sta $070000,x	; location in RAM - uppermost RAM bank
+	sta VBANK,x	; location in RAM - uppermost RAM bank
 	inx
 	cpx #$2000
 	bne copy
