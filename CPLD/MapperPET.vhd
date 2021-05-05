@@ -216,18 +216,15 @@ begin
 
 	-- map 1:1
 	RA(14 downto 8) <= A(14 downto 8);
-		
+	
 	boota19 <= bank(3) xor boot;
 	
 	-- VRAM is second 512k of CPU, plus 4k write-window on $008000 ($088000 in VRAM) if screenb0 is set
 	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
 	-- CPU then reads from FRAM, while video reads from VRAM
 	vramsel <= '0' when avalid = '0' else
-			'1' when boota19 = '1' else	-- second 512k (or 1st 512k on boot)
-			--'0' when petio = '1' and boot = '1' else
-			--'0' when low64k = '1' and A(15)='1' and A(14)='1' and A(13) = '1' and A(12)='0' and A(11)='1' and boot = '1' else -- skip in I/O ($exxx, on boot (note: no petio due to compiler error?)
-			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='1' else
-			'0';
+			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='0' else
+			boota19;			-- second 512k (or 1st 512k on boot)
 
 	framsel <= '0' when avalid='0' else
 			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)

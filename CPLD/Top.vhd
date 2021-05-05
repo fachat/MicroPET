@@ -430,7 +430,7 @@ begin
 	-- According to UG445 Figure 7: push up until detected high, then let pull up resistor do the rest.
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
-	phi2 <= phi2_out; -- when ((phi2_out and phi2) = '0') else 'Z';
+	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
 	
 	-- we do split phi2, i.e. CPU gets a stretched clock, while VIA timer a normal one.
 	-- this way we can avoid using RDY as control line to the CPU, which requires additional
@@ -602,7 +602,7 @@ begin
 	Ctrl_P: process(sel0, phi2_int, rwb, reset, ca_in, D)
 	begin
 		if (reset = '1') then
-			vis_hires_in <= '1'; --'0';
+			vis_hires_in <= '0';
 			vis_80_in <= '0';
 			vis_enable <= '1';
 			vis_double_in <= '0';
@@ -626,7 +626,7 @@ begin
 				vis_enable <= not(D(7));
 			when "01" =>
 				lockb0 <= D(0);
-				--boot <= D(1);
+				boot <= D(1);
 				is8296 <= D(3);
 				wp_rom9 <= D(4);
 				wp_romA <= D(5);
@@ -648,18 +648,18 @@ begin
 				va_out(7 downto 0);
 	VA(14 downto 8) <= 	ipl_addr(14 downto 8) 	when ipl = '1'		else 	-- IPL
 				ma_out(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
---				va_out(14 downto 8);					-- Video
-				"0001000";	-- show $8800 where boot code is loaded
+				va_out(14 downto 8);					-- Video
+--				"0001000";	-- show $8800 where boot code is loaded
 --				"1111111";	-- show init ROM area (as IPL'd from SPI)
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
---				va_out(15);						-- Video
-				'1';
+				va_out(15);						-- Video
+--				'1';		-- show init / boot code (see VA14-8)
 	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
 				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
---				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
---				"111";							-- hires and charrom pixel data in bank 7
-				"000";
+				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
+				"111";							-- hires and charrom pixel data in bank 7
+--				"000";
 				
 	FA(18 downto 16) <= 	ma_out(18 downto 16);
 	FA(15) <=		ma_out(15);
@@ -689,7 +689,7 @@ begin
 			and rwb='1' 
 			and m_vramsel_out ='1' 
 			and phi2_int='1' 
-			--and is_cpu='1' 	-- do not bleed video access into system bus when waiting but breaks timing
+			and is_cpu='1' 	-- do not bleed video access into system bus when waiting but breaks timing
 		else
 		spi_dout when spi_cs = '1'
 			and rwb = '1'
