@@ -52,7 +52,10 @@ entity Top is
 	   e : in std_logic;
 	   mlb: in std_logic;
 	   mx : in std_logic;
-	   
+
+	-- I/O interface
+	   phi2_io: inout std_logic;
+
 	-- V/RAM interface
 	   VA : out std_logic_vector (18 downto 0);	-- 512k
 	   FA : out std_logic_vector (18 downto 15);	-- 512k, mappable in 32k blocks
@@ -90,7 +93,6 @@ entity Top is
 	   
 	-- Debug
 	   dbg_out: out std_logic;
-	   phi2_io: out std_logic;
 	   test: out std_logic
 	 );
 end Top;
@@ -123,6 +125,7 @@ architecture Behavioral of Top is
 	
 	signal phi2_int: std_logic;
 	signal phi2_out: std_logic;
+	signal phi2_io_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
 	signal rdy_out: std_logic;
@@ -416,7 +419,7 @@ begin
 	-- split phi2, stretched phi2 for the CPU to accomodate for waits.
 	-- for full speed, don't delay VIA timers
 	phi2_out <= phi2_int;
-	phi2_io <= memclk when mode="11" else
+	phi2_io_out <= memclk when mode="11" else
 			phi2_int;
 	rdy_out <= '1';
 
@@ -431,6 +434,7 @@ begin
 	-- data_to_pin<= data  when ((data and data_to_pin) ='0') else 'Z';	
 	--phi2 <= phi2_int when ((phi2_int and phi2) = '0') else 'Z';
 	phi2 <= phi2_out when ((phi2_out and phi2) = '0') else 'Z';
+	phi2_io <= phi2_io_out when ((phi2_io_out and phi2_io) = '0') else 'Z';
 	
 	-- we do split phi2, i.e. CPU gets a stretched clock, while VIA timer a normal one.
 	-- this way we can avoid using RDY as control line to the CPU, which requires additional
@@ -480,18 +484,18 @@ begin
 	sel8 <= '1' when m_iosel = '1' and ca_in(7 downto 4) = x"8" else '0';
 	
 	-- external selects are inverted
-	--nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
-	--nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
-	--nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
+	nsel1 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"1" else '1';
+	nsel2 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"2" else '1';
+	nsel4 <= '0' when m_iosel = '1' and ca_in(7 downto 4) = x"4" else '1';
 	
 	-- test when we have a CPU cycle
 	--nsel1 <= is_cpu;
 	--nsel1 <= is_vid_out;
-	nsel1 <= m_vramsel_out;
+	--nsel1 <= m_vramsel_out;
 	-- when do we have an SPI read data cycle
-	nsel2 <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1'
-			and ca_in(1) = '0' and ca_in(0)='1' and rwb = '1');
-	nsel4 <= boot;
+	--nsel2 <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1'
+	--		and ca_in(1) = '0' and ca_in(0)='1' and rwb = '1');
+	--nsel4 <= boot;
 	
 	------------------------------------------------------
 	-- video
