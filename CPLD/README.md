@@ -6,31 +6,45 @@ I programmed it in VHDL.
 
 ## Memory Map
 
-The memory map looks as follows. There are 512k RAM
-that make up banks 0-7. 
+The memory map looks as follows. There are 512k "Fast" RAM
+that make up banks 0-7, and 512k "Video" RAM that make up banks 8-15.
 
-RAM bank 7 is the "video" bank in that hires graphics and character ROMs 
+### Standard Map
+
+This map describes the standard memory map, that is enabled after the
+SPI boot code has executed and initiated the memory map.
+
+RAM bank 15 is the "video" bank in that hires graphics and character ROMs 
 are mapped here. The character data can be mapped there as well using bit 2
 of the control register (see below).
 
 RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
 upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
-	normal
-	+----+ $080000
-	|    |         RAM
-	|    |         bank 7 (video)
-	+----+ $070000
-	|    |
-	 ...
-	|    |
-	+----+ $020000
-	|    |         RAM
-	|    |         bank 1 (8296 mapped memory)
-	+----+ $010000
-	|    |         RAM (PET ROM / I/O / Video) $8000-$ffff
-	|    |         RAM (lower 32k)
-	+----+ $000000
+Video   +----+ $100000
+RAM     |    |         VRAM 
+        |    |         bank 15 (video)
+        +----+ $0f0000
+        |    |
+         ...
+        |    |
+        +----+ $090000
+        |    |         VRAM
+        |    |	       bank 8
+        +----+ $080000
+Fast    |    |         FRAM
+RAM     |    |         bank 7
+        +----+ $070000
+        |    |
+         ...
+        |    |
+        +----+ $020000
+        |    |         FRAM
+        |    |         bank 1 (8296 mapped memory)
+        +----+ $010000
+        |    |         FRAM (PET ROM / I/O / 4k Video mapped from VRAM) $8000-$ffff
+        |    |         FRAM (lower 32k)
+        +----+ $000000
 
 
 ### Init Map
@@ -38,13 +52,14 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 When the CPU boots, it tries to do so from bank 0. Here we have RAM, so we have to provide some 
 initial mapping.
 
-Therefore, on reset, the uppermost 16k of bank 15 (ROM) is mapped into bank 0, with the exception of the I/O space
-at $e8xx.
+The problem here is that the CPU boots from bank 0, but the CPLD can only
+write to Video RAM. So, the boot code from the SPI Flash can only be written
+into Video RAM to boot the CPU. Therefore, a bit in the control register
+switches the two RAM areas. On hardware reset the Video RAM is mapped to 
+banks 0-7 and Fast RAM to banks 8-15. 
 
-This mapping can be disabled by writing to the ROM area (bank(3)=1). To boot, the boot loader will
-set up the memory as desired, jump to a location outside the boot ROM, disable the initial boot mapping,
-and start the main program.
-
+The first thing the boot code does is to copy itself to Fast RAM, and
+switch over the two RAM chips.
 
 ## CRTC emulation
 
@@ -57,6 +72,12 @@ The Video code (partially) emulates three CRTC registers:
 All the other registers are not emulated, so any program or demo that
 uses them will fail.
 
+As usual with the CRTC, you have to write the register number to $e880 (59520),
+the write the value to write to the register to $e881 (59521).
+
+NOTE: Register 8 will be removed and the interlace mode will be moved to the
+Micro-PET video control register
+
 ### Interlace
 
 In normal mode (after reset), the VGA video circuit runs in interlace mode,
@@ -65,6 +86,9 @@ i.e. only every second raster line is displayed with video data.
 Writing a "1" into CRTC register 8, interlace is switched off, and every
 single line is displayed with video data. I.e. every rasterline is 
 displayed twice, to get to the same height as in interlace mode.
+
+NOTE: Register 8 will be removed and the interlace mode will be moved to the
+Micro-PET video control register
 
 ### Video memory mapping
 
@@ -97,7 +121,8 @@ Note that Bit 4 is inverted, as the Commodore PET ROM sets address bit 12 to 1 o
 The character set is 8k in size: two character sets of 4k each, switchable with the 
 VIA I/O pin given to the CRTC as in the PET. Register 12 can be used to select
 one of 8 such 8k sets.
-Character pixel data is mapped to bank 7.
+
+Character pixel data is mapped to bank 15.
 
 #### Hires mode
 
@@ -124,7 +149,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
 - Bit 1: 0= 40 column display, 1= 80 column display
 - Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
 - Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
-- Bit 3-5: unused, must be 0
+- Bit 4-6: unused, must be 0
 - Bit 7: 0= video enabled; 1= video disabled
 
 
@@ -149,7 +174,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
   - 00 = 1 MHz
   - 01 = 2 MHz
   - 10 = 4 MHz
-  - 11 = 8 MHz with wait states for video access to RAM
+  - 11 = 8 MHz with wait states for video access to VRAM
 - Bit 2-7: unused, must be 0
 
 
@@ -157,6 +182,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
 
 This control port enables the RAM mapping in the upper 32k of bank 0, as implemented
 in the 8296 machine. The address of this port is $FFF0.
+To enable it, bit 3 in the Memory Map Control register must be set.
 
 - Bit 0: 0= write enable in $8000-$bfff, 1= write protected
 - Bit 1: 0= write enable in $c000-$ffff, 1= write protected
@@ -174,6 +200,7 @@ The code contains three modules:
 - Video.vhd: the video controller part
 - Mapper.vhd: memory mapping
 - Top.vhd: glue logic and timing
+- Spi.vhd: SPI module
 
 - pinout.ucf: Pinout definition
 
