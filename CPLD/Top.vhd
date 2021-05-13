@@ -165,6 +165,7 @@ architecture Behavioral of Top is
 	signal is_char_out: std_logic;
 	signal vgraphic: std_logic;
 	signal screenb0: std_logic;
+	signal interlace : std_logic;
 
 	signal is_vid_out_x: std_logic;
 	
@@ -263,6 +264,7 @@ architecture Behavioral of Top is
 	   is_graph : in std_logic;	-- from PET I/O
 	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   is_nowrap: in std_logic;
+	   interlace: in std_logic;
 	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
@@ -517,6 +519,7 @@ begin
 		vgraphic,
 		vis_double_in,
 		'1',
+		interlace,
 		sel8,
 		ca_in(0),
 		rwb,
@@ -610,6 +613,7 @@ begin
 			vis_80_in <= '0';
 			vis_enable <= '1';
 			vis_double_in <= '0';
+			interlace <= '0';
 			mode <= "00";
 			screenb0 <= '1';
 			wp_rom9 <= '0';
@@ -627,6 +631,7 @@ begin
 				vis_80_in <= D(1);
 				screenb0 <= not(D(2));
 				vis_double_in <= D(3);
+				interlace <= D(4);
 				vis_enable <= not(D(7));
 			when "01" =>
 				lockb0 <= D(0);

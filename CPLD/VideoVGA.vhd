@@ -49,6 +49,7 @@ entity Video is
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- (ignored)
+	   interlace: in std_logic;
 	   
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
@@ -74,6 +75,8 @@ end Video;
 
 architecture Behavioral of Video is
 
+	type T_REGNO is (RNONE, R9, R12);
+	
 	-- 1 bit slot counter to enable 40 column
 	signal in_slot: std_logic;
 	
@@ -83,7 +86,7 @@ architecture Behavioral of Video is
 	
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now
-	signal crtc_reg: std_logic_vector(3 downto 0);	
+	signal crtc_reg: T_REGNO;
 	
 	signal rows_per_char: std_logic_vector(3 downto 0);
 	signal slots_per_line: std_logic_vector(6 downto 0);
@@ -91,9 +94,7 @@ architecture Behavioral of Video is
 
 	signal vpage : std_logic_vector(7 downto 0);
 	signal vpagelo : std_logic_vector(7 downto 0);
-	
-	signal interlace : std_logic;
-	
+		
 	-- hold and shift the pixel
 	signal pxlhold : std_logic_vector (8 downto 0) := (others => '0');
 	-- hold the character information
@@ -494,13 +495,25 @@ begin
 	regfile: process(memclk, CPU_D, crtc_sel, crtc_rs, reset) 
 	begin
 		if (reset = '1') then
-			crtc_reg <= X"0";
+			crtc_reg <= RNONE;
 		elsif (falling_edge(memclk) 
 				and crtc_sel = '1' 
 				and crtc_rs='0'
 				and crtc_rwb = '0'
 				) then
-			crtc_reg <= CPU_D(3 downto 0);
+			
+			case (CPU_D(3 downto 0)) is
+--			when x"8" =>
+--				crtc_reg <= R8;
+			when x"9" =>
+				crtc_reg <= R9;
+			when x"c" =>
+				crtc_reg <= R12;
+--			when x"d" =>
+--				crtc_reg <= R13;
+			when others =>
+				crtc_reg <= RNONE;
+			end case;
 		end if;
 	end process;
 	
@@ -511,7 +524,6 @@ begin
 			slots_per_line <= "1010000";	-- 80
 			clines_per_screen <= "0011001";	-- 25
 			vpage <= x"10"; -- inverted for PET
-			interlace <= '0';
 			vpagelo <= (others => '0');
 		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
@@ -519,21 +531,19 @@ begin
 				and crtc_rwb = '0'
 				) then
 			case (crtc_reg) is
-			when x"1" =>
-				-- we only allow to write up to 63, to save one CPLD register
-				-- (bit 7 is constant)
-				--slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
-			when x"6" => 
-				--clines_per_screen <= CPU_D(6 downto 0);
-			when x"9" =>
+--			when R1 =>
+--				-- we only allow to write up to 63, to save one CPLD register
+--				-- (bit 7 is constant)
+--				slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
+--			when R6 => 
+--				clines_per_screen <= CPU_D(6 downto 0);
+			when R9 =>
 				rows_per_char(3) <= CPU_D(3);
 				--rows_per_char <= CPU_D(3 downto 0);
-			when x"c" =>
+			when R12 =>
 				vpage <= CPU_D;
-			when x"d" =>
-				--vpagelo <= CPU_D;
-			when x"8" =>
-				interlace <= CPU_D(0);
+--			when R13 =>
+--				vpagelo <= CPU_D;
 			when others =>
 				null;
 			end case;

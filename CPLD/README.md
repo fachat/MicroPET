@@ -65,7 +65,6 @@ switch over the two RAM chips.
 
 The Video code (partially) emulates three CRTC registers:
 
-- Register 8: control register bit 0 (interlace)
 - Register 9: number of pixel rows per character -1
 - Register 12: start of video memory high
 
@@ -75,9 +74,6 @@ uses them will fail.
 As usual with the CRTC, you have to write the register number to $e880 (59520),
 the write the value to write to the register to $e881 (59521).
 
-NOTE: Register 8 will be removed and the interlace mode will be moved to the
-Micro-PET video control register
-
 ### Interlace
 
 In normal mode (after reset), the VGA video circuit runs in interlace mode,
@@ -86,9 +82,6 @@ i.e. only every second raster line is displayed with video data.
 Writing a "1" into CRTC register 8, interlace is switched off, and every
 single line is displayed with video data. I.e. every rasterline is 
 displayed twice, to get to the same height as in interlace mode.
-
-NOTE: Register 8 will be removed and the interlace mode will be moved to the
-Micro-PET video control register
 
 ### Video memory mapping
 
@@ -147,16 +140,18 @@ There are two control ports at $e800 and $e801. They are currently only writable
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
-- Bit 2: 0= character memory in bank 0, 1= character memory in bank 7 (see memory map)
+- Bit 2: 0= character memory in bank 0, 1= character memory in video bank (see memory map)
 - Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
-- Bit 4-6: unused, must be 0
+- Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
+- Bit 5-6: unused, must be 0
 - Bit 7: 0= video enabled; 1= video disabled
 
 
 #### $e801 (59393) Memory Map Control
 
 - Bit 0: 0= allow cross-bank access in emulation mode, 1= lock CPU into bank 0 in emulation mode
-- Bit 1-2: unused, must be 0
+- Bit 1: 0= normal mode, 1= initial boot mode, swap FRAM and VRAM (see above)
+- Bit 2: unused, must be 0
 - Bit 3: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
 - Bit 4: 0= $009xxx is writable, 1= write protected
 - Bit 5: 0= $00Axxx is writable, 1= write protected
