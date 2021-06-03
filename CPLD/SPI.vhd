@@ -68,6 +68,9 @@ architecture Behavioral of SPI is
 	signal ack_rxtx: std_logic;
 	signal serin_d: std_logic;
 	
+	signal spiclk_int: std_logic;
+	signal spiclk_half: std_logic;
+	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
 		if L then
@@ -79,6 +82,18 @@ architecture Behavioral of SPI is
 	
 begin
 
+	half_p: process(reset, spiclk, spiclk_half)
+	begin
+		if (reset = '1') then
+			spiclk_half <= '0';
+		elsif (falling_edge(spiclk)) then
+			spiclk_half <= not(spiclk_half);
+		end if;
+	end process;
+	
+	spiclk_int <= spiclk when sel(2) = '0' else
+			spiclk_half;
+		
 	-- read registers
 	read_p: process (rs, rwb, cs, sr, sel, cpol, cpha, run_sr, txd_valid, start_rx, ack_rxtx, ipl, reset)
 	begin
@@ -149,13 +164,13 @@ begin
 	
 	sersel <= sel;
 	
-	rxtx_p: process(sr, spiclk, serin, ack_rxtx, reset)
+	rxtx_p: process(sr, spiclk_int, serin, ack_rxtx, reset)
 	begin
 		if (reset = '1') then
 			stat <= (others => '0');
 			ack_txd <= '0';
 			run_sr <= '0';
-		elsif (rising_edge(spiclk)) then
+		elsif (rising_edge(spiclk_int)) then
 			-- with rising memclk
 
 			ack_txd <= '0';
@@ -198,9 +213,9 @@ begin
 		end if;
 	end process;
 	
-	ack_p: process(spiclk, stat)
+	ack_p: process(spiclk_int, stat)
 	begin
-		if (falling_edge(spiclk)) then
+		if (falling_edge(spiclk_int)) then
 			run_sr_d <= run_sr; -- or run_rx;
 			if (stat = "1111") then
 				ack_rxtx <= '1';
