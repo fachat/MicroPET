@@ -254,7 +254,7 @@ end8
 
 	lda #%11000000	; write protect ROM $b000-$ffff
 	.byt $2c
-not8032	lda #%11000001	; 8296
+not8032	lda #%11001000	; 8296
 	; fallthrough
 	.)
 

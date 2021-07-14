@@ -67,6 +67,8 @@ DEFAULTBO = 0   ; ColourPET Border colour       0 to 15 RGBI
 BYPASSFG  = 5   ; ColourPET Bypass FG     	0 to 15 RGBI			Colours when AUTOSTART is bypassed.
 BYPASSBG  = 0   ; ColourPET Bypass BG     	0 to 15 RGBI
 
+UPET      = 1   ; Is a Micro-PET                0=No, 1=Yes                     For special Reboot
+
 MOT6845   = 0   ; Is CRTC a Motorola6845?       0=No, 1=Yes			Probably 0=No for compatibility.
 REBOOT    = 1	; Add keyboard reboot? 		0=No, 1=Yes
 EXECUDESK = 0	; Add Execudesk Menu?		0=No, 1=Yes, 2=Yes/OPTROM>0	Note: Requires BOOT to TEXT mode!

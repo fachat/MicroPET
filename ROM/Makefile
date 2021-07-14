@@ -1,22 +1,33 @@
 
-all: spiimg 
+all: spiimg spiorig loadrom.bin loadrom
 
 EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin
 
-spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax
+spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 iplldr $(EDITROMS) apmonax
+	# extended ROM images
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
-	#cat zero zero					>> spiimg	# 4-8k   : 4k reserve
 	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
 	cat chargen_pet16 				>> spiimg	# 8-16k  : 8k 16bytes/char PET character ROM
 	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k : BASIC2/Edit/Kernel ROMs (16k consecutive, $c000-$ffff)
-	#cat edit80g zero				>> spiimg	# 32-36k : BASIC 4 80 column editor ROM (graph keybd)
 	cat edit80gx.bin				>> spiimg	# 32-36k : sjgray BASIC 4 80 column editor w/ wedge by for(;;)
 	cat basic4 					>> spiimg	# 36-48k : BASIC4 ROMS (12k $b000-$dfff)
-	#cat edit40g zero 				>> spiimg	# 48-52k : original BASIC 4 editor ROM graph keybd
 	cat edit40gx.bin  				>> spiimg	# 48-52k : sjgray BASIC 4 40 column editor w/ wedge by for(;;)
 	cat kernal4					>> spiimg	# 52-56k : BASIC4 kernel (4k)
 	cat edit40gc.bin	 			>> spiimg	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
 	cat edit80gc.bin	 			>> spiimg	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
+
+spiorig: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr 
+	# just using the standard ROM images
+	cat iplldr					> spiorig	# 0-4k   : IPL loader
+	cat zero zero					>> spiorig	# 4-8k   : 4k reserve
+	cat chargen_pet16 				>> spiorig	# 8-16k  : 8k 16bytes/char PET character ROM
+	cat basic2 edit2g zero kernal2 			>> spiorig	# 16-32k : BASIC2/Edit/Kernel ROMs (16k consecutive, $c000-$ffff)
+	cat edit80g zero				>> spiorig	# 32-36k : BASIC 4 80 column editor ROM (graph keybd)
+	cat basic4 					>> spiorig	# 36-48k : BASIC4 ROMS (12k $b000-$dfff)
+	cat edit40g zero 				>> spiorig	# 48-52k : original BASIC 4 editor ROM graph keybd
+	cat kernal4					>> spiorig	# 52-56k : BASIC4 kernel (4k)
+	cat edit40gc.bin	 			>> spiorig	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
+	cat edit80gc.bin	 			>> spiorig	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1
@@ -80,17 +91,19 @@ edit40g:
 edit80g:
 	curl -o edit80g $(ARCHIVE)/firmware/computers/pet/edit-4-80-n-50Hz.4016_to_8016.bin
 
-# PET Test Prog
-
-readflash: readflash.lst
-	petcat -w40 -o readflash readflash.lst
-
 ${EDITROMS}: %.bin: %.asm
 	test -e cbm-edit-rom || git clone https://github.com/sjgray/cbm-edit-rom.git
 	cp $< cbm-edit-rom/edit.asm
 	cd cbm-edit-rom && acme -r editrom.txt editrom.asm
 	cp cbm-edit-rom/editrom.bin $@
 
+# load other PET Editor ROM and reboot
+
+loadrom: loadrom.lst
+	petcat -w40 -o $@ $<
+
+loadrom.bin: loadrom.a65
+	xa -o $@ $<
  
 # Clean
 
