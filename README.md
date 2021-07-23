@@ -1,4 +1,4 @@
-# uPET
+# uPET R2
 
 This is a re-incarnation of the Commodore PET computer(s) from the later 1970s.
 
@@ -16,28 +16,23 @@ So we have two sections - what works and what will (hopefully) work at some poin
 
 ### Implemented
 
-- Commodore 3032 / 4032 / 8032 with options menu to select at boot
+- Commodore 3032 / 4032 / 8032 / 8296 with options menu to select at boot
   - Boot-menu to select different PET versions to run
   - 40 col character display
   - 80 col character display
-  - IEEE488 interface
-  - PET graphics keyboard
+  - IEEE488 interface (card edge)
+  - Tape connector (card edge)
+  - PET graphics keyboard, or alternatively a C64 keyboard
 - Improved system design:
-  - 512k RAM, 512k ROM, accessible using banks on the W65816 CPU
-  - up to 8 MHz mode (via configuration register)
-  - Composite video output
+  - 512k video RAM, 512k fast RAM accessible using banks on the W65816 CPU
+  - boot from an SPI Flash ROM
+  - up to 9 MHz mode (via configuration register)
+  - VGA video output
   - Write protection for the PET ROMs once copied to RAM
 - Improved Video output:
   - Hires graphics mode (using a configuration register)
   - modifyable character set
   - 40/80 column display switchable
-
-### Planned
-
-- Other Commodore models: 8296 (should work, just untested)
-- Writable ROM (although that may be superseded with the SPI-based ROM)
-  - needs separate connection from ROM /OE to CPLD, as it has to be high on write (but is connected to /CE right now, which is low on access)
-- VGA video output (may break timing-related demos though)
 
 ## Build
 
@@ -46,6 +41,7 @@ Here are three subdirectories:
 - [Board](Board/) that contains the board schematics and layout
 - [CPLD](CPLD/) contains the VHDL code to program the CPLD logic chip used
 - [ROM](ROM/) ROM contents to boot
+- [Case](Case/) 3-D printed supports and keyboards to mount board in a C64c case
 
 ### Board
 
@@ -63,16 +59,17 @@ and specific VHDL programming.
 
 ### ROM
 
-The ROM image can be built using gcc, xa65, and make. Use your favourite EPROM programmer to burn it into the ROM chip.
+The ROM image can be built using gcc, xa65, and make. Use your favourite EPROM programmer to burn it into the SPI Flash chip.
+
+Two options are provided:
+
+1. An original ROM version that boots into the original editor ROMs
+2. Updated editor ROMs from [Steve's Editor ROM project](http://www.6502.org/users/sjgray/projects/editrom/index.html) that can optionally handle C64 keyboards, has a DOS wedge included, and resets into the Micro-PET boot menu
+
 
 ## Future Plans
 
 These are future expansions I want to look into. Not all may be possible to implement.
 
-- Replace MC3446 IEEE488 drives with 74LS640-1 
-- Replace IEEE488 connector with board edge connector
-- Add Tape board edge connector
-- add SPI bus
-- Replace 8-bit ROM with an SPI-based ROM, boot from SPI
-
+- n/a
  
