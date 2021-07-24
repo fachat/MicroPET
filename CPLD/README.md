@@ -21,30 +21,30 @@ of the control register (see below).
 RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
 upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
-Video   +----+ $100000
-RAM     |    |         VRAM 
-        |    |         bank 15 (video)
-        +----+ $0f0000
-        |    |
-         ...
-        |    |
-        +----+ $090000
-        |    |         VRAM
-        |    |	       bank 8
-        +----+ $080000
-Fast    |    |         FRAM
-RAM     |    |         bank 7
-        +----+ $070000
-        |    |
-         ...
-        |    |
-        +----+ $020000
-        |    |         FRAM
-        |    |         bank 1 (8296 mapped memory)
-        +----+ $010000
-        |    |         FRAM (PET ROM / I/O / 4k Video mapped from VRAM) $8000-$ffff
-        |    |         FRAM (lower 32k)
-        +----+ $000000
+    Video   +----+ $100000
+    RAM     |    |         VRAM 
+            |    |         bank 15 (video)
+            +----+ $0f0000
+            |    |
+             ...
+            |    |
+            +----+ $090000
+            |    |         VRAM
+            |    |	       bank 8
+            +----+ $080000
+    Fast    |    |         FRAM
+    RAM     |    |         bank 7
+            +----+ $070000
+            |    |
+             ...
+            |    |
+            +----+ $020000
+            |    |         FRAM
+            |    |         bank 1 (8296 mapped memory)
+            +----+ $010000
+            |    |         FRAM (PET ROM / I/O / 4k Video mapped from VRAM) $8000-$ffff
+            |    |         FRAM (lower 32k)
+            +----+ $000000
 
 
 ### Init Map
@@ -61,6 +61,77 @@ banks 0-7 and Fast RAM to banks 8-15.
 The first thing the boot code does is to copy itself to Fast RAM, and
 switch over the two RAM chips.
 
+## Control Ports
+
+### Micro-PET
+
+There are two control ports at $e800 and $e801. They are currently only writable.
+
+#### $e800 (59392) Video Control
+
+- Bit 0: 0= character display, 1= hires display
+- Bit 1: 0= 40 column display, 1= 80 column display
+- Bit 2: 0= character memory in bank 0, 1= character memory in video bank (see memory map)
+- Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
+- Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
+- Bit 5-6: unused, must be 0
+- Bit 7: 0= video enabled; 1= video disabled
+
+### Interlace
+
+In normal mode (after reset), the VGA video circuit runs in interlace mode,
+i.e. only every second raster line is displayed with video data.
+Writing a "1" into Video Control register bit 4, interlace is switched off, and every
+single line is displayed with video data. 
+
+As long as bit 3 is 0, every rasterline is 
+displayed twice, to get to the same height as in interlace mode.
+If bit 3 is 1, then every rasterline is a new rasterline.
+So, setting bit 3=1 and bit 4=1 gives double the number of character rows
+(or raster rows in bitmap mode).
+
+
+#### $e801 (59393) Memory Map Control
+
+- Bit 0: 0= allow cross-bank access in emulation mode, 1= lock CPU into bank 0 in emulation mode
+- Bit 1: 0= normal mode, 1= initial boot mode, swap FRAM and VRAM (see above)
+- Bit 2: unused, must be 0
+- Bit 3: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
+- Bit 4: 0= $009xxx is writable, 1= write protected
+- Bit 5: 0= $00Axxx is writable, 1= write protected
+- Bit 6: 0= $00Bxxx is writable, 1= write protected
+- Bit 7: 0= $00C000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
+
+#### $e802 (59394) Low32k Bank
+
+- Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
+- Bit 4-7: unused, must be 0
+
+#### $e803 (59395) Speed Control
+
+- Bit 0/1: speed mode
+  - 00 = 1 MHz
+  - 01 = 2 MHz
+  - 10 = 4 MHz
+  - 11 = 8 MHz with wait states for video access to VRAM
+- Bit 2-7: unused, must be 0
+
+
+### 8296 control port
+
+This control port enables the RAM mapping in the upper 32k of bank 0, as implemented
+in the 8296 machine. The address of this port is $FFF0.
+To enable it, bit 3 in the Memory Map Control register must be set.
+
+- Bit 0: 0= write enable in $8000-$bfff, 1= write protected
+- Bit 1: 0= write enable in $c000-$ffff, 1= write protected
+- Bit 2: select one of two block to map for $8000-$bfff (starts either $010000 or $018000)
+- Bit 3: select one of two block to map for $c000-$ffff (starts either $014000 or $01c000)
+- Bit 4: - unused, must be 0 -
+- Bit 5: 0= RAM in $8xxx, 1= screen peek-through the mapped RAM
+- Bit 6: 0= RAM in $e8xx, 1= I/O peek-through the mapped RAM
+- Bit 7: 0= RAM mapping disabled, 1=enabled
+
 ## CRTC emulation
 
 The Video code (partially) emulates three CRTC registers:
@@ -73,15 +144,6 @@ uses them will fail.
 
 As usual with the CRTC, you have to write the register number to $e880 (59520),
 the write the value to write to the register to $e881 (59521).
-
-### Interlace
-
-In normal mode (after reset), the VGA video circuit runs in interlace mode,
-i.e. only every second raster line is displayed with video data.
-
-Writing a "1" into CRTC register 8, interlace is switched off, and every
-single line is displayed with video data. I.e. every rasterline is 
-displayed twice, to get to the same height as in interlace mode.
 
 ### Video memory mapping
 
@@ -130,63 +192,6 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 - Bit 6: A14 of hires data
 - Bit 7: A15 of hires data
 
-## Control Ports
-
-### Micro-PET
-
-There are two control ports at $e800 and $e801. They are currently only writable.
-
-#### $e800 (59392) Video Control
-
-- Bit 0: 0= character display, 1= hires display
-- Bit 1: 0= 40 column display, 1= 80 column display
-- Bit 2: 0= character memory in bank 0, 1= character memory in video bank (see memory map)
-- Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
-- Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
-- Bit 5-6: unused, must be 0
-- Bit 7: 0= video enabled; 1= video disabled
-
-
-#### $e801 (59393) Memory Map Control
-
-- Bit 0: 0= allow cross-bank access in emulation mode, 1= lock CPU into bank 0 in emulation mode
-- Bit 1: 0= normal mode, 1= initial boot mode, swap FRAM and VRAM (see above)
-- Bit 2: unused, must be 0
-- Bit 3: 0= 8296 mode is disabled / locked ($fff0 disabled); 1= 8296 control port $fff0 enabled
-- Bit 4: 0= $009xxx is writable, 1= write protected
-- Bit 5: 0= $00Axxx is writable, 1= write protected
-- Bit 6: 0= $00Bxxx is writable, 1= write protected
-- Bit 7: 0= $00C000-$00FFFF is writable, 1=write protected (except I/O window at $e8xx)
-
-#### $e802 (59394) Low32k Bank
-
-- Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
-- Bit 4-7: unused, must be 0
-
-#### $e803 (59395) Speed Control
-
-- Bit 0/1: speed mode
-  - 00 = 1 MHz
-  - 01 = 2 MHz
-  - 10 = 4 MHz
-  - 11 = 8 MHz with wait states for video access to VRAM
-- Bit 2-7: unused, must be 0
-
-
-### 8296 control port
-
-This control port enables the RAM mapping in the upper 32k of bank 0, as implemented
-in the 8296 machine. The address of this port is $FFF0.
-To enable it, bit 3 in the Memory Map Control register must be set.
-
-- Bit 0: 0= write enable in $8000-$bfff, 1= write protected
-- Bit 1: 0= write enable in $c000-$ffff, 1= write protected
-- Bit 2: select one of two block to map for $8000-$bfff (starts either $010000 or $018000)
-- Bit 3: select one of two block to map for $c000-$ffff (starts either $014000 or $01c000)
-- Bit 4: - unused, must be 0 -
-- Bit 5: 0= RAM in $8xxx, 1= screen peek-through the mapped RAM
-- Bit 6: 0= RAM in $e8xx, 1= I/O peek-through the mapped RAM
-- Bit 7: 0= RAM mapping disabled, 1=enabled
 
 ## Code
 

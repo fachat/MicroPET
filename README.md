@@ -3,7 +3,7 @@
 This is a re-incarnation of the Commodore PET computer(s) from the later 1970s.
 
 It is build on a Eurocard board and has (so far almost) only parts that can still be obtained in 2020.
-The current version is 1.0E.
+The current version is 2.0B.
 
 ![Picture of a MicroPET](images/upet.png)
 

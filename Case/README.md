@@ -58,7 +58,7 @@ possible to use any of the key caps in any row. Which is important, as you need 
 Also, this set has space bars in different lengths, and there is one that fits the 6.25 character wide space bar for the petskey and sjg keyboards.
 For the markings I just used a pen...
 
-2. This one [GLorious PC Gaming Race ABS Doubleshot black, ANSI layout GAKC-045](https://www.caseking.de/glorious-pc-gaming-race-abs-doubleshot-schwarz-ansi-us-layout-gakc-045.html) I actually bought more or less 
+2. This one [Glorious PC Gaming Race ABS Doubleshot black, ANSI layout GAKC-045](https://www.caseking.de/glorious-pc-gaming-race-abs-doubleshot-schwarz-ansi-us-layout-gakc-045.html) I actually bought more or less 
 by accident. I only noticed that it has different angles per row when I tried it out. However, with the amount of caps I was able to only
 use a wrong angle on Shift Lock, left Shift, Return and "4" - but it's barely noticable.
 For the markings I used template from Steve's page, printed it on sticky paper, cut it out and glued it on the keys where the original did not fit.
@@ -74,7 +74,7 @@ The keycaps are made of three parts each:
 
 I created all parts, and integrated them in the [Tinkercad](https://tinkercad.com) web tool.
 
-The key form is created by a [parametric generator](https://www.thingiverse.com/thing:2783650) in OpenSCAD. Here is the [parameter file](keycaps/key_cbm3_customizer.scad). Only the key width needs to be adapted, and the inversion of the top for the space key.
+The key form is created using OpenSCAD by a [parametric generator](https://www.thingiverse.com/thing:2783650) (by Thingieverse user rsheldiii, published under the [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) license). Here is the [parameter file](keycaps/key_cbm3_customizer.scad). Only the key width needs to be adapted, and the inversion of the top for the space key.
 
 Most of the top character prints are made from a [Microgramm font](https://www.wfonts.com/font/microgramma), converted to SVG using the [Font Squirrel](https://www.fontsquirrel.com/tools/webfont-generator) web page.
 
@@ -88,7 +88,21 @@ Please note that it took me about 100+ hours just to print the full set of keys 
 After printing you have to remove the supports that anchor the stem to the outside of the keycaps so it does
 not break away when printing.
 
+## Designs
 
+Here are the links to the Tinkercad designs I created:
+
+1. [Keycaps]( https://www.tinkercad.com/things/dNZ8wI2zuYY )
+2. [base plate for keyboard support]( https://www.tinkercad.com/things/4DlYD3iQAby )
+3. [keyboard supports for Steve Gray's keyboard]( https://www.tinkercad.com/things/gnzI8KjmwVx )
+4. [keyboard supports for petskey keyboard]( https://www.tinkercad.com/things/6I5xIL65aiV )
+5. [keyboard supports for C64 keyboard]( https://www.tinkercad.com/things/6t9EtqgGbSE )
+6. [Board mount]( https://www.tinkercad.com/things/aFCF30m60Vp )
+7. [Back cover]( https://www.tinkercad.com/things/5eZ8UNyYb2q )
+
+## License
+
+The material here is published under the Creative Commons Attribution-ShareAlike 3.0 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) license.
 
 
 
