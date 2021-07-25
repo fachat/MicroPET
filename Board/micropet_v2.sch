@@ -23111,7 +23111,7 @@ Source: www.kingbright.com</description>
 <description>I/O</description>
 <plain>
 <text x="325.12" y="-106.68" size="2.54" layer="92">MICROPET-V2.0A-20210130</text>
-<text x="325.12" y="-83.82" size="3.81" layer="92">MICROPET-V2.0A</text>
+<text x="325.12" y="-83.82" size="3.81" layer="92">MICROPET-V2.0C</text>
 <text x="325.12" y="-88.9" size="2.54" layer="92">(C) A. Fachat</text>
 <text x="147.32" y="127" size="1.778" layer="91">$E82x</text>
 <text x="147.32" y="43.18" size="1.778" layer="91">$E84x</text>
@@ -25442,12 +25442,14 @@ Source: www.kingbright.com</description>
 <sheet>
 <description>CPU,RAM,ROM</description>
 <plain>
-<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V2.0B-20210509</text>
-<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V2.0B</text>
+<text x="271.78" y="0" size="2.54" layer="92">MICROPET-V2.0C-20210515</text>
+<text x="271.78" y="22.86" size="3.81" layer="92">MICROPET-V2.0C</text>
 <text x="271.78" y="17.78" size="2.54" layer="92">(C) A. Fachat</text>
 <text x="337.82" y="20.32" size="2.54" layer="92">SHEET 2/3</text>
-<text x="287.02" y="33.02" size="2.54" layer="94">Note: PHI2_IO_OUT and SPI_NSEL5
-         are unconnected on board!</text>
+<text x="271.78" y="45.72" size="2.54" layer="94">V2.0C: pull up on /IRQ to 3.3V, to protect SPI devices from 5V</text>
+<text x="271.78" y="33.02" size="2.54" layer="94">V2.0B: - do not use '245 level converter but pullup R 
+              for PHI2 and PHI2_IO
+           - Add missing SPI_NSEL5</text>
 </plain>
 <instances>
 <instance part="FRAME2" gate="G$1" x="-58.42" y="-7.62"/>
@@ -25577,14 +25579,10 @@ Source: www.kingbright.com</description>
 <wire x1="104.14" y1="68.58" x2="104.14" y2="20.32" width="0.1524" layer="91"/>
 <junction x="104.14" y="68.58"/>
 <junction x="104.14" y="20.32"/>
-<pinref part="R9" gate="G$1" pin="1"/>
-<wire x1="99.06" y1="20.32" x2="63.5" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="20.32" x2="63.5" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="20.32" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
 <junction x="99.06" y="20.32"/>
 <pinref part="R12" gate="G$1" pin="1"/>
-<wire x1="63.5" y1="20.32" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="55.88" y1="20.32" x2="55.88" y2="25.4" width="0.1524" layer="91"/>
-<junction x="63.5" y="20.32"/>
 <label x="101.6" y="93.98" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -26517,6 +26515,12 @@ Source: www.kingbright.com</description>
 <junction x="-38.1" y="243.84"/>
 <label x="-43.18" y="246.38" size="1.27" layer="95"/>
 </segment>
+<segment>
+<pinref part="R9" gate="G$1" pin="1"/>
+<wire x1="63.5" y1="25.4" x2="63.5" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="22.86" x2="78.74" y2="22.86" width="0.1524" layer="91"/>
+<label x="71.12" y="22.86" size="1.27" layer="95"/>
+</segment>
 </net>
 <net name="/SEL1" class="0">
 <segment>
@@ -27014,7 +27018,7 @@ Source: www.kingbright.com</description>
 <description>Power</description>
 <plain>
 <text x="187.96" y="7.62" size="2.54" layer="92">MICROPET-V2.0A-20210130</text>
-<text x="187.96" y="30.48" size="3.81" layer="92">MICROPET-V2.0A</text>
+<text x="187.96" y="30.48" size="3.81" layer="92">MICROPET-V2.0C</text>
 <text x="187.96" y="25.4" size="2.54" layer="92">(C) A. Fachat</text>
 <wire x1="-2.54" y1="0" x2="287.02" y2="0" width="0.1524" layer="94"/>
 <wire x1="287.02" y1="0" x2="287.02" y2="157.48" width="0.1524" layer="94"/>
@@ -27469,13 +27473,14 @@ Source: www.kingbright.com</description>
 <description>A/V Out</description>
 <plain>
 <text x="190.5" y="7.62" size="2.54" layer="92">MICROPET-V2.0B-20210509</text>
-<text x="190.5" y="30.48" size="3.81" layer="92">MICROPET-V2.0B</text>
+<text x="190.5" y="30.48" size="3.81" layer="92">MICROPET-V2.0C</text>
 <text x="190.5" y="25.4" size="2.54" layer="92">(C) A. Fachat</text>
 <wire x1="0" y1="0" x2="289.56" y2="0" width="0.1524" layer="94"/>
 <wire x1="289.56" y1="0" x2="289.56" y2="144.78" width="0.1524" layer="94"/>
 <text x="254" y="27.94" size="2.54" layer="92">SHEET 4/4</text>
 <wire x1="0" y1="0" x2="0" y2="144.78" width="0.1524" layer="94"/>
 <wire x1="0" y1="144.78" x2="289.56" y2="144.78" width="0.1524" layer="94"/>
+<text x="187.96" y="38.1" size="2.54" layer="94">V2.0B: do not use '245 level converter for PHI2 and PHI2_IO</text>
 </plain>
 <instances>
 <instance part="GND13" gate="1" x="48.26" y="91.44"/>
@@ -27842,7 +27847,7 @@ Source: www.kingbright.com</description>
 <text x="25.4" y="60.96" size="1.778" layer="94">Non-commercial use only</text>
 <text x="25.4" y="63.5" size="1.778" layer="94">package layout by SparkFun</text>
 <text x="190.5" y="7.62" size="2.54" layer="92">MICROPET-V2.0A-20210306</text>
-<text x="190.5" y="30.48" size="3.81" layer="92">MICROPET-V2.0A</text>
+<text x="190.5" y="30.48" size="3.81" layer="92">MICROPET-V2.0C</text>
 <text x="190.5" y="25.4" size="2.54" layer="92">(C) A. Fachat</text>
 <wire x1="0" y1="0" x2="289.56" y2="0" width="0.1524" layer="94"/>
 <wire x1="289.56" y1="0" x2="289.56" y2="180.34" width="0.1524" layer="94"/>
@@ -28098,12 +28103,13 @@ Source: www.kingbright.com</description>
 <segment>
 <pinref part="U$12" gate="G$1" pin="VIN"/>
 <pinref part="SUPPLY5" gate="G$1" pin="VCC"/>
-<wire x1="114.3" y1="134.62" x2="101.6" y2="134.62" width="0.1524" layer="91"/>
 <pinref part="C16" gate="G$1" pin="1"/>
+<wire x1="114.3" y1="134.62" x2="101.6" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="134.62" x2="99.06" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="132.08" x2="101.6" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="132.08" x2="101.6" y2="134.62" width="0.1524" layer="91"/>
 <junction x="101.6" y="134.62"/>
+<label x="104.14" y="134.62" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="SPI_NSEL2" class="0">
@@ -28282,6 +28288,12 @@ Source: www.kingbright.com</description>
 <wire x1="124.46" y1="86.36" x2="124.46" y2="81.28" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="86.36" x2="124.46" y2="86.36" width="0.1524" layer="91"/>
 <junction x="124.46" y="86.36"/>
+</segment>
+</net>
+<net name="FOO" class="0">
+<segment>
+<pinref part="U$12" gate="G$1" pin="V33"/>
+<wire x1="114.3" y1="132.08" x2="106.68" y2="132.08" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
