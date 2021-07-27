@@ -1,7 +1,7 @@
  
 cpldfit:  version P.20131013                        Xilinx Inc.
                                   Fitter Report
-Design Name: Top                                 Date:  5-30-2021,  6:44PM
+Design Name: Top                                 Date:  7-28-2021,  0:13AM
 Device Used: XC95288XL-6-TQ144
 Fitting Status: Successful
 
@@ -9,7 +9,7 @@ Fitting Status: Successful
 
 Macrocells     Product Terms    Function Block   Registers      Pins           
 Used/Tot       Used/Tot         Inps Used/Tot    Used/Tot       Used/Tot       
-278/288 ( 97%) 931 /1440 ( 65%) 648/864 ( 75%)   202/288 ( 70%) 86 /117 ( 73%)
+277/288 ( 96%) 924 /1440 ( 64%) 647/864 ( 75%)   201/288 ( 70%) 86 /117 ( 73%)
 
 ** Function Block Resources **
 
@@ -17,7 +17,7 @@ Function    Mcells      FB Inps     Pterms      IO
 Block       Used/Tot    Used/Tot    Used/Tot    Used/Tot    
 FB1          18/18*      35/54       49/90       1/ 8
 FB2          18/18*      48/54       50/90       3/10
-FB3          18/18*      11/54       35/90       2/ 5
+FB3          18/18*      11/54       29/90       2/ 5
 FB4          17/18       49/54       48/90       3/ 6
 FB5          18/18*      33/54       54/90       6/ 8
 FB6          14/18       49/54       69/90       7/ 8
@@ -30,9 +30,9 @@ FB12         18/18*      44/54       51/90       6/ 6*
 FB13         18/18*      48/54       74/90       5/ 6
 FB14         18/18*      36/54       54/90       8/ 8*
 FB15         17/18       45/54       84/90       9/ 9*
-FB16         17/18       22/54       24/90       8/ 8*
+FB16         16/18       21/54       23/90       8/ 8*
              -----       -----       -----      -----    
-            278/288     648/864     931/1440    86/117
+            277/288     647/864     924/1440    86/117
 
 * - Resource is exhausted
 
@@ -58,7 +58,7 @@ GSR           :    1           1    |
 
 ** Power Data **
 
-There are 278 macrocells in high performance mode (MCHP).
+There are 277 macrocells in high performance mode (MCHP).
 There are 0 macrocells in low power mode (MCLP).
 End of Mapped Resource Summary
 **************************  Errors and Warnings  ***************************
@@ -135,7 +135,7 @@ D<2>                                                                            
 D<1>                                                                                4     11    FB15_11 83   I/O     I/O     STD  FAST 
 D<0>                                                                                4     11    FB15_14 86   I/O     I/O     STD  FAST 
 
-** 217 Buried Nodes **
+** 216 Buried Nodes **
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
@@ -172,33 +172,33 @@ mappy/cfg_mp<3>                                                                 
 lowbank<3>                                                                          3     4     FB2_16  STD  RESET
 lowbank<1>                                                                          3     4     FB2_17  STD  RESET
 is_cpu                                                                              6     7     FB2_18  STD  RESET
-sr_load                                                                             1     4     FB3_1   STD  RESET
-memclk_d                                                                            1     1     FB3_2   STD  RESET
-clocky/cpu_cnt1<0>                                                                  1     1     FB3_3   STD  RESET
-clocky/clk_cnt_0_3                                                                  1     3     FB3_4   STD  RESET
-clocky/clk_cnt_0_2                                                                  1     2     FB3_5   STD  RESET
-clocky/clk_cnt_0_1                                                                  1     1     FB3_6   STD  RESET
-clk2m                                                                               1     3     FB3_7   STD  RESET
+viccy/dot2clk_d                                                                     1     1     FB3_1   STD  RESET
+sr_load                                                                             1     4     FB3_2   STD  RESET
+pxl_window                                                                          1     2     FB3_3   STD  RESET
+memclk_d                                                                            1     1     FB3_4   STD  RESET
+clocky/cpu_cnt1<0>                                                                  1     1     FB3_5   STD  RESET
+clocky/clk_cnt_0_3                                                                  1     3     FB3_6   STD  RESET
+clocky/clk_cnt_0_2                                                                  1     2     FB3_7   STD  RESET
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
-clk1m                                                                               1     4     FB3_8   STD  RESET
-slotclk                                                                             2     2     FB3_9   STD  RESET
-pxl_window                                                                          2     3     FB3_10  STD  RESET
-dot2clk                                                                             2     2     FB3_11  STD  RESET
-clocky/cpu_cnt1<2>                                                                  2     3     FB3_12  STD  RESET
-clocky/cpu_cnt1<3>                                                                  3     5     FB3_13  STD  RESET
-clocky/cpu_cnt1<1>                                                                  3     5     FB3_15  STD  RESET
-clk4m                                                                               3     4     FB3_16  STD  RESET
-chr_window                                                                          3     4     FB3_17  STD  RESET
-clocky/memclk_int                                                                   6     5     FB3_18  STD  RESET
+clocky/clk_cnt_0_1                                                                  1     1     FB3_8   STD  RESET
+clk1m                                                                               1     4     FB3_9   STD  RESET
+chr_window                                                                          1     2     FB3_10  STD  RESET
+slotclk                                                                             2     2     FB3_11  STD  RESET
+dot2clk                                                                             2     2     FB3_12  STD  RESET
+clocky/cpu_cnt1<1>                                                                  2     2     FB3_13  STD  RESET
+clk2m                                                                               2     4     FB3_15  STD  RESET
+clocky/cpu_cnt1<3>                                                                  3     5     FB3_16  STD  RESET
+clocky/cpu_cnt1<2>                                                                  3     5     FB3_17  STD  RESET
+clk4m                                                                               4     4     FB3_18  STD  RESET
 wp_romPET_or0000/wp_romPET_or0000_D2                                                1     20    FB4_3   STD  
 vis_hires_in_or0000/vis_hires_in_or0000_D2                                          1     20    FB4_4   STD  
 viccy/vpage_or0000/viccy/vpage_or0000_D2                                            1     19    FB4_5   STD  
 spi_cs/spi_cs_D2                                                                    1     18    FB4_7   STD  
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2                                        1     20    FB4_8   STD  
 D_and0000/D_and0000_D2                                                              1     6     FB4_9   STD  
-$OpTx$FX_DC$17475                                                                   1     17    FB4_10  STD  
+$OpTx$FX_DC$17377                                                                   1     17    FB4_10  STD  
 viccy/rows_per_char<3>                                                              3     22    FB4_11  STD  RESET
 spi_sel<2>                                                                          3     22    FB4_12  STD  RESET
 spi_comp/txd<7>                                                                     3     22    FB4_13  STD  RESET
@@ -219,7 +219,7 @@ viccy/rline_cnt<1>                                                              
 viccy/rcline_cnt<3>                                                                 5     9     FB5_17  STD  RESET
 viccy/v_enable                                                                      6     11    FB5_18  STD  RESET
 viccy/vid_addr<10>                                                                  6     9     FB6_1   STD  RESET
-$OpTx$INV$17426                                                                     3     11    FB6_11  STD  
+$OpTx$INV$17328                                                                     3     11    FB6_11  STD  
 viccy/vid_addr_hold<13>                                                             5     8     FB6_12  STD  RESET
 viccy/vid_addr_hold<10>                                                             5     7     FB6_13  STD  RESET
 
@@ -354,15 +354,14 @@ D_7_IOBUFE/D_7_IOBUFE_TRST                                                      
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
-viccy/sr_load_d                                                                     1     1     FB16_2  STD  RESET
-viccy/dot2clk_d                                                                     1     1     FB16_3  STD  RESET
+viccy/sr_load_d                                                                     1     1     FB16_3  STD  RESET
 spi_comp/txd_valid/spi_comp/txd_valid_RSTF                                          1     2     FB16_4  STD  
 spi_comp/start_rx/spi_comp/start_rx_RSTF                                            1     2     FB16_5  STD  
 spi_comp/spiclk_half                                                                0     0     FB16_6  STD  RESET
 is_vid_out                                                                          1     2     FB16_7  STD  RESET
 is_char_out                                                                         1     1     FB16_8  STD  RESET
 ipl_state_d                                                                         1     1     FB16_9  STD  RESET
-$OpTx$FX_DC$17432                                                                   1     2     FB16_10 STD  
+$OpTx$FX_DC$17335                                                                   1     2     FB16_10 STD  
 viccy/in_slot                                                                       2     2     FB16_11 STD  RESET
 viccy/charhold<7>                                                                   2     2     FB16_12 STD  RESET
 viccy/charhold<6>                                                                   2     2     FB16_13 STD  RESET
@@ -370,7 +369,7 @@ viccy/charhold<5>                                                               
 viccy/charhold<4>                                                                   2     2     FB16_15 STD  RESET
 viccy/charhold<3>                                                                   2     2     FB16_16 STD  RESET
 spi_outx/spi_outx_CLKF                                                              2     3     FB16_17 STD  
-$OpTx$FX_DC$17486                                                                   2     2     FB16_18 STD  
+$OpTx$FX_DC$17389                                                                   2     2     FB16_18 STD  
 
 ** 25 Inputs **
 
@@ -505,7 +504,7 @@ lowbank<1>            3       0   \/1   1     FB2_17  19    I/O     (b)
 is_cpu                6       1<-   0   0     FB2_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$17426   17: ipl_cnt<5>                                                        33: mappy/bankl<3> 
+  1: $OpTx$INV$17328   17: ipl_cnt<5>                                                        33: mappy/bankl<3> 
   2: A<14>             18: ipl_cnt<6>                                                        34: mappy/bankl<4> 
   3: A<15>             19: ipl_cnt_Madd__add0000__and0003/ipl_cnt_Madd__add0000__and0003_D2  35: mappy/bankl<5> 
   4: phi2_io.PIN       20: ipl_next                                                          36: mappy/bankl<6> 
@@ -552,51 +551,51 @@ Number of function block inputs used/remaining:               11/43
 Number of signals used by logic mapping into function block:  11
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
-sr_load               1       0     0   4     FB3_1         (b)     (b)
-memclk_d              1       0     0   4     FB3_2   28    I/O     (b)
-clocky/cpu_cnt1<0>    1       0     0   4     FB3_3         (b)     (b)
-clocky/clk_cnt_0_3    1       0     0   4     FB3_4         (b)     (b)
-clocky/clk_cnt_0_2    1       0     0   4     FB3_5         (b)     (b)
-clocky/clk_cnt_0_1    1       0     0   4     FB3_6         (b)     (b)
-clk2m                 1       0     0   4     FB3_7         (b)     (b)
-clk1m                 1       0     0   4     FB3_8         (b)     (b)
-slotclk               2       0     0   3     FB3_9         (b)     (b)
-pxl_window            2       0     0   3     FB3_10  30    GCK/I/O GCK
-dot2clk               2       0     0   3     FB3_11        (b)     (b)
-clocky/cpu_cnt1<2>    2       0     0   3     FB3_12  31    I/O     (b)
-clocky/cpu_cnt1<3>    3       0     0   2     FB3_13        (b)     (b)
+viccy/dot2clk_d       1       0     0   4     FB3_1         (b)     (b)
+sr_load               1       0     0   4     FB3_2   28    I/O     (b)
+pxl_window            1       0     0   4     FB3_3         (b)     (b)
+memclk_d              1       0     0   4     FB3_4         (b)     (b)
+clocky/cpu_cnt1<0>    1       0     0   4     FB3_5         (b)     (b)
+clocky/clk_cnt_0_3    1       0     0   4     FB3_6         (b)     (b)
+clocky/clk_cnt_0_2    1       0     0   4     FB3_7         (b)     (b)
+clocky/clk_cnt_0_1    1       0     0   4     FB3_8         (b)     (b)
+clk1m                 1       0     0   4     FB3_9         (b)     (b)
+chr_window            1       0     0   4     FB3_10  30    GCK/I/O GCK
+slotclk               2       0     0   3     FB3_11        (b)     (b)
+dot2clk               2       0     0   3     FB3_12  31    I/O     (b)
+clocky/cpu_cnt1<1>    2       0     0   3     FB3_13        (b)     (b)
 memclk                1       0     0   4     FB3_14  32    GCK/I/O GCK/O
-clocky/cpu_cnt1<1>    3       0     0   2     FB3_15  33    I/O     (b)
-clk4m                 3       0     0   2     FB3_16        (b)     (b)
-chr_window            3       0   \/1   1     FB3_17        (b)     (b)
-clocky/memclk_int     6       1<-   0   0     FB3_18        (b)     (b)
+clk2m                 2       0     0   3     FB3_15  33    I/O     (b)
+clocky/cpu_cnt1<3>    3       0     0   2     FB3_16        (b)     (b)
+clocky/cpu_cnt1<2>    3       0     0   2     FB3_17        (b)     (b)
+clk4m                 4       0     0   1     FB3_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: clocky/clk_cnt_0_0   5: clocky/cpu_cnt1<0>   9: clocky/memclk_int 
+  1: clocky/clk_cnt_0_0   5: clocky/cpu_cnt1<0>   9: dot2clk 
   2: clocky/clk_cnt_0_1   6: clocky/cpu_cnt1<1>  10: memclk 
   3: clocky/clk_cnt_0_2   7: clocky/cpu_cnt1<2>  11: nres 
   4: clocky/clk_cnt_0_3   8: clocky/cpu_cnt1<3> 
 
 Signal                        1         2         3         4 FB
 Name                0----+----0----+----0----+----0----+----0 Inputs
+viccy/dot2clk_d      ........X............................... 1
 sr_load              XXXX.................................... 4
+pxl_window           ..XX.................................... 2
 memclk_d             .........X.............................. 1
 clocky/cpu_cnt1<0>   ........X............................... 1
 clocky/clk_cnt_0_3   XXX..................................... 3
 clocky/clk_cnt_0_2   XX...................................... 2
 clocky/clk_cnt_0_1   X....................................... 1
-clk2m                ....XX.X................................ 3
 clk1m                ....XXXX................................ 4
+chr_window           ..XX.................................... 2
 slotclk              ...X......X............................. 2
-pxl_window           .XXX.................................... 3
 dot2clk              .X........X............................. 2
-clocky/cpu_cnt1<2>   ....XX..X............................... 3
-clocky/cpu_cnt1<3>   ....XXXXX............................... 5
+clocky/cpu_cnt1<1>   ....X...X............................... 2
 memclk               ........X............................... 1
-clocky/cpu_cnt1<1>   ....XXXXX............................... 5
+clk2m                ....XXXX................................ 4
+clocky/cpu_cnt1<3>   ....XXXXX............................... 5
+clocky/cpu_cnt1<2>   ....XXXXX............................... 5
 clk4m                ....XXXX................................ 4
-chr_window           XXXX.................................... 4
-clocky/memclk_int    XXXX......X............................. 5
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *********************************** FB4  ***********************************
@@ -618,7 +617,7 @@ mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2
                       1       0     0   4     FB4_8   5     GTS/I/O (b)
 D_and0000/D_and0000_D2
                       1       0     0   4     FB4_9         (b)     (b)
-$OpTx$FX_DC$17475     1       0     0   4     FB4_10        (b)     (b)
+$OpTx$FX_DC$17377     1       0     0   4     FB4_10        (b)     (b)
 viccy/rows_per_char<3>
                       3       0     0   2     FB4_11        (b)     (b)
 spi_sel<2>            3       0     0   2     FB4_12  6     GTS/I/O (b)
@@ -630,9 +629,9 @@ spi_comp/txd<2>       3       0     0   2     FB4_17        (b)     (b)
 do_cpu                5       0     0   0     FB4_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$17432  18: A<8>                                    34: mappy/cfg_mp<7> 
-  2: $OpTx$FX_DC$17486  19: A<9>                                    35: memclk 
-  3: $OpTx$INV$17426    20: D<7>.PIN                                36: memclk_d 
+  1: $OpTx$FX_DC$17335  18: A<8>                                    34: mappy/cfg_mp<7> 
+  2: $OpTx$FX_DC$17389  19: A<9>                                    35: memclk 
+  3: $OpTx$INV$17328    20: D<7>.PIN                                36: memclk_d 
   4: A<0>               21: D<6>.PIN                                37: phi2 
   5: A<10>              22: D<3>.PIN                                38: rwb 
   6: A<11>              23: D<2>.PIN                                39: screenb0 
@@ -663,7 +662,7 @@ mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2
                      X..XXXXXXXXXXXXXXXX.....X....X.......X............ 20
 D_and0000/D_and0000_D2 
                      XX........................XX........XX............ 6
-$OpTx$FX_DC$17475    X.XXXXXXXX...XXXXXX..........X.......X............ 17
+$OpTx$FX_DC$17377    X.XXXXXXXX...XXXXXX..........X.......X............ 17
 viccy/rows_per_char<3> 
                      X.XXXXXXXX...XXXXXX..X.......X......XX.XX.X....... 22
 spi_sel<2>           X.XXXXXXXXXXXXXXXXX...X......X......XX............ 22
@@ -751,7 +750,7 @@ VA<12>                4       0     0   1     FB6_6   138   I/O     O
 ramrwb                3       0     0   2     FB6_8   139   I/O     O
 (unused)              0       0     0   5     FB6_9         (b)     
 (unused)              0       0   \/1   4     FB6_10  140   I/O     (b)
-$OpTx$INV$17426       3       1<- \/3   0     FB6_11        (b)     (b)
+$OpTx$INV$17328       3       1<- \/3   0     FB6_11        (b)     (b)
 viccy/vid_addr_hold<13>
                       5       3<- \/3   0     FB6_12        (b)     (b)
 viccy/vid_addr_hold<10>
@@ -764,8 +763,8 @@ viccy/vid_addr<12>    6       1<-   0   0     FB6_17        (b)     (b)
 viccy/vid_addr<11>    6       2<- /\1   0     FB6_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$17432                       18: mappy/cfg_mp<6>                                                                     34: viccy/vid_addr<10> 
-  2: $OpTx$FX_DC$17486                       19: mappy/cfg_mp<7>                                                                     35: viccy/vid_addr<11> 
+  1: $OpTx$FX_DC$17335                       18: mappy/cfg_mp<6>                                                                     34: viccy/vid_addr<10> 
+  2: $OpTx$FX_DC$17389                       19: mappy/cfg_mp<7>                                                                     35: viccy/vid_addr<11> 
   3: A<10>                                   20: memclk                                                                              36: viccy/vid_addr<12> 
   4: A<11>                                   21: rwb                                                                                 37: viccy/vid_addr<13> 
   5: A<12>                                   22: screenb0                                                                            38: viccy/vid_addr<7> 
@@ -790,7 +789,7 @@ VA<7>                ........X...XXX.........X.X..........X..........X. 8
 VA<13>               .....X......X.X...........X.........X..........XX. 7
 VA<12>               ....X......XX.X...........X........X............X. 7
 ramrwb               XX..XXXX....X.XX...XXX............................ 12
-$OpTx$INV$17426      ..XXXXXX.XX.....XXX............................... 11
+$OpTx$INV$17328      ..XXXXXX.XX.....XXX............................... 11
 viccy/vid_addr_hold<13> 
                      ......................X......XX.X...X......X...XX. 8
 viccy/vid_addr_hold<10> 
@@ -1038,9 +1037,9 @@ spi_comp/cpol         3       0     0   2     FB10_17 129   I/O     I
 spi_comp/cpha         3       0     0   2     FB10_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$17432  18: A<8>                                    34: screenb0 
-  2: $OpTx$FX_DC$17486  19: A<9>                                    35: spi_comp/start_rx/spi_comp/start_rx_RSTF 
-  3: $OpTx$INV$17426    20: D<5>.PIN                                36: spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
+  1: $OpTx$FX_DC$17335  18: A<8>                                    34: screenb0 
+  2: $OpTx$FX_DC$17389  19: A<9>                                    35: spi_comp/start_rx/spi_comp/start_rx_RSTF 
+  3: $OpTx$INV$17328    20: D<5>.PIN                                36: spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
   4: A<0>               21: D<4>.PIN                                37: viccy/charhold<6> 
   5: A<10>              22: D<1>.PIN                                38: viccy/chr_fetch 
   6: A<11>              23: D<0>.PIN                                39: viccy/rcline_cnt<0> 
@@ -1110,8 +1109,8 @@ viccy/last_line_of_char
                       7       2<-   0   0     FB11_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$17432  18: mappy/SFDecomp_15/mappy/SFDecomp_15_D2  34: viccy/rcline_cnt<3> 
-  2: $OpTx$INV$17426    19: nres                                    35: viccy/rline_cnt<0> 
+  1: $OpTx$FX_DC$17335  18: mappy/SFDecomp_15/mappy/SFDecomp_15_D2  34: viccy/rcline_cnt<3> 
+  2: $OpTx$INV$17328    19: nres                                    35: viccy/rline_cnt<0> 
   3: A<10>              20: pxl_window                              36: viccy/rows_per_char<3> 
   4: A<11>              21: slotclk                                 37: viccy/vid_addr<5> 
   5: A<12>              22: spi_sel<0>                              38: viccy/vid_addr<6> 
@@ -1180,7 +1179,7 @@ ipl_next              3       0     0   2     FB12_17       (b)     (b)
 ipl_out               4       0     0   1     FB12_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$17475  16: ipl_cnt<3>                                                        31: spi_comp/cpha 
+  1: $OpTx$FX_DC$17377  16: ipl_cnt<3>                                                        31: spi_comp/cpha 
   2: A<0>               17: ipl_cnt<4>                                                        32: spi_comp/cpol 
   3: A<1>               18: ipl_cnt<5>                                                        33: spi_comp/sr<0> 
   4: D<5>.PIN           19: ipl_cnt<6>                                                        34: spi_comp/sr<1> 
@@ -1244,7 +1243,7 @@ D<6>                  4       1<- /\2   0     FB13_17 78    I/O     I/O
 viccy/pxlhold<5>      8       4<- /\1   0     FB13_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$17426             17: D<2>.PIN                                33: spi_comp/run_sr 
+  1: $OpTx$INV$17328             17: D<2>.PIN                                33: spi_comp/run_sr 
   2: A<0>                        18: D<1>.PIN                                34: spi_comp/sr<6> 
   3: A<14>                       19: D<0>.PIN                                35: spi_comp/txd_valid 
   4: A<15>                       20: dclk                                    36: spi_cs/spi_cs_D2 
@@ -1308,7 +1307,7 @@ is8296                3       0     0   2     FB14_17       (b)     (b)
 boot                  3       0     0   2     FB14_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$17426   13: lowbank<2>                              25: mappy/cfg_mp<7> 
+  1: $OpTx$INV$17328   13: lowbank<2>                              25: mappy/cfg_mp<7> 
   2: A<15>             14: lowbank<3>                              26: mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 
   3: D<7>.PIN          15: lowbank_or0000/lowbank_or0000_D2        27: mode<0> 
   4: D<6>.PIN          16: mappy/SFDecomp_15/mappy/SFDecomp_15_D2  28: mode<1> 
@@ -1408,13 +1407,13 @@ D_7_IOBUFE/D_7_IOBUFE_TRST
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB16 ***********************************
-Number of function block inputs used/remaining:               22/32
-Number of signals used by logic mapping into function block:  22
+Number of function block inputs used/remaining:               21/33
+Number of signals used by logic mapping into function block:  21
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 (unused)              0       0     0   5     FB16_1        (b)     
-viccy/sr_load_d       1       0     0   4     FB16_2  91    I/O     I
-viccy/dot2clk_d       1       0     0   4     FB16_3  92    I/O     I
+(unused)              0       0     0   5     FB16_2  91    I/O     I
+viccy/sr_load_d       1       0     0   4     FB16_3  92    I/O     I
 spi_comp/txd_valid/spi_comp/txd_valid_RSTF
                       1       0     0   4     FB16_4        (b)     (b)
 spi_comp/start_rx/spi_comp/start_rx_RSTF
@@ -1424,7 +1423,7 @@ spi_comp/spiclk_half
 is_vid_out            1       0     0   4     FB16_7        (b)     (b)
 is_char_out           1       0     0   4     FB16_8  95    I/O     I
 ipl_state_d           1       0     0   4     FB16_9        (b)     (b)
-$OpTx$FX_DC$17432     1       0     0   4     FB16_10 96    I/O     I
+$OpTx$FX_DC$17335     1       0     0   4     FB16_10 96    I/O     I
 viccy/in_slot         2       0     0   3     FB16_11 97    I/O     I
 viccy/charhold<7>     2       0     0   3     FB16_12 98    I/O     I
 viccy/charhold<6>     2       0     0   3     FB16_13       (b)     (b)
@@ -1433,41 +1432,39 @@ viccy/charhold<4>     2       0     0   3     FB16_15       (b)     (b)
 viccy/charhold<3>     2       0     0   3     FB16_16       (b)     (b)
 spi_outx/spi_outx_CLKF
                       2       0     0   3     FB16_17       (b)     (b)
-$OpTx$FX_DC$17486     2       0     0   3     FB16_18       (b)     (b)
+$OpTx$FX_DC$17389     2       0     0   3     FB16_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: VD<7>.PIN          9: mappy/bankl<3>        16: spi_sel<2> 
-  2: VD<6>.PIN         10: memclk                17: sr_load 
-  3: VD<5>.PIN         11: nres                  18: vda 
-  4: VD<4>.PIN         12: slotclk               19: viccy/chr_fetch 
-  5: VD<3>.PIN         13: spi_comp/ack_rxtx     20: viccy/pxl_fetch 
-  6: boot              14: spi_comp/ack_txd      21: viccy/slot_cnt<0> 
-  7: dot2clk           15: spi_comp/spiclk_half  22: vpa 
-  8: ipl_state        
+  1: VD<7>.PIN          8: mappy/bankl<3>        15: spi_sel<2> 
+  2: VD<6>.PIN          9: memclk                16: sr_load 
+  3: VD<5>.PIN         10: nres                  17: vda 
+  4: VD<4>.PIN         11: slotclk               18: viccy/chr_fetch 
+  5: VD<3>.PIN         12: spi_comp/ack_rxtx     19: viccy/pxl_fetch 
+  6: boot              13: spi_comp/ack_txd      20: viccy/slot_cnt<0> 
+  7: ipl_state         14: spi_comp/spiclk_half  21: vpa 
 
 Signal                        1         2         3         4 FB
 Name                0----+----0----+----0----+----0----+----0 Inputs
-viccy/sr_load_d      ................X....................... 1
-viccy/dot2clk_d      ......X................................. 1
+viccy/sr_load_d      ...............X........................ 1
 spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
-                     ..........X..X.......................... 2
+                     .........X..X........................... 2
 spi_comp/start_rx/spi_comp/start_rx_RSTF 
-                     ..........X.X........................... 2
+                     .........X.X............................ 2
 spi_comp/spiclk_half 
                      ........................................ 0
-is_vid_out           ..................XX.................... 2
-is_char_out          ..................X..................... 1
-ipl_state_d          .......X................................ 1
-$OpTx$FX_DC$17432    .................X...X.................. 2
-viccy/in_slot        ...........X........X................... 2
-viccy/charhold<7>    X.................X..................... 2
-viccy/charhold<6>    .X................X..................... 2
-viccy/charhold<5>    ..X...............X..................... 2
-viccy/charhold<4>    ...X..............X..................... 2
-viccy/charhold<3>    ....X.............X..................... 2
+is_vid_out           .................XX..................... 2
+is_char_out          .................X...................... 1
+ipl_state_d          ......X................................. 1
+$OpTx$FX_DC$17335    ................X...X................... 2
+viccy/in_slot        ..........X........X.................... 2
+viccy/charhold<7>    X................X...................... 2
+viccy/charhold<6>    .X...............X...................... 2
+viccy/charhold<5>    ..X..............X...................... 2
+viccy/charhold<4>    ...X.............X...................... 2
+viccy/charhold<3>    ....X............X...................... 2
 spi_outx/spi_outx_CLKF 
-                     .........X....XX........................ 3
-$OpTx$FX_DC$17486    .....X..X............................... 2
+                     ........X....XX......................... 3
+$OpTx$FX_DC$17389    .....X.X................................ 2
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *******************************  Equations  ********************************
@@ -1475,21 +1472,21 @@ $OpTx$FX_DC$17486    .....X..X............................... 2
 ********** Mapped Logic **********
 
 
-$OpTx$FX_DC$17432 <= (NOT vpa AND NOT vda);
+$OpTx$FX_DC$17335 <= (NOT vpa AND NOT vda);
 
 
-$OpTx$FX_DC$17475 <= (NOT rwb AND NOT A(0) AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
+$OpTx$FX_DC$17377 <= (NOT rwb AND NOT A(0) AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
 	NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 
-$OpTx$FX_DC$17486 <= boot
+$OpTx$FX_DC$17389 <= boot
 	 XOR 
-$OpTx$FX_DC$17486 <= mappy/bankl(3);
+$OpTx$FX_DC$17389 <= mappy/bankl(3);
 
 
-$OpTx$INV$17426 <= ((NOT mappy/cfg_mp(7))
+$OpTx$INV$17328 <= ((NOT mappy/cfg_mp(7))
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	mappy/cfg_mp(6) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10))
 	OR (A(15) AND NOT A(14) AND NOT A(13) AND NOT A(12) AND 
@@ -1573,7 +1570,7 @@ D_7_IOBUFE/D_7_IOBUFE_TRST <= ((NOT rwb AND NOT D_and0000/D_and0000_D2)
 
 
 D_and0000/D_and0000_D2 <= (rwb AND is_cpu AND phi2 AND NOT is_vid_out AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$FX_DC$17486);
+	NOT $OpTx$FX_DC$17335 AND $OpTx$FX_DC$17389);
 
 
 
@@ -1591,16 +1588,16 @@ D_and0000/D_and0000_D2 <= (rwb AND is_cpu AND phi2 AND NOT is_vid_out AND
 
 
 FA(15) <= NOT (((A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17328)
 	OR (NOT A(15) AND NOT lowbank(0))
 	OR (NOT A(15) AND NOT mappy/SFDecomp_15/mappy/SFDecomp_15_D2)
 	OR (A(15) AND NOT A(14) AND NOT mappy/cfg_mp(2) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17426)));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17328)));
 
 
 FA(16) <= ((mappy/bankl(0))
 	OR (A(15) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$INV$17426)
+	NOT $OpTx$INV$17328)
 	OR (NOT A(15) AND lowbank(1) AND 
 	mappy/SFDecomp_15/mappy/SFDecomp_15_D2));
 
@@ -1761,7 +1758,7 @@ VA(14) <= NOT (((NOT A(14) AND NOT ipl AND NOT is_vid_out)
 
 VA(15) <= NOT (((A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND NOT ipl AND 
 	NOT is_vid_out AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$INV$17426)
+	NOT $OpTx$INV$17328)
 	OR (vis_hires_in AND NOT viccy/vpage(7) AND NOT ipl AND 
 	is_vid_out)
 	OR (NOT A(15) AND NOT lowbank(0) AND NOT ipl AND NOT is_vid_out)
@@ -1771,14 +1768,14 @@ VA(15) <= NOT (((A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND NOT ipl AND
 	viccy/pxl_fetch)
 	OR (A(15) AND NOT A(14) AND NOT mappy/cfg_mp(2) AND NOT ipl AND 
 	NOT is_vid_out AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$INV$17426)));
+	NOT $OpTx$INV$17328)));
 
 
 VA(16) <= ((NOT screenb0 AND NOT ipl AND is_vid_out)
 	OR (mappy/bankl(0) AND NOT ipl AND NOT is_vid_out)
 	OR (NOT ipl AND is_vid_out AND NOT is_char_out)
 	OR (A(15) AND NOT ipl AND NOT is_vid_out AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17328)
 	OR (NOT A(15) AND lowbank(1) AND NOT ipl AND NOT is_vid_out AND 
 	mappy/SFDecomp_15/mappy/SFDecomp_15_D2));
 
@@ -1876,67 +1873,54 @@ boot_D <= ((D(1).PIN AND wp_romPET_or0000/wp_romPET_or0000_D2)
 	OR (boot AND NOT wp_romPET_or0000/wp_romPET_or0000_D2));
 
 FDCPE_chr_window: FDCPE port map (chr_window,chr_window_D,NOT q50m,NOT nres,'0');
-chr_window_D <= ((clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_2 AND 
-	NOT clocky/clk_cnt_0_3)
-	OR (NOT clocky/clk_cnt_0_1 AND NOT clocky/clk_cnt_0_2 AND 
-	clocky/clk_cnt_0_3)
-	OR (clocky/clk_cnt_0_2 AND NOT clocky/clk_cnt_0_3 AND 
-	clocky/clk_cnt_0_0));
+chr_window_D <= (clocky/clk_cnt_0_2 AND NOT clocky/clk_cnt_0_3);
 
 FDCPE_clk1m: FDCPE port map (clk1m,clk1m_D,q50m,NOT nres,'0');
-clk1m_D <= (NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(1) AND 
-	NOT clocky/cpu_cnt1(2) AND NOT clocky/cpu_cnt1(3));
+clk1m_D <= (NOT clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+	NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3));
 
 FDCPE_clk2m: FDCPE port map (clk2m,clk2m_D,q50m,NOT nres,'0');
-clk2m_D <= (NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(1) AND 
-	NOT clocky/cpu_cnt1(3));
+clk2m_D <= ((clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(2) AND 
+	NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3))
+	OR (NOT clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+	NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3)));
 
 FDCPE_clk4m: FDCPE port map (clk4m,clk4m_D,q50m,NOT nres,'0');
-clk4m_D <= ((NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(1) AND 
-	NOT clocky/cpu_cnt1(2))
-	OR (NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(2) AND 
-	NOT clocky/cpu_cnt1(3))
-	OR (clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(1) AND 
-	clocky/cpu_cnt1(2) AND NOT clocky/cpu_cnt1(3)));
+clk4m_D <= ((clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(2) AND 
+	NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3))
+	OR (clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+	clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3))
+	OR (NOT clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+	clocky/cpu_cnt1(0) AND clocky/cpu_cnt1(3))
+	OR (NOT clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+	NOT clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(3)));
 
 FTCPE_clocky/clk_cnt_0_0: FTCPE port map (clocky/clk_cnt_0_0,'1',q50m,NOT nres,'0');
 
 FTCPE_clocky/clk_cnt_0_1: FTCPE port map (clocky/clk_cnt_0_1,clocky/clk_cnt_0_0,q50m,NOT nres,'0');
 
 FTCPE_clocky/clk_cnt_0_2: FTCPE port map (clocky/clk_cnt_0_2,clocky/clk_cnt_0_2_T,q50m,NOT nres,'0');
-clocky/clk_cnt_0_2_T <= (clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_0);
+clocky/clk_cnt_0_2_T <= (clocky/clk_cnt_0_0 AND clocky/clk_cnt_0_1);
 
 FTCPE_clocky/clk_cnt_0_3: FTCPE port map (clocky/clk_cnt_0_3,clocky/clk_cnt_0_3_T,q50m,NOT nres,'0');
-clocky/clk_cnt_0_3_T <= (clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_2 AND 
-	clocky/clk_cnt_0_0);
+clocky/clk_cnt_0_3_T <= (clocky/clk_cnt_0_0 AND clocky/clk_cnt_0_2 AND 
+	clocky/clk_cnt_0_1);
 
-FTCPE_clocky/cpu_cnt10: FTCPE port map (clocky/cpu_cnt1(0),'1',clocky/memclk_int,NOT nres,'0');
+FTCPE_clocky/cpu_cnt10: FTCPE port map (clocky/cpu_cnt1(0),'1',dot2clk,NOT nres,'0');
 
-FTCPE_clocky/cpu_cnt11: FTCPE port map (clocky/cpu_cnt1(1),clocky/cpu_cnt1_T(1),clocky/memclk_int,NOT nres,'0');
-clocky/cpu_cnt1_T(1) <= ((NOT clocky/cpu_cnt1(0))
-	OR (NOT clocky/cpu_cnt1(1) AND NOT clocky/cpu_cnt1(2) AND 
+FTCPE_clocky/cpu_cnt11: FTCPE port map (clocky/cpu_cnt1(1),clocky/cpu_cnt1(0),dot2clk,NOT nres,'0');
+
+FTCPE_clocky/cpu_cnt12: FTCPE port map (clocky/cpu_cnt1(2),clocky/cpu_cnt1_T(2),dot2clk,NOT nres,'0');
+clocky/cpu_cnt1_T(2) <= ((clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(2) AND 
+	clocky/cpu_cnt1(0))
+	OR (clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(0) AND 
+	NOT clocky/cpu_cnt1(3)));
+
+FTCPE_clocky/cpu_cnt13: FTCPE port map (clocky/cpu_cnt1(3),clocky/cpu_cnt1_T(3),dot2clk,NOT nres,'0');
+clocky/cpu_cnt1_T(3) <= ((clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(2) AND 
+	clocky/cpu_cnt1(0))
+	OR (clocky/cpu_cnt1(1) AND clocky/cpu_cnt1(0) AND 
 	clocky/cpu_cnt1(3)));
-
-FTCPE_clocky/cpu_cnt12: FTCPE port map (clocky/cpu_cnt1(2),clocky/cpu_cnt1_T(2),clocky/memclk_int,NOT nres,'0');
-clocky/cpu_cnt1_T(2) <= (clocky/cpu_cnt1(0) AND clocky/cpu_cnt1(1));
-
-FTCPE_clocky/cpu_cnt13: FTCPE port map (clocky/cpu_cnt1(3),clocky/cpu_cnt1_T(3),clocky/memclk_int,NOT nres,'0');
-clocky/cpu_cnt1_T(3) <= ((clocky/cpu_cnt1(0) AND clocky/cpu_cnt1(1) AND 
-	clocky/cpu_cnt1(2))
-	OR (clocky/cpu_cnt1(0) AND NOT clocky/cpu_cnt1(1) AND 
-	NOT clocky/cpu_cnt1(2) AND clocky/cpu_cnt1(3)));
-
-FDCPE_clocky/memclk_int: FDCPE port map (clocky/memclk_int,clocky/memclk_int_D,NOT q50m,'0','0',nres);
-clocky/memclk_int_D <= ((clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_2 AND 
-	NOT clocky/clk_cnt_0_3 AND NOT clocky/clk_cnt_0_0)
-	OR (clocky/clk_cnt_0_1 AND NOT clocky/clk_cnt_0_2 AND 
-	clocky/clk_cnt_0_3)
-	OR (NOT clocky/clk_cnt_0_1 AND NOT clocky/clk_cnt_0_2 AND 
-	NOT clocky/clk_cnt_0_3)
-	OR (NOT clocky/clk_cnt_0_1 AND NOT clocky/clk_cnt_0_3 AND 
-	clocky/clk_cnt_0_0)
-	OR (NOT clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_2 AND 
-	clocky/clk_cnt_0_3 AND NOT clocky/clk_cnt_0_0));
 
 FDCPE_dclk: FDCPE port map (dclk,clocky/clk_cnt_0_0,NOT q50m,'0','0',nres);
 
@@ -1947,11 +1931,11 @@ dena_CE <= (nres AND viccy/pxl_fetch AND viccy/sr_load_d);
 FDCPE_do_cpu: FDCPE port map (do_cpu,do_cpu_D,memclk_d,NOT nres,'0');
 do_cpu_D <= ((NOT is_cpu)
 	OR (ipl)
-	OR (is_vid_out AND NOT $OpTx$FX_DC$17432 AND 
-	$OpTx$FX_DC$17486)
+	OR (is_vid_out AND NOT $OpTx$FX_DC$17335 AND 
+	$OpTx$FX_DC$17389)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND NOT A(13) AND NOT A(12) AND 
 	screenb0 AND is_vid_out AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335));
 
 FDCPE_dot2clk: FDCPE port map (dot2clk,clocky/clk_cnt_0_1,NOT q50m,'0','0',nres);
 
@@ -2108,7 +2092,7 @@ lowbank_D(3) <= ((D(3).PIN AND lowbank_or0000/lowbank_or0000_D2)
 lowbank_or0000/lowbank_or0000_D2 <= (NOT rwb AND NOT A(0) AND A(1) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND NOT A(3) AND NOT A(2) AND 
 	A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 
 mappy/SFDecomp_15/mappy/SFDecomp_15_D2 <= (NOT mappy/bankl(0) AND NOT mappy/bankl(1) AND NOT mappy/bankl(2) AND 
@@ -2193,9 +2177,9 @@ mappy/cfg_mp_D(7) <= ((D(7).PIN AND
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 <= (NOT rwb AND NOT A(0) AND NOT A(1) AND A(7) AND A(6) AND A(5) AND 
 	A(4) AND A(15) AND A(14) AND A(13) AND A(12) AND is8296 AND NOT A(3) AND 
 	NOT A(2) AND A(11) AND A(9) AND A(8) AND A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335);
 
-FDCPE_memclk: FDCPE port map (memclk,clocky/memclk_int,NOT q50m,NOT nres,'0');
+FDCPE_memclk: FDCPE port map (memclk,dot2clk,NOT q50m,NOT nres,'0');
 
 FDCPE_memclk_d: FDCPE port map (memclk_d,memclk,NOT q50m,NOT nres,'0');
 
@@ -2211,7 +2195,7 @@ mode_D(1) <= ((D(1).PIN AND mode_or0000/mode_or0000_D2)
 mode_or0000/mode_or0000_D2 <= (NOT rwb AND A(0) AND A(1) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND NOT A(3) AND NOT A(2) AND 
 	A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 
 nflash <= NOT (((nres AND ipl)
@@ -2219,47 +2203,47 @@ nflash <= NOT (((nres AND ipl)
 
 
 nframsel <= ((NOT memclk)
-	OR ($OpTx$FX_DC$17432)
-	OR ($OpTx$FX_DC$17486)
+	OR ($OpTx$FX_DC$17335)
+	OR ($OpTx$FX_DC$17389)
 	OR (NOT rwb AND A(15) AND A(14) AND wp_romPET AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17328)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND A(13) AND A(12) AND wp_romB AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17328)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND A(13) AND NOT A(12) AND wp_romA AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17328)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND NOT A(13) AND A(12) AND wp_rom9 AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND $OpTx$INV$17328)
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	$OpTx$INV$17426)
+	$OpTx$INV$17328)
 	OR (NOT rwb AND mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND 
 	mappy/cfg_mp(0) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2)
 	OR (NOT rwb AND A(15) AND A(14) AND mappy/cfg_mp(1) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17426));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$INV$17328));
 
 
 nsel1 <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 
 
 nsel2 <= NOT ((NOT A(7) AND NOT A(6) AND A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 
 
 nsel4 <= NOT ((NOT A(7) AND A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 
 
 nvramsel <= NOT (((memclk AND ipl)
 	OR (memclk AND is_vid_out)
-	OR (memclk AND NOT wait_int_d AND NOT $OpTx$FX_DC$17432 AND 
-	$OpTx$FX_DC$17486)
+	OR (memclk AND NOT wait_int_d AND NOT $OpTx$FX_DC$17335 AND 
+	$OpTx$FX_DC$17389)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND NOT A(13) AND NOT A(12) AND 
 	screenb0 AND memclk AND NOT wait_int_d AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432)));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335)));
 
 FDCPE_pet_vsync: FDCPE port map (pet_vsync,pet_vsync_D,NOT hsync,'0','0',nres);
 pet_vsync_D <= ((NOT viccy/rows_per_char(3) AND NOT viccy/rline_cnt(4) AND 
@@ -2295,16 +2279,15 @@ FDCPE_pxl: FDCPE port map (pxl,pxl_D,NOT dclk,NOT nres,'0');
 pxl_D <= (viccy/pxlhold(7) AND dena);
 
 FDCPE_pxl_window: FDCPE port map (pxl_window,pxl_window_D,NOT q50m,NOT nres,'0');
-pxl_window_D <= ((clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_3)
-	OR (clocky/clk_cnt_0_2 AND clocky/clk_cnt_0_3));
+pxl_window_D <= (clocky/clk_cnt_0_2 AND clocky/clk_cnt_0_3);
 
 
 ramrwb <= NOT (((ipl)
-	OR (NOT rwb AND memclk AND NOT is_vid_out AND NOT $OpTx$FX_DC$17432 AND 
-	$OpTx$FX_DC$17486)
+	OR (NOT rwb AND memclk AND NOT is_vid_out AND NOT $OpTx$FX_DC$17335 AND 
+	$OpTx$FX_DC$17389)
 	OR (NOT rwb AND A(15) AND NOT A(14) AND NOT A(13) AND NOT A(12) AND 
 	screenb0 AND memclk AND NOT is_vid_out AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432)));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335)));
 
 FDCPE_screenb0: FDCPE port map (screenb0,screenb0_D,NOT phi2,'0',NOT nres);
 screenb0_D <= ((NOT D(2).PIN AND 
@@ -2356,14 +2339,14 @@ FDCPE_spi_comp/cpha: FDCPE port map (spi_comp/cpha,D(4).PIN,spi_comp/cpha_C,NOT 
 spi_comp/cpha_C <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/cpha_CE <= (NOT rwb AND NOT A(0) AND NOT A(1));
 
 FDCPE_spi_comp/cpol: FDCPE port map (spi_comp/cpol,D(5).PIN,spi_comp/cpol_C,NOT nres,'0',spi_comp/cpol_CE);
 spi_comp/cpol_C <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/cpol_CE <= (NOT rwb AND NOT A(0) AND NOT A(1));
 
 FDCPE_spi_comp/run_sr: FDCPE port map (spi_comp/run_sr,spi_comp/run_sr_D,spi_outx/spi_outx_CLKF,NOT nres,'0');
@@ -2486,7 +2469,7 @@ FDCPE_spi_comp/start_rx: FDCPE port map (spi_comp/start_rx,'1',spi_comp/start_rx
 spi_comp/start_rx_C <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/start_rx_CE <= (rwb AND A(0) AND NOT A(1));
 
 
@@ -2518,63 +2501,63 @@ FDCPE_spi_comp/txd0: FDCPE port map (spi_comp/txd(0),D(0).PIN,spi_comp/txd_C(0),
 spi_comp/txd_C(0) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(0) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd1: FDCPE port map (spi_comp/txd(1),D(1).PIN,spi_comp/txd_C(1),NOT nres,'0',spi_comp/txd_CE(1));
 spi_comp/txd_C(1) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(1) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd2: FDCPE port map (spi_comp/txd(2),D(2).PIN,spi_comp/txd_C(2),NOT nres,'0',spi_comp/txd_CE(2));
 spi_comp/txd_C(2) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(2) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd3: FDCPE port map (spi_comp/txd(3),D(3).PIN,spi_comp/txd_C(3),NOT nres,'0',spi_comp/txd_CE(3));
 spi_comp/txd_C(3) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(3) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd4: FDCPE port map (spi_comp/txd(4),D(4).PIN,spi_comp/txd_C(4),NOT nres,'0',spi_comp/txd_CE(4));
 spi_comp/txd_C(4) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(4) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd5: FDCPE port map (spi_comp/txd(5),D(5).PIN,spi_comp/txd_C(5),NOT nres,'0',spi_comp/txd_CE(5));
 spi_comp/txd_C(5) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(5) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd6: FDCPE port map (spi_comp/txd(6),D(6).PIN,spi_comp/txd_C(6),NOT nres,'0',spi_comp/txd_CE(6));
 spi_comp/txd_C(6) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(6) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd7: FDCPE port map (spi_comp/txd(7),D(7).PIN,spi_comp/txd_C(7),NOT nres,'0',spi_comp/txd_CE(7));
 spi_comp/txd_C(7) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_CE(7) <= (NOT rwb AND A(0) AND NOT A(1));
 
 FDCPE_spi_comp/txd_valid: FDCPE port map (spi_comp/txd_valid,'1',spi_comp/txd_valid_C,NOT spi_comp/txd_valid/spi_comp/txd_valid_RSTF,'0',spi_comp/txd_valid_CE);
 spi_comp/txd_valid_C <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_comp/txd_valid_CE <= (NOT rwb AND A(0) AND NOT A(1));
 
 
@@ -2584,7 +2567,7 @@ spi_comp/txd_valid/spi_comp/txd_valid_RSTF <= (nres AND NOT spi_comp/ack_txd);
 spi_cs/spi_cs_D2 <= (NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 
 spi_nsel2 <= NOT ((nres AND NOT spi_sel(2) AND NOT spi_sel(0) AND spi_sel(1)));
@@ -2620,26 +2603,26 @@ FDCPE_spi_sel0: FDCPE port map (spi_sel(0),D(0).PIN,spi_sel_C(0),NOT nres,'0',sp
 spi_sel_C(0) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_sel_CE(0) <= (NOT rwb AND NOT A(0) AND NOT A(1));
 
 FDCPE_spi_sel1: FDCPE port map (spi_sel(1),D(1).PIN,spi_sel_C(1),NOT nres,'0',spi_sel_CE(1));
 spi_sel_C(1) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_sel_CE(1) <= (NOT rwb AND NOT A(0) AND NOT A(1));
 
 FDCPE_spi_sel2: FDCPE port map (spi_sel(2),D(2).PIN,spi_sel_C(2),NOT nres,'0',spi_sel_CE(2));
 spi_sel_C(2) <= NOT ((NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND 
 	A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND phi2 AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND 
-	NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 spi_sel_CE(2) <= (NOT rwb AND NOT A(0) AND NOT A(1));
 
 FDCPE_sr_load: FDCPE port map (sr_load,sr_load_D,NOT q50m,NOT nres,'0');
-sr_load_D <= (clocky/clk_cnt_0_1 AND clocky/clk_cnt_0_2 AND 
-	clocky/clk_cnt_0_3 AND clocky/clk_cnt_0_0);
+sr_load_D <= (clocky/clk_cnt_0_0 AND clocky/clk_cnt_0_2 AND 
+	clocky/clk_cnt_0_3 AND clocky/clk_cnt_0_1);
 
 
 viccy/Madd_vid_addr_addsub0000__and0007/viccy/Madd_vid_addr_addsub0000__and0007_D2 <= (viccy/vid_addr(0) AND viccy/vid_addr(1) AND 
@@ -2674,14 +2657,14 @@ viccy/chr_fetch_D <= ((NOT vis_hires_in AND vis_enable AND interlace AND
 	NOT viccy/in_slot AND chr_window));
 
 FDCPE_viccy/crtc_reg0: FDCPE port map (viccy/crtc_reg(0),viccy/crtc_reg_D(0),NOT memclk,NOT nres,'0');
-viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$17475)
+viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$17377)
 	OR (NOT D(2).PIN AND D(3).PIN AND D(0).PIN AND NOT D(1).PIN AND 
-	$OpTx$FX_DC$17475));
+	$OpTx$FX_DC$17377));
 
 FDCPE_viccy/crtc_reg1: FDCPE port map (viccy/crtc_reg(1),viccy/crtc_reg_D(1),NOT memclk,NOT nres,'0');
-viccy/crtc_reg_D(1) <= ((viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$17475)
+viccy/crtc_reg_D(1) <= ((viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$17377)
 	OR (D(2).PIN AND D(3).PIN AND NOT D(0).PIN AND NOT D(1).PIN AND 
-	$OpTx$FX_DC$17475));
+	$OpTx$FX_DC$17377));
 
 FDCPE_viccy/dot2clk_d: FDCPE port map (viccy/dot2clk_d,dot2clk,q50m,'0','0');
 
@@ -2940,12 +2923,12 @@ viccy/rows_per_char_T(3) <= ((D(3).PIN AND NOT viccy/rows_per_char(3) AND NOT rw
 	A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(11) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426)
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328)
 	OR (NOT D(3).PIN AND viccy/rows_per_char(3) AND NOT rwb AND A(0) AND 
 	A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(11) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426));
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328));
 
 FDCPE_viccy/slot_cnt0: FDCPE port map (viccy/slot_cnt(0),viccy/slot_cnt_D(0),slotclk,NOT nres,'0');
 viccy/slot_cnt_D(0) <= (NOT viccy/slot_cnt(0) AND NOT viccy/last_slot_of_line);
@@ -3366,7 +3349,7 @@ viccy/vpage_D(7) <= ((D(7).PIN AND
 viccy/vpage_or0000/viccy/vpage_or0000_D2 <= (NOT rwb AND A(0) AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND NOT viccy/crtc_reg(0) AND 
 	viccy/crtc_reg(1) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 FDCPE_vis_80_in: FDCPE port map (vis_80_in,vis_80_in_D,NOT phi2,NOT nres,'0');
 vis_80_in_D <= ((D(1).PIN AND 
@@ -3396,7 +3379,7 @@ vis_hires_in_D <= ((D(0).PIN AND
 vis_hires_in_or0000/vis_hires_in_or0000_D2 <= (NOT rwb AND NOT A(0) AND NOT A(1) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND NOT A(3) AND NOT A(2) AND 
 	A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 FDCPE_vsync: FDCPE port map (vsync,vsync_D,NOT hsync,'0','0',nres);
 vsync_D <= ((NOT viccy/rows_per_char(3) AND NOT viccy/rline_cnt(4) AND 
@@ -3437,7 +3420,7 @@ wp_romPET_D <= ((D(7).PIN AND wp_romPET_or0000/wp_romPET_or0000_D2)
 wp_romPET_or0000/wp_romPET_or0000_D2 <= (NOT rwb AND A(0) AND NOT A(1) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND NOT A(3) AND NOT A(2) AND 
 	A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17432 AND $OpTx$INV$17426);
+	mappy/SFDecomp_15/mappy/SFDecomp_15_D2 AND NOT $OpTx$FX_DC$17335 AND $OpTx$INV$17328);
 
 Register Legend:
  FDCPE (Q,D,C,CLR,PRE,CE); 

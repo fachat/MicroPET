@@ -87,52 +87,42 @@ begin
 			chr_window <= '0';
 			sr_load <= '0';
 
-			case (clk_cnt) is
-			when "0000" =>
-				memclk_int <= '0';
-			when "0001" =>
-				memclk_int <= '0';
-			when "0010" =>
-				memclk_int <= '1';
-			when "0011" =>
-				memclk_int <= '1';
-			when "0100" =>
-				memclk_int <= '0';
+			memclk_int <= clk_cnt(1);
+
+			if (clk_cnt(3 downto 2) = "01") then
 				chr_window <= '1';
-			when "0101" =>
-				memclk_int <= '0';
-				chr_window <= '1';
-			when "0110" =>
-				memclk_int <= '1';
-				chr_window <= '1';
-			when "0111" =>
-				memclk_int <= '1';
-				chr_window <= '1';
-			when "1000" =>
-				memclk_int <= '0';
-			when "1001" =>
-				memclk_int <= '0';
-			when "1010" =>
-				memclk_int <= '1';
-			when "1011" =>
-				memclk_int <= '1';
-			when "1100" =>
-				memclk_int <= '0';
+			end if;
+			
+			if (clk_cnt(3 downto 2) = "11") then
 				pxl_window <= '1';
-			when "1101" =>
-				memclk_int <= '0';
-				pxl_window <= '1';
-			when "1110" =>
-				memclk_int <= '1';
-				pxl_window <= '1';
-				--sr_load <= '1';
-			when "1111" =>
-				memclk_int <= '1';
+			end if;
+			
+			if (clk_cnt = "1111") then
 				sr_load <= '1';
-				pxl_window <= '1';
-			when others =>
-				null;
-			end case;
+			end if;
+			
+--			case (clk_cnt) is
+--			when "0100" =>
+--				chr_window <= '1';
+--			when "0101" =>
+--				chr_window <= '1';
+--			when "0110" =>
+--				chr_window <= '1';
+--			when "0111" =>
+--				chr_window <= '1';
+--			when "1100" =>
+--				pxl_window <= '1';
+--			when "1101" =>
+--				pxl_window <= '1';
+--			when "1110" =>
+--				pxl_window <= '1';
+--				--sr_load <= '1';
+--			when "1111" =>
+--				sr_load <= '1';
+--				pxl_window <= '1';
+--			when others =>
+--				null;
+--			end case;
 			
 			memclk <= memclk_int;
 			dotclk <= clk_cnt (0);
