@@ -676,9 +676,7 @@ begin
 --				'1';		-- show init / boot code (see VA14-8)
 	VA(18 downto 16) <= 	ipl_addr(18 downto 16)	when ipl = '1'		else	-- IPL
 				ma_out(18 downto 16) 	when is_vid_out = '0' 	else	-- CPU access
-				"000"			when is_char_out = '1' and screenb0='1' else	-- $x08000 for characters like in PET
-				"111";							-- hires and charrom pixel data in bank 7
---				"000";
+				"000";
 				
 	FA(18 downto 16) <= 	ma_out(18 downto 16);
 	FA(15) <=		ma_out(15);

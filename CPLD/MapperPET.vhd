@@ -139,7 +139,6 @@ begin
 	-- of ROM area in the upper half of bank 0
 	-- Is evaluated in bank 0 only, so low64k can be ignored here
 	petrom <= '1' when A(15) = '1' and			-- upper half
-			--(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
 			A(14) = '1' -- upper 16k
 			else '0';
 			
@@ -219,11 +218,14 @@ begin
 	
 	boota19 <= bank(3) xor boot;
 	
-	-- VRAM is second 512k of CPU, plus 4k write-window on $008000 ($088000 in VRAM) if screenb0 is set
+	-- VRAM is second 512k of CPU, plus 8k write-window on $008000 ($088000 in VRAM) if screenb0 is set
 	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
 	-- CPU then reads from FRAM, while video reads from VRAM
 	vramsel <= '0' when avalid = '0' else
-			'1' when low64k = '1' and screen = '1' and screenb0 = '1' and rwb='0' else
+			'1' when low64k = '1' 
+				and (screen = '1' or petrom9 = '1') 
+				and screenb0 = '1' 
+				and rwb='0' else
 			boota19;			-- second 512k (or 1st 512k on boot)
 
 	framsel <= '0' when avalid='0' else
