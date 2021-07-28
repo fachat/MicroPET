@@ -14,8 +14,9 @@ that make up banks 0-7, and 512k "Video" RAM that make up banks 8-15.
 This map describes the standard memory map, that is enabled after the
 SPI boot code has executed and initiated the memory map.
 
-RAM bank 15 is the "video" bank in that hires graphics and character ROMs 
-are mapped here. The character data can be mapped there as well using bit 2
+RAM bank 8 is the "video" bank in that hires graphics and character ROMs 
+are mapped here. The character data is be mapped there as well but can be
+mapped for writing to bank 0 using bit 2
 of the control register (see below).
 
 RAM bank 1 is the one used for the 8296 RAM extension (that is mapped into the
@@ -23,14 +24,14 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
 
     Video   +----+ $100000
     RAM     |    |         VRAM 
-            |    |         bank 15 (video)
+            |    |         bank 15 
             +----+ $0f0000
             |    |
              ...
             |    |
             +----+ $090000
             |    |         VRAM
-            |    |	       bank 8
+            |    |	       bank 8 (video)
             +----+ $080000
     Fast    |    |         FRAM
     RAM     |    |         bank 7
@@ -71,10 +72,11 @@ There are two control ports at $e800 and $e801. They are currently only writable
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
-- Bit 2: 0= character memory in bank 0, 1= character memory in video bank (see memory map)
+- Bit 2: 0= character memory write mirror in bank 0, 1= character memory only in video bank (see memory map)
 - Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
-- Bit 5-6: unused, must be 0
+- Bit 5: 0= 25 lines on screen, 1= 26 lines on screen
+- Bit 6: 0= when switching char height, move vsync to keep screen centered. 1= prevent that
 - Bit 7: 0= video enabled; 1= video disabled
 
 ### Interlace
@@ -158,17 +160,19 @@ In character mode (see control port below) two memory areas are used:
 
 Register 12 is used as follows:
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: A10 of character memory in 40 column mode
-- Bit 3: A11 of character memory 
-- Bit 4: A12 of character memory (inverted)
-- Bit 5: A13 of character pixel data
-- Bit 6: A14 of character pixel data
-- Bit 7: A15 of character pixel data
+- Bit 0: A8 of start of character memory
+- Bit 1: A9 of start of character memory
+- Bit 2: A10 of start of character memory
+- Bit 3: A11 of start of character memory 
+- Bit 4: A12 of start of character memory (inverted)
+- Bit 5: A13 of character pixel data (charrom)
+- Bit 6: A14 of character pixel data (charrom)
+- Bit 7: A15 of character pixel data (charrom)
 
-As you can see, the character memory can be mapped in pages of screen size, and using
-as many pages to fill up 8k of RAM.
+As you can see, the character memory can be mapped in 256 byte pages.
+A13/14/15 of character memory address are set to %100, so character memory
+starts at $8000 in the video bank, and reaches up to $1fff
+
 For 40 column mode this means 8 screen pages, or 4 screen pages in 80 column mode.
 Character memory is mapped to bank 0 at boot, but can be mapped to bank 7 using the control port below.
 Note that Bit 4 is inverted, as the Commodore PET ROM sets address bit 12 to 1 on boot.
@@ -177,20 +181,22 @@ The character set is 8k in size: two character sets of 4k each, switchable with 
 VIA I/O pin given to the CRTC as in the PET. Register 12 can be used to select
 one of 8 such 8k sets.
 
-Character pixel data is mapped to bank 15.
+Character set pixel data is mapped to bank 15.
 
 #### Hires mode
 
 Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 or 640x200 pixels.
 
-- Bit 0: - unused -
-- Bit 1: - unused -
-- Bit 2: - unused -
-- Bit 3: - unused -
-- Bit 4: - unused -
-- Bit 5: A13 of hires data (in 320x200 mode)
-- Bit 6: A14 of hires data
-- Bit 7: A15 of hires data
+Register 12 here is used as follows:
+
+- Bit 0: A8 of start of hires data
+- Bit 1: A9 of start of hires data
+- Bit 2: A10 of start of hires data
+- Bit 3: A11 of start of hires data
+- Bit 4: A12 of start of hires data
+- Bit 5: A13 of start of hires data
+- Bit 6: A14 of start of hires data
+- Bit 7: A15 of start of hires data
 
 
 ## Code
