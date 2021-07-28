@@ -50,6 +50,8 @@ entity Video is
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- (ignored)
 	   interlace: in std_logic;
+	   statusline: in std_logic;
+	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
@@ -135,6 +137,7 @@ architecture Behavioral of Video is
 	signal h_enable : std_logic := '0';	
 	signal v_enable : std_logic := '0';
 	signal enable : std_logic;
+	signal v_lastline: std_logic := '0';
 	
 	-- sync
 	signal h_sync_int : std_logic := '0';	
@@ -297,14 +300,14 @@ begin
 				end if;
 			end if;
 			
-			if (rows_per_char(3) = '1') then
-				if (rline_cnt >= 467 and rline_cnt < 469) then
+			if (rows_per_char(3) = '1' or movesync = '1') then
+				if (rline_cnt >= 483 and rline_cnt < 485) then
 					v_sync_int <= '1';
 				else
 					v_sync_int <= '0';
 				end if;
 			else
-				if (rline_cnt >= 450 and rline_cnt < 452) then
+				if (rline_cnt >= 466 and rline_cnt < 468) then
 					v_sync_int <= '1';
 				else
 					v_sync_int <= '0';
@@ -328,10 +331,13 @@ begin
 			end if;
 
 			-- venable
-			if (rline_cnt < 450) then
+			v_enable <= '0';
+			v_lastline <= '0';
+			if (rline_cnt < 468) then
 				v_enable <= '1';
-			else
-				v_enable <= '0';
+			end if;
+			if (rline_cnt >= 450) then
+				v_lastline <= '1';
 			end if;
 		    else
 			-- timing for 8 pixel rows per character
@@ -344,12 +350,15 @@ begin
 			end if;
 
 			-- venable
-			if (rline_cnt < 400) then
+			v_enable <= '0';
+			v_lastline <= '0';
+			if (rline_cnt < 416) then
 				v_enable <= '1';
-			else
-				v_enable <= '0';
 			end if;
-		    end if; -- crtc_is_9rows
+			if (rline_cnt >= 400) then
+				v_lastline <= '1';
+			end if;		    
+		end if; -- crtc_is_9rows
 
 		    -- common for 8/9 pixel rows per char
 		    
@@ -420,6 +429,8 @@ begin
 	-----------------------------------------------------------------------------
 	-- address output
 	
+	-- mem_addr = hires fetch or chr fetch (i.e. NOT charrom pxl fetch)
+	
 	a_out(3 downto 0) <= vid_addr(3 downto 0) when mem_addr ='1' else 
 				rcline_cnt;
 	a_out(11 downto 4) <= vid_addr(11 downto 4) when mem_addr = '1' else 
@@ -468,7 +479,7 @@ begin
 			-- note: pxl_fetch is registered with qclk above, as is memclk_d (rising qclk)
 			pxlhold(8) <= pxlhold(7) and enable;
 			if (pxl_fetch = '1' and sr_load_d ='1') then
-				enable <= h_enable and v_enable;
+				enable <= h_enable and v_enable and not(not(statusline) and v_lastline);
 				pxlhold(7 downto 0) <= D;
 			elsif (dot2clk_d = '1' or is_80 = '1') then 
 				pxlhold(7) <= pxlhold(6);

@@ -153,6 +153,8 @@ architecture Behavioral of Top is
 	signal lowbank : std_logic_vector(3 downto 0);
 	signal lockb0 : std_logic;
 	signal forceb0 : std_logic;
+	signal statusline : std_logic;
+	signal movesync : std_logic;
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
@@ -265,6 +267,8 @@ architecture Behavioral of Top is
 	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   is_nowrap: in std_logic;
 	   interlace: in std_logic;
+	   statusline: in std_logic;
+	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
 	   crtc_rs  : in std_logic;	-- register select
@@ -520,6 +524,8 @@ begin
 		vis_double_in,
 		'1',
 		interlace,
+		statusline,
+		movesync,
 		sel8,
 		ca_in(0),
 		rwb,
@@ -623,6 +629,8 @@ begin
 			lowbank <= (others => '0');
 			boot <= '1';
 			lockb0 <= '0';
+			statusline <= '0';
+			movesync <= '0';
 		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
 			case (ca_in(1 downto 0)) is
@@ -632,6 +640,8 @@ begin
 				screenb0 <= not(D(2));
 				vis_double_in <= D(3);
 				interlace <= D(4);
+				statusline <= D(5);
+				movesync <= D(6);
 				vis_enable <= not(D(7));
 			when "01" =>
 				lockb0 <= D(0);
