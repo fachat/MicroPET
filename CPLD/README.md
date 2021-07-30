@@ -166,7 +166,7 @@ at $08xxx.
   - 00 = 1 MHz
   - 01 = 2 MHz
   - 10 = 4 MHz
-  - 11 = 8 MHz with wait states for video access to VRAM
+  - 11 = 12.5 MHz with wait states for video access to VRAM
 - Bit 2-7: unused, must be 0
 
 
