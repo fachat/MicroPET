@@ -187,7 +187,7 @@ To enable it, bit 3 in the Memory Map Control register must be set.
 
 ## CRTC emulation
 
-The Video code (partially) emulates three CRTC registers:
+The Video code (partially) emulates only a subset of the CRTC registers:
 
 - Register 9: number of pixel rows per character -1
 - Register 12: start of video memory high
@@ -220,9 +220,9 @@ Register 12 is used as follows:
 - Bit 6: A14 of character pixel data (charrom)
 - Bit 7: A15 of character pixel data (charrom)
 
-As you can see, the character memory can be mapped in 256 byte pages.
+As you can see, the character memory can be mapped in 1024 byte pages.
 A13/14/15 of character memory address are set to %100, so character memory
-starts at $8000 in the video bank, and reaches up to $1fff
+starts at $8000 in the video bank, and reaches up to $9fff
 
 For 40 column mode this means 8 screen pages, or 4 screen pages in 80 column mode.
 Character memory is mapped to bank 0 at boot, but can be mapped to bank 7 using the control port below.
@@ -230,7 +230,8 @@ Note that Bit 4 is inverted, as the Commodore PET ROM sets address bit 12 to 1 o
 
 The character set is 8k in size: two character sets of 4k each, switchable with the 
 VIA I/O pin given to the CRTC as in the PET. Register 12 can be used to select
-one of 8 such 8k sets.
+one of 8 such 8k sets. Note that each character occupies 16 bytes (not 8 as in the typical
+Commodore character set), so the 9th rasterline for a character may be used.
 
 Character set pixel data is mapped to bank 15.
 
@@ -255,6 +256,7 @@ Register 12 here is used as follows:
 The code contains three modules:
 
 - Video.vhd: the video controller part
+- Clock.vhd: clock generation
 - Mapper.vhd: memory mapping
 - Top.vhd: glue logic and timing
 - Spi.vhd: SPI module
