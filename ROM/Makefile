@@ -112,4 +112,6 @@ clean:
 	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g 
 	rm -f iplldr
 
-	
+rebuildclean:
+	rm -f $(EDITROMS)
+

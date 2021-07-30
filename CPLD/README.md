@@ -75,7 +75,7 @@ There are two control ports at $e800 and $e801. They are currently only writable
 - Bit 2: 0= character memory write mirror in bank 0, 1= character memory only in video bank (see memory map)
 - Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
-- Bit 5: 0= 25 lines on screen, 1= 26 lines on screen
+- Bit 5: unused - must be 0
 - Bit 6: 0= when switching char height, move vsync to keep screen centered. 1= prevent that
 - Bit 7: 0= video enabled; 1= video disabled
 
@@ -107,7 +107,12 @@ So, setting bit 3=1 and bit 4=1 gives double the number of character rows
 #### $e802 (59394) Low32k Bank
 
 - Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
-- Bit 4-7: unused, must be 0
+- Bit 4-5: number of 2k character video memory block the $8xxx window points to
+- Bit 6-7: unused, must be 0
+
+Bits 4 and 5 are XOR'd with the CPU address bits A11 and A12 and then used
+as address on the video memory when reading/writing in the screen window
+at $08xxx.
 
 #### $e803 (59395) Speed Control
 
@@ -160,8 +165,8 @@ In character mode (see control port below) two memory areas are used:
 
 Register 12 is used as follows:
 
-- Bit 0: A8 of start of character memory
-- Bit 1: A9 of start of character memory
+- Bit 0: - unused - must be 0
+- Bit 1: - unused - must be 0
 - Bit 2: A10 of start of character memory
 - Bit 3: A11 of start of character memory 
 - Bit 4: A12 of start of character memory (inverted)
