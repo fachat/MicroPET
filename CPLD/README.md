@@ -70,20 +70,34 @@ switch over the two RAM chips.
 
 ### Micro-PET
 
-There are two control ports at $e800 and $e801. They are currently only writable.
+There are four control ports at $e800 - $e803. They are currently only writable.
 
 #### $e800 (59392) Video Control
 
 - Bit 0: 0= character display, 1= hires display
 - Bit 1: 0= 40 column display, 1= 80 column display
-- Bit 2: 0= character memory write mirror in bank 0, 1= character memory only in video bank (see memory map)
+- Bit 2: 0= screen character memory in bank 0, 1= character memory only in video bank (see memory map)
 - Bit 3: 0= double pixel rows, 1= single pixel rows (also 400 px vertical hires)
 - Bit 4: 0= interlace mode (only every second rasterline), 1= duplicate rasterlines
 - Bit 5: unused - must be 0
 - Bit 6: 0= when switching char height, move vsync to keep screen centered. 1= prevent that
 - Bit 7: 0= video enabled; 1= video disabled
 
-### Interlace
+##### Screen mirror in bank 0
+
+The CRTC reads its video data from the video bank in VRAM.
+This is not mapped to bank 0 in the CPU address space, as it is "slow" memory, because
+the available memory bandwidth is shared with the video access.
+
+To allow the PET code to directly write to $8xxx for character video memory, Bit 2 maps
+the $8xxx window in CPU bank 0 to the VRAM video bank.
+
+Note that with the register $e802, the position of the video window in the video bank
+can be changed (while it stays at $8xxx in the CPU memory bank 0). This allows 
+for easy switching between multiple screens beyond the 4k limit of the PET video memory
+window at $8xxx.
+
+##### Interlace and 50 row mode
 
 In normal mode (after reset), the VGA video circuit runs in interlace mode,
 i.e. only every second raster line is displayed with video data.
@@ -94,7 +108,35 @@ As long as bit 3 is 0, every rasterline is
 displayed twice, to get to the same height as in interlace mode.
 If bit 3 is 1, then every rasterline is a new rasterline.
 So, setting bit 3=1 and bit 4=1 gives double the number of character rows
-(or raster rows in bitmap mode).
+(or raster rows in bitmap mode). I.e. with this you can enable 50 character row
+screens.
+
+##### Moving Sync
+
+The character height can be switched between 8 pixel rows and 9 pixel rows (using 
+R9 of the emulated CRTC, see below). 
+This gives a displayed height of the screen of either 400 or 450 (each rasterline is
+displayed twice, see previous section). 
+
+For the video code, the screen starts with the first displayed rasterline. The sync position
+is fixed to that position, i.e. it has a fixed rasterline where the vertical sync is triggered.
+The value is selected such, that the displayed data is about centered on the screen.
+
+Now, if the character height is changed, the height of the displayed data is changed, and to 
+keep the this area vertically centered, the position of the vertical sync in relation to the 
+first rasterline is moved. 
+
+However, as there just isn't enough space in the CPLD, when this happens, the distance between
+two vertical sync signals changes for one displayed frame. Some monitors may have difficulties
+with this, trying to find a new video mode and switching the display off during that search 
+attempt. 
+
+In normal operation that does not matter, as this mode should be set once and then left as it is.
+But for programs that may switch character height more often, this may be irritating. So,
+with bit 6 you can disable moving the vertical sync. The displayed data will stay relatively
+high on the screen, and just the lower border moves up and down when the character height is
+changed. Then the monitors don't recognize a potential mode change, and thus don't blank
+the screen. It just isn't properly centered anymore.
 
 
 #### $e801 (59393) Memory Map Control
@@ -198,8 +240,8 @@ Hires mode is available in 40 as well as 80 "column" mode, i.e. either 320x200 o
 
 Register 12 here is used as follows:
 
-- Bit 0: A8 of start of hires data
-- Bit 1: A9 of start of hires data
+- Bit 0: - unused - must be 0
+- Bit 1: - unused - must be 0
 - Bit 2: A10 of start of hires data
 - Bit 3: A11 of start of hires data
 - Bit 4: A12 of start of hires data
