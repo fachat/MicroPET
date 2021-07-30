@@ -116,7 +116,7 @@ These are future expansions I want to look into. Not all may be possible to impl
 
 ## Gallery
 
-![MicroPET with self-printed key caps](images/case-with-caps.png)
+![MicroPET with self-printed key caps](images/case-with-caps.jpg)
 
-![MicroPET running the 8296 burnin](images/8296diag.png)
+![MicroPET running the 8296 burnin](images/8296diag.jpg)
  
