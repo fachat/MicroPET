@@ -8,7 +8,7 @@
 ; PET ROM images to copy from. 
 ;
 
-VBANK	=$0f0000
+VBANK	=$080000
 
 SPICTRL	=$e808
 SPIDATA	=$e809
@@ -119,6 +119,26 @@ jmpboot
 
 	; code runs in .xl
 	.xl
+
+	; -----------------------
+	; warm reboot init
+
+	; init the CRTC emulation
+	lda #9
+	sta $e880
+	lda #7
+	sta $e881
+	lda #12
+	sta $e880
+	lda #$10
+	sta $e881
+
+	; init control registers
+	lda #0
+	sta $e800
+	sta $e801
+	sta $e802
+	sta $e803
 
 	; -----------------------
 	; copy over charrom to RAM
