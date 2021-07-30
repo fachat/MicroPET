@@ -48,6 +48,8 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
             +----+ $000000
 
 
+![MicroPET Typical memory map](../images/mem-map.png)
+
 ### Init Map
 
 When the CPU boots, it tries to do so from bank 0. Here we have RAM, so we have to provide some 
@@ -61,6 +63,8 @@ banks 0-7 and Fast RAM to banks 8-15.
 
 The first thing the boot code does is to copy itself to Fast RAM, and
 switch over the two RAM chips.
+
+![MicroPET Boot memory map](../images/boot-map.png)
 
 ## Control Ports
 
