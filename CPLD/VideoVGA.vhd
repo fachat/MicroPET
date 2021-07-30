@@ -333,12 +333,12 @@ begin
 			-- venable
 			v_enable <= '0';
 			v_lastline <= '0';
-			if (rline_cnt < 468) then
+			if (rline_cnt < 450) then	--468) then
 				v_enable <= '1';
 			end if;
-			if (rline_cnt >= 450) then
-				v_lastline <= '1';
-			end if;
+--			if (rline_cnt >= 450) then
+--				v_enable <= '1';
+--			end if;
 		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
@@ -352,12 +352,12 @@ begin
 			-- venable
 			v_enable <= '0';
 			v_lastline <= '0';
-			if (rline_cnt < 416) then
+			if (rline_cnt < 400) then	--416) then
 				v_enable <= '1';
 			end if;
-			if (rline_cnt >= 400) then
-				v_lastline <= '1';
-			end if;		    
+--			if (rline_cnt >= 400) then
+--				v_lastline <= '1';
+--			end if;		    
 		end if; -- crtc_is_9rows
 
 		    -- common for 8/9 pixel rows per char
@@ -479,7 +479,8 @@ begin
 			-- note: pxl_fetch is registered with qclk above, as is memclk_d (rising qclk)
 			pxlhold(8) <= pxlhold(7) and enable;
 			if (pxl_fetch = '1' and sr_load_d ='1') then
-				enable <= h_enable and v_enable and not(not(statusline) and v_lastline);
+--				enable <= h_enable and v_enable and not(not(statusline) and v_lastline);
+				enable <= h_enable and v_enable;
 				pxlhold(7 downto 0) <= D;
 			elsif (dot2clk_d = '1' or is_80 = '1') then 
 				pxlhold(7) <= pxlhold(6);
@@ -552,7 +553,8 @@ begin
 				rows_per_char(3) <= CPU_D(3);
 				--rows_per_char <= CPU_D(3 downto 0);
 			when R12 =>
-				vpage <= CPU_D;
+				vpage(1 downto 0) <= (others => '0');
+				vpage(7 downto 2) <= CPU_D(7 downto 2);
 --			when R13 =>
 --				vpagelo <= CPU_D;
 			when others =>

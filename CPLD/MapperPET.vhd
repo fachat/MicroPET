@@ -46,7 +46,8 @@ entity Mapper is
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
 	   -- mapped address lines
-           RA : out std_logic_vector (18 downto 8);
+           RA : out std_logic_vector (18 downto 8);	-- mapped FRAM address
+	   VA : out std_logic_vector (12 downto 11);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -54,6 +55,7 @@ entity Mapper is
 	   
 	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
+	   vidblock: in std_logic_vector(1 downto 0);
    	   wp_rom9: in std_logic;
    	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
@@ -88,6 +90,7 @@ architecture Behavioral of Mapper is
 	signal scrpeek: std_logic;
 	signal boota19: std_logic;
 	signal avalid: std_logic;
+	signal screenwin: std_logic;
 	
 	signal bank: std_logic_vector(7 downto 0);
 	
@@ -216,22 +219,29 @@ begin
 	-- map 1:1
 	RA(14 downto 8) <= A(14 downto 8);
 	
+	VA(11) <= A(11) when screenwin = '0' else
+				A(11) xor vidblock(0);
+	VA(12) <= A(12) when screenwin = '0' else
+				A(12) xor vidblock(1);
+				
 	boota19 <= bank(3) xor boot;
 	
-	-- VRAM is second 512k of CPU, plus 8k write-window on $008000 ($088000 in VRAM) if screenb0 is set
-	-- Note that this is a write window. Writes happen on both, VRAM and FRAM 
-	-- CPU then reads from FRAM, while video reads from VRAM
+	
+	-- VRAM is second 512k of CPU, plus 4k read/write-window on $008000 ($088000 in VRAM) if screenb0 is set
+	screenwin <= '1' when low64k = '1'
+				and screen = '1'
+				and screenb0 = '1'
+			else '0';
+				
 	vramsel <= '0' when avalid = '0' else
-			'1' when low64k = '1' 
-				and (screen = '1' or petrom9 = '1') 
-				and screenb0 = '1' 
-				and rwb='0' else
+			'1' when screenwin = '1' else
 			boota19;			-- second 512k (or 1st 512k on boot)
 
 	framsel <= '0' when avalid='0' else
 			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
+			'0' when screenwin = '1' else	-- not in screen window
 			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
 			'0' when petio = '1' else	-- not in I/O space

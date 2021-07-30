@@ -133,6 +133,7 @@ architecture Behavioral of Top is
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
 	signal ma_out: std_logic_vector(18 downto 8);
+	signal ma_vout: std_logic_vector(12 downto 11);
 	signal m_framsel_out: std_logic;
 	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
@@ -151,6 +152,7 @@ architecture Behavioral of Top is
 	signal wp_romPET : std_logic;
 	signal is8296 : std_logic;
 	signal lowbank : std_logic_vector(3 downto 0);
+	signal vidblock : std_logic_vector(1 downto 0);
 	signal lockb0 : std_logic;
 	signal forceb0 : std_logic;
 	signal statusline : std_logic;
@@ -227,7 +229,8 @@ architecture Behavioral of Top is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out std_logic_vector (18 downto 8);
+           RA : out std_logic_vector (18 downto 8);	-- mapped CPU address (FRAM)
+	   VA : out std_logic_vector (12 downto 11);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -235,6 +238,7 @@ architecture Behavioral of Top is
 
 	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
+	   vidblock: in std_logic_vector(1 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
@@ -466,12 +470,14 @@ begin
 	   q50m,
            cfgld_in,
 	   ma_out,
+	   ma_vout,
 	   m_ffsel_out,
 	   m_iosel,
 	   m_vramsel_out,
 	   m_framsel_out,
 	   boot,
 	   lowbank,
+	   vidblock,
 	   wp_rom9,
 	   wp_romA,
 	   wp_romB,
@@ -627,6 +633,7 @@ begin
 			wp_romPET <= '0';
 			is8296 <= '0';
 			lowbank <= (others => '0');
+			vidblock <= (others => '0');
 			boot <= '1';
 			lockb0 <= '0';
 			statusline <= '0';
@@ -653,6 +660,7 @@ begin
 				wp_romPET <= D(7);
 			when "10" =>
 				lowbank <= D(3 downto 0);
+				vidblock <= D(5 downto 4);
 			when "11" =>
 				mode(1 downto 0) <= D(1 downto 0); -- speed bits
 			when others =>
@@ -665,11 +673,15 @@ begin
 	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(7 downto 0);
-	VA(14 downto 8) <= 	ipl_addr(14 downto 8) 	when ipl = '1'		else 	-- IPL
-				ma_out(14 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(14 downto 8);					-- Video
---				"0001000";	-- show $8800 where boot code is loaded
---				"1111111";	-- show init ROM area (as IPL'd from SPI)
+	VA(14 downto 13) <= 	ipl_addr(14 downto 13) 	when ipl = '1'		else 	-- IPL
+				ma_out(14 downto 13) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(14 downto 13);					-- Video
+	VA(12 downto 11) <= 	ipl_addr(12 downto 11) 	when ipl = '1'		else 	-- IPL
+				ma_vout(12 downto 11) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(12 downto 11);					-- Video
+	VA(10 downto 8) <= 	ipl_addr(10 downto 8) 	when ipl = '1'		else 	-- IPL
+				ma_out(10 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(10 downto 8);					-- Video
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
 				va_out(15);						-- Video
