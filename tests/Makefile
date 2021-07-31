@@ -1,5 +1,5 @@
 
-ASM=low32k map
+ASM=low32k map 8296screen
 BASIC=readflash rtcc batmem sdcard
 
 all: ${ASM} ${BASIC}
