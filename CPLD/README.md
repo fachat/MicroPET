@@ -31,7 +31,7 @@ upper 32k of bank 0 when the 8296 control register at $fff0 is set.
             |    |
             +----+ $090000
             |    |         VRAM
-            |    |	       bank 8 (video)
+            |    |	   bank 8 (video)
             +----+ $080000
     Fast    |    |         FRAM
     RAM     |    |         bank 7

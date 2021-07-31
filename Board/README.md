@@ -14,11 +14,11 @@ So, here you can find the
 But, you can still have a look at the schematics and layout using the
 PNG images created
 
-- [micropet_v2-sch-1.png](micropet_v2-sch-1.png) Part 1
-- [micropet_v2-sch-2.png](micropet_v2-sch-2.png) Part 2
-- [micropet_v2-sch-3.png](micropet_v2-sch-3.png) Part 3
-- [micropet_v2-sch-4.png](micropet_v2-sch-4.png) Part 4
-- [micropet_v2-sch-5.png](micropet_v2-sch-5.png) Part 5
+- [micropet_v2-sch-1.png](micropet_v2-sch-1.png) Part 1 - PETIO
+- [micropet_v2-sch-2.png](micropet_v2-sch-2.png) Part 2 - CPLD, CPU, RAM
+- [micropet_v2-sch-3.png](micropet_v2-sch-3.png) Part 3 - Power
+- [micropet_v2-sch-4.png](micropet_v2-sch-4.png) Part 4 - Video and Audio output
+- [micropet_v2-sch-5.png](micropet_v2-sch-5.png) Part 5 - SPI devices (Eth, USB, RTCC, ...)
 
 ## Bill of Material
 
@@ -29,7 +29,7 @@ The main chips are:
 - 1x W65C22N VIA
 
 - 1x xc95288xl CPLD
-- 2x AS6C4008-55PCN 512k RAM
+- 2x 8x512k parallel SRAM with 25ns access time
 - 2x 74LS641-1
 - 1x 74LS145 4-to-10 BCD O.C. driver (keyboard)
 - 1x 74LS07
@@ -52,6 +52,18 @@ More details can be found in the [Eagle parts list](micropet_v1.parts).
 
 ## Erratum
 
-- 1.0A has the bug that the CON pin for the clock oscillator is pulled low. This disables clock oscillators with tri-state input (which I did not notice with the original 32MHz oscillator, only with a 50MHz part later).
+This section describes fixes from my 2.0A prototype board, and these are the cuts/additional wires you see on the pictures, where I fixed my 2.0A boards.
 
+### 2.0C
+
+- I pulled up /IRQ to 5V, but that was potentially backfeeding to the 3.3V SPI devices. A pull-up to 3.3V still worked just fine without problems
+
+### 2.0B
+
+- In 2.0A I planned to use the 74245 to drive the system's Phi2 clocks (CPU & I/O), and to level-shift it. But it turned out that this was not stable, so I reverted to the pull-up resistor method again
+- I was missing a cross-sheet connection for the I/O Phi2 clock
+- Also I was missing the SPI select line for the RTCC
+
+
+- 
 -
