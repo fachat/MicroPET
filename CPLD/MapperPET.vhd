@@ -231,6 +231,8 @@ begin
 	screenwin <= '1' when low64k = '1'
 				and screen = '1'
 				and screenb0 = '1'
+				-- either 8296 off, or screen peek through
+				and (cfg_mp(7) = '0' or cfg_mp(5) = '1')
 			else '0';
 				
 	vramsel <= '0' when avalid = '0' else
