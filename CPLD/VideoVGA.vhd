@@ -363,7 +363,7 @@ begin
 		    -- common for 8/9 pixel rows per char
 		    
 			-- end of screen
-			if (rline_cnt = 524) then
+			if (rline_cnt = 523) then
 				last_line_of_screen <= '1';
 			else
 				last_line_of_screen <= '0';
