@@ -1,6 +1,6 @@
 
-// execute a loop in slow memory 
-// time loop executions and store the result in $2000-$2003
+// execute a loop in fast memory 
+// time loop executions and store the result after the code
 
 VIA	=$e840
 VPB	=VIA + 0
@@ -9,7 +9,7 @@ T2H	=VIA + 9
 ACR	=VIA + 11
 IFR	=VIA + 13
 
-	*=$0292
+	*=RUNADDR
 
 	php
 	sei
@@ -56,20 +56,45 @@ l5
 	sta crtc
 	stx crtc+1
 
+	; ---------------------
+	; now we are at sync start, but not at where video output
+	; would influence the CPU speed most, i.e. during screen display.
+	; so we have to wait for about 55 rasterlines at 800 pixels.
 
+	ldx #20
+	ldy #0		; 2
+lx	dey		; 256x 2
+	bne lx		; 256x 3 -1
+	dex
+	bne lx
+
+	; ---------------------
 	lda #0
 
 	sta T2L
 	sta T2H		; start timer
 
 	; delay loop to check relation of CPU clock to VIA clock
-	ldy #10		; same as multiplier in benchmark.basic
+	; same as multiplier in benchmark.basic
+	; 8 (const) + 20 (multiplier) x (1279 inner loop + 5 per outer loop) - 1 = 25687
+	; but the memory access is masked by VDA/VPA. So we get effective memory cycles:
+	; 8 (const) + 20 (multiplier) x (256 x 3 + 3) = 15428
+	; Only the actual memory cycles are potentially delayed
+	;
+	; The 25687 cycles are about 64.2 rasterlines, with 400 memory slots in FRAM.
+	; In VRAM 160 cycles are taken to fetch video, so 240 memory slots are left per rasterline
+	;
+	; The 15428 memory cycles would _also_ fit into 64.2 rasterlines, with 240 memory slots.
+	; However, we need to consider wait states for when the CPU does two consecutive accesses.
+	; Those are mainly the branches. So, we have waitstates like 20 x (256 x 1 + 1) + 8
+ 	; 
+	ldy #20		; 2 cy 
 	ldx #0		; 2 cy 
-l1 	dex		;   2 cy
-	bne l1		;   3 cy -> inner loop has 1280 cy
-	dey		; 2 cy
-	bne l1		; 3 cy
-	lda T2L
+l1 	dex		;   2 cy - 1 mcy
+	bne l1		;   3 cy - 2 mcy -> inner loop has 1279 cy (255 * 5, 1 * 4 no branch taken)
+	dey		;  2 cy - 1 mcy
+	bne l1		;  3 cy - 2 mcy
+	lda T2L		; 4 cy
 	ldx T2H
 	sta loop
 	stx loop+1
@@ -78,7 +103,7 @@ l1 	dex		;   2 cy
 	rts
 
 loop	=*	; word data
-crtc	=*+2	; word data
-
+crtc	=loop+2	; word data
+tmp	=crtc+3
 
 
