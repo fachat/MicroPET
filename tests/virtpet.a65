@@ -1,0 +1,197 @@
+;
+; The BANK register allows mapping the lower 32k to some 32k pages 
+; in the FRAM, and also can move the video window ($8xxx at CPU)
+; to multiple locations in the VRAM.
+;
+; So, this program installs a TSR that is triggered by pressing the
+; two additional keys left and right of the space key, and allows
+; switching between four different virtual PETs, just by 
+; using the mapping registers.
+;
+
+VCTRL	=$e800
+MCTRL	=$e801
+BANK	=$e802
+SPEED	=$e803
+R8296	=$fff0
+
+PIA1PA	=$e810
+PIA1PB	=$e812
+
+CRTC	=$e880
+
+
+	.word $0401
+	*=$0401
+
+	.word link
+	.word 10
+	.byt $9e, "1040", 0
+link	.word 0
+
+	.dsb 1040-*, 0
+
+
+;--------------------------------------------
+; 1. copy over the TSR into the $9xxx page
+
+	.(
+	lda #%11100000
+	sta MCTRL
+
+	ldy #0
+loop	lda TSR,y
+	sta $9000,y
+	iny
+	bne loop
+	.)
+
+;--------------------------------------------
+; 2. init the code
+
+	.(
+	lda #0
+	sta current
+
+	ldy #0	
+loop	sta sp,y	; not used flag
+	iny
+	cpy #4
+	bne loop
+
+	lda #0
+	sta bankreg+0
+	lda #$10
+	sta crtc12+0
+
+	lda #2+16
+	sta bankreg+1
+	lda #$18
+	sta crtc12+1
+
+	lda #3+32
+	sta bankreg+2
+	lda #$00
+	sta crtc12+2
+
+	lda #4+48
+	sta bankreg+3
+	lda #$08
+	sta crtc12+3
+
+	; make kernel writable for a moment
+	lda #%01100000
+	sta MCTRL
+
+	; fixup irq vector	
+	lda $fffe
+	sta irqv
+	lda $ffff
+	sta irqv+1
+	
+	sei
+	lda #<TSRRUN
+	sta $fffe
+	lda #>TSRRUN
+	sta $ffff
+	cli
+
+	lda #%11100000
+	sta MCTRL
+	rts
+
+	.)
+
+	
+;--------------------------------------------
+; TSR code
+
+TSR
+	*=$9000
+TSRRUN	.(
+
+	pha
+	txa
+	pha
+	tya
+	pha
+
+	tsx
+
+	; note - the stack currently looks like
+	; $0100,x  xx YR XR AC SR PCL PCH
+	; do not switch over in the kernal
+	lda $0106,x
+	and #$f0
+	cmp #$f0
+	beq return
+
+	txa
+	ldx current
+	sta sp,x
+
+	; alt1 - check both SHIFT
+	lda #%11011110
+	ldx #8
+	stx PIA1PA
+	cmp PIA1PB
+	bne end
+
+	; alt2 - check SQR+CTRL
+;	lda #%11011111
+;	ldx #9
+;	stx PIA1PA
+;	cmp PIA1PB
+;	bne end
+;	ldx #1
+;	stx PIA1PA
+;	cmp PIA1PB
+;	bne end
+
+	; wait for key release
+loop	cmp PIA1PB
+	beq loop
+
+	; next vm
+	inc current
+	lda current
+	and #3
+	sta current
+
+end	
+	; overwrite bank and crtc address registers
+	ldx current
+	lda bankreg,x
+	sta BANK
+	lda #12
+	sta CRTC
+	lda crtc12,x
+	sta CRTC+1
+
+	lda sp,x
+	bne returnx
+	; not used/initialized yet, so we reset
+	jmp ($fffc)	; reset	
+
+returnx
+	tax
+	txs
+return
+
+	pla
+	tay
+	pla
+	tax
+	pla
+	jmp (irqv)
+
+	.)
+
+irqv	.word 0
+current	.byt 0
+bankreg	.dsb 4
+sp	.dsb 4
+crtc12	.dsb 4
+
+	.dsb $9100-*
+
