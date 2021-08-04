@@ -1,7 +1,7 @@
 
 all: spiimg spiorig loadrom.bin loadrom
 
-EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin
+EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin edit40gxc.bin edit80gxc.bin
 
 spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 iplldr $(EDITROMS) apmonax
 	# extended ROM images
@@ -13,10 +13,10 @@ spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 iplldr $(EDITROM
 	cat basic4 					>> spiimg	# 36-48k : BASIC4 ROMS (12k $b000-$dfff)
 	cat edit40gx.bin  				>> spiimg	# 48-52k : sjgray BASIC 4 40 column editor w/ wedge by for(;;)
 	cat kernal4					>> spiimg	# 52-56k : BASIC4 kernel (4k)
-	cat edit40gc.bin	 			>> spiimg	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
-	cat edit80gc.bin	 			>> spiimg	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
+	cat edit40gxc.bin	 			>> spiimg	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
+	cat edit80gxc.bin	 			>> spiimg	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
 
-spiorig: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr 
+spiorig: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g edit40gc.bin edit80gc.bin iplldr 
 	# just using the standard ROM images
 	cat iplldr					> spiorig	# 0-4k   : IPL loader
 	cat zero zero					>> spiorig	# 4-8k   : 4k reserve
