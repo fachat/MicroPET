@@ -5,8 +5,20 @@
 ; to it to execute it.
 ; 
 ; Note that this relies on the Flash ROM containing the
-; PET ROM images to copy from. 
+; PET ROM images to copy from in this order:
 ;
+; $00000  IPL code
+; $01000  @MON (4k copied to $a000)
+; $02000  charrom (8k)
+; $04000  BASIC2 + EDIT2 + KERNEL2 (16k)
+; $08000  EDIT8 (extended)
+; $09000  BASIC4 + EDIT4(extended) + KERNAL4 (20k)
+; $0e000  EDIT4 (extended, C64 kbd)
+; $0f000  EDIT8 (extended, C64 kbd)
+; $10000  EDIT4 (orig)
+; $11000  EDIT8 (orig)
+; $12000  EDIT4 (bare, C64 kbd)
+; $13000  EDIT8 (bare, C64 kbd)
 
 VBANK	=$080000
 
@@ -16,6 +28,9 @@ SPIPEEK	=$e80a
 
 RUNADDR	=$8800
 ADRDIFF	=$ff00-$8800
+
+shift	=$87ff
+char	=$87fe
 
 	*=$ff00
 vreset	.(
@@ -165,7 +180,7 @@ copy
 	.xs
 
 cloop	jsr checkkbd_xs
-	bcs cloop
+	bcc cloop
 
 	rep #%00010000
 	.xl
@@ -184,13 +199,14 @@ cloop	jsr checkkbd_xs
 	lda #0
 	sta $e800	; default to 40 columns
 
+	;----------------------------------------------------
 	; 1= Basic2, 2=Basic4, 3=Basic4/80, 4=Basic4/8296
 	dey
 	bne basic4
 
+	;------------------------
 	; upgrade ROMs with BASIC2
 basic2	.(
-	; -----------------------
 	; copy over PET ROM into low RAM
 	; $4000-$7fff in bootimg to $c000-$ffff in RAM
 
@@ -204,6 +220,7 @@ basic2	.(
 	jmp end
 	.)
 
+	;----------------------------------------------------
 	; 1=Basic4, 2=Basic4/80, 3=Basic4/8296
 basic4	.(
 	phy
@@ -221,7 +238,16 @@ basic4	.(
 	ldx #$b000
 	ldy #$5000
 	jsr flash2direct_xl
-	ply
+
+	bit shift	; are we using a C64 kbd?
+	bpl b4ext
+	; copy over bare minimum editor for 40col
+	lda #$00
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct2_xl
+	
+b4ext	ply
 	dey
 	bne not4
 
@@ -230,7 +256,18 @@ basic4	.(
 	bpl notc64
 
 	; copy over PET4 editor with C64 kbd mapping
-	lda #$e0
+	; check bare minimum
+	bit shift
+	bpl c64ext
+	; copy over bare min c64 kbd editor
+	lda #$20
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct2_xl
+	jmp notc64
+
+	; extended c64 kbd editor
+c64ext	lda #$e0
 	ldx #$e000
 	ldy #$1000
 	jsr flash2direct_xl
@@ -239,6 +276,7 @@ notc64	lda #%11000000	; write protect $b000-$ffff
 	jmp end
 	.)
 
+	; -----------------------
 	; 1=Basic4/80, 2=Basic4/8296
 not4	.(
 	; copying 80 col editor?
@@ -248,6 +286,16 @@ not4	.(
 	cmp #$80	; as y is wide, and a is narrow, is N-flag when set on tay from 8 or 16 bit?
 	bcc notc64
 
+	bit shift
+	bpl ext8c
+	; bare min 80col editor for c64 kbd
+	lda #$30
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct2_xl
+	jmp end8
+
+ext8c	; extended 80col editor for c64kbd
 	lda #$f0
 	ldx #$e000
 	ldy #$1000
@@ -260,6 +308,16 @@ notc64
 	; -----------------------
 	; copy over PET 80 column editor ROM into low RAM
 	; $8000-$8fff in bootimg
+	bit shift
+	bpl ext8
+	; bare minimum (orig)
+	lda #$10
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct2_xl
+	jmp end8
+ext8
+	; extended editor
 	lda #$80
 	ldx #$e000
 	ldy #$1000
@@ -301,13 +359,21 @@ end
 	; AC = page in Flash (8bit)
 	; XR = start in bank 0 (16bit)
 	; YR = number of bytes (16 bit)
-flash2direct_xl .(
+	; flash bank 0
+flash2direct_xl 
+	clc
+	.byt $24
+	; flash bank 1
+flash2direct2_xl
+	sec
+	.(
 	pha
 	lda #1
 	sta SPICTRL	; enable Flash
 	lda #3
 	sta SPIDATA	; READ command
 	lda #0
+	rol		; rotate carry into A16
 	sta SPIDATA	; bits 23-16
 	pla
 	sta SPIDATA	; bits 15-8
@@ -338,6 +404,9 @@ nok	inx
 	.xs
 
 checkkbd_xs .(
+	lda #0
+	sta char
+	sta shift
 	; init
 	lda #$38	; DDR, CA2 output hi
 	sta $e811
@@ -369,11 +438,20 @@ nextr	dex
 	inc $e810
 	bra rloop	; always
 
-done	sec
+done	lda char
+	cmp #1
 	rts
 
 gotone	; x has number of key
+	; save AC
+	pha
+
+	; PET N-type keyboard
 	; key number is (9-row)*8+(7-col)+1 where row/col are from www.6502.org/users/andre/petindex/keymap/petgraph.png
+	cpx #16		; left shift (8/0)
+	beq gotshift
+;	cpx #11		; right shift (8/5)
+;	beq gotshift
 	cpx #41		; 4/7 = "6"
 	beq is8296
 	cpx #18		; 7/6 = "2"
@@ -383,17 +461,28 @@ gotone	; x has number of key
 	cpx #50		; 3/6 = "8"
 	beq is8
 
+	; C64 keyboard
+	; derived from https://www.keymmodore.com/the-matrix/
+	cpx #55		; 3/1 = "R" = Left shift on C64 kbd
+	beq gotshift
+;	cpx #42		; 4/6 = "4" = Right shift on C64 - clash with N-type
+;	beq gotshift
 	cpx #22		; 7/2 = "N" = "6" on C64 kbd
 	beq is8296c64
-	cpx #24		; 7/0 = "X" = "2" on C64 kbd
-	beq is2c64
+;	cpx #24		; 7/0 = "X" = "2" on C64 kbd - no C64 kbd option
+;	beq is2c64
 	cpx #23		; 7/1 = "V" = "4" on C64 kbd
 	beq is4c64
 	cpx #21		; 7/3 = "," = "8" on C64 kbd
 	beq is8c64
+bloopx
+	pla		; restore AC
+	bra nextr	; always
 
-	sec
-	rts
+gotshift		; after cpx/beq, so C=1
+	ror shift
+	bra bloopx
+
 is8296	lda #4
 	.byt $2c
 is8	lda #3
@@ -401,17 +490,17 @@ is8	lda #3
 is4	lda #2
 	.byt $2c
 is2	lda #1
-	clc
-	rts
+	.byt $2c
 is8296c64 lda #4+128
 	.byt $2c
 is8c64	lda #3+128
 	.byt $2c
 is4c64	lda #2+128
-	.byt $2c
-is2c64	lda #1+128
-	clc
-	rts
+;	.byt $2c
+;is2c64	lda #1+128
+
+	sta char
+	bra bloopx
 	.)
 
 	; ----------------------------
@@ -421,7 +510,7 @@ is2c64	lda #1+128
 	.xl
 
 clrscreen_xl .(
-	ldx #1999	; clear full 80 column screen
+	ldx #1999	; clear full 80 column screen (note $87ff is shift flag)
 	lda #$20
 loop	sta $8000,x
 	dex
@@ -443,10 +532,12 @@ endt
 text	.asc "                                        "
 	.asc "PRESS KEY FOR BOOT OPTION:              "
 	.asc "                                        "
-	.asc "* BASIC ", "2"+$80, " (40 COLUMNS)                  "
+	.asc "* BASIC ", "2"+$80, " (40 COLUMNS, NO C64 KBD)      "
 	.asc "* BASIC 4, ", "4"+$80, "0 COLUMNS                   "
 	.asc "* BASIC 4, ", "8"+$80, "0 COLUMNS                   "
-	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)"
+	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)            "
+        .asc "                                        "
+	.asc "EXTENDED ROM. LEFT-SHIFT FOR ORIG ROM"
 	.asc 0
 
 	.)
