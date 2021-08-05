@@ -21,23 +21,32 @@ rest of the boot code as loaded by the initial IPL loader.
 Then follow the various ROM images.
 
 	Boot Image
-
-        +----+ $0FFFF
-        |    |         BASIC 4 80 columns editor ROM C64 keyboard
+        
+        +----+ $1ffff
+        |    |
+         ...           free
+        |    |
+        +----+ $1a000
+        |    |         BASIC 1 alternate charrom 
+        |    |         (as 16 byte/char)
+        +----+ $18000
+        |    |         8x BASIC 4 EDITOR
+         ...           ROM images ($e000-$efff)
+        |    |         Extended/orig, 40/80 columns, N-type/C64 kbd
+        |    |
+        +----+ $10000
+        |    |         BASIC 4 Kernal ROM image
         +----+ $0F000
-        |    |         BASIC 4 40 columns editor ROM C64 keyboard
-        +----+ $0E000
-        |    |         BASIC 4 kernal
-        +----+ $0d000
-        |    |         BASIC 4 40 columns editor ROM
+        |    |         BASIC 4 
+        |    |         ROM image ($b000-$dfff)
+        |    |         
         +----+ $0c000
-        |    |         BASIC4 ROMs
-        |    |         ($b000-$dfff)
-        |    |  
-        +----+ $09000
-        |    |         BASIC 4 80 columns editor ROM
-        +----+ $08000
         |    |         BASIC 2 
+        |    |         ROM image ($c000-$ffff)
+        |    |  
+        |    |       
+        +----+ $08000
+        |    |         BASIC 1 
         |    |         ROM image ($c000-$ffff)
         |    |
         |    |
@@ -65,13 +74,32 @@ The following files are test files, or to build the ROMs:
 - edit....asm: control files for Steve Gray's editor ROM project, to build the custom editor ROMs
 -- edit40gx: 40 column for graphics keyboard with wedge and special keys
 -- edit80gx: 80 column for graphics keyboard with wedge and special keys
--- edit40gc: 40 column for C64 keyboard with wedge and special keys
--- edit80gc: 80 column for C64 keyboard with wedge and special keys
+-- edit40gxc: 40 column for C64 keyboard with wedge and special keys
+-- edit80gxc: 80 column for C64 keyboard with wedge and special keys
+-- edit40gc: 40 column for C64 keyboard (no further extensions) 
+-- edit80gc: 80 column for C64 keyboard (no further extensions)
 
 ## ROM features
 
 The editor ROMs are non-standard, and feature some extensions.
-Note that they are only available for BASIC 4 variants. BASIC 2 is only, well, standard BASIC 2.
+Note that they are only available for BASIC 4 variants. BASIC 1 and 2 are only just that.
+
+### Extended versus Base ROMs
+
+In the boot menu you can select the various model. By default the 
+extended editor ROM is loaded where available (i.e. including wedge and special keys).
+If you select the model while pressing the LEFT SHIFT, the unmodified ROM
+is loaded. One exception: there is no original 80 column N-type keyboard ROM, so 
+a contemporary adaption is used.
+
+The BASIC 1 Kernal has the problem that its IEEE488 routines are broken.
+Therefore, by default, a version that is patched to fix this is loaded,
+so IEEE488 can be used. Selecting "1" with LEFT-SHIFT pressed installs
+the original BASIC 1 ROMs.
+
+Note that pressing the RIGHT SHIFT is not what you want. Doing this on the
+N-type keyboard makes the select routing think you are using a C64 keyboard
+instead, and the machine becomes unusable.
 
 ### Graphics keyboard ROMs
 
@@ -92,7 +120,7 @@ are currently ignored.
 The follwing features are present:
 
 1. Shift + Left-Arrow: switch between text and graphics display.
-1. Left-Arrow + Left-Shift + Right-Shift + DEL: reset the PET
+1. Ctrl + Left-Shift + Right-Shift + DEL: reset the PET
 
 ### Extended machine language monitor
 

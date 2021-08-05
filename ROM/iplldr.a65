@@ -32,6 +32,12 @@ ADRDIFF	=$ff00-$8800
 shift	=$87ff
 char	=$87fe
 
+VCTRL   =$e800
+MCTRL   =$e801
+BANK    =$e802
+SPEED   =$e803
+R8296   =$fff0
+
 	*=$ff00
 vreset	.(
 	; test loop for hardware debugging. E.g. Trigger on A2
@@ -150,27 +156,28 @@ jmpboot
 
 	; init control registers
 	lda #0
-	sta $e800
-	sta $e801
-	sta $e802
-	sta $e803
+	sta VCTRL	; $e800 - default to 40 column
+	sta MCTRL	; $e801
+	sta BANK	; $e802
+	sta SPEED	; $e803 - 1MHz
 
 	; -----------------------
 	; copy over charrom to RAM
 	; $2000-$3fff in flash img
-
+	.(
 	lda #$20
-	ldx #$a000
+	ldx #$c000
 	ldy #$2000
 	jsr flash2direct_xl
 	; now copy from bank 0 to target location
 	ldx #0
 copy
-	lda $a000,x	; location in test ROM bank
+	lda $c000,x	; location in test ROM bank
 	sta VBANK,x	; location in RAM - uppermost RAM bank
 	inx
 	cpx #$2000
 	bne copy
+	.)
 
 	jsr clrscreen_xl
 	jsr selecttext_xl
@@ -191,39 +198,77 @@ cloop	jsr checkkbd_xs
 	lda #0		
 	xba		; prime high byte of AC with 0
 
-	pla
-	pha
-	and #$7f
-	tay		; this is a wide operation, so AC high byte must be clear
 
-	lda #0
-	sta $e800	; default to 40 columns
 
 	;----------------------------------------------------
-	; 1= Basic2, 2=Basic4, 3=Basic4/80, 4=Basic4/8296
-	dey
-	bne basic4
+	; 1= Basic1, 2=Basic2, 3=Basic4
+	pla
+	pha
+	and #%00000011	; ROM version
 
+	cmp #1
+	bne not_b1	
+
+basic1	.(
+	; -----------------------
+	; copy over BASIC 1 charrom to RAM
+	; $14000-$15fff in flash img
+
+	lda #$80
+	ldx #$c000
+	ldy #$2000
+	jsr flash2direct2_xl
+
+	; now copy from bank 0 to target location
+	ldx #0
+copy
+	lda $c000,x	; location in test ROM bank
+	sta VBANK,x	; location in RAM - uppermost RAM bank
+	inx
+	cpx #$2000
+	bne copy
+
+	;------------------------
+	; BASIC 1
+	lda #$40	; source page in Flash
+	ldx #$c000	; target addr
+	ldy #$4000	; len
+	jsr flash2direct_xl
+	
+	pla
+	bmi b1_orig	; check BASIC1 patch
+
+	; apply BASIC1 patch like in VICE
+	jsr patch_rom1_xl
+b1_orig
+	lda #%10000000	; write protect $c000-$ffff
+	jmp end
+	.)
+	
+	;------------------------
+not_b1	cmp #2
+	bne not_b2
+	
 	;------------------------
 	; upgrade ROMs with BASIC2
 basic2	.(
 	; copy over PET ROM into low RAM
 	; $4000-$7fff in bootimg to $c000-$ffff in RAM
 
-	lda #$40
+	lda #$80
 	ldx #$c000
 	ldy #$4000
 	jsr flash2direct_xl
 
-	pla		; clear c64 flag (ignored right now)
+	pla		; ignore other flags
 	lda #%10000000	; write protect $c000-$ffff
 	jmp end
 	.)
 
 	;----------------------------------------------------
-	; 1=Basic4, 2=Basic4/80, 3=Basic4/8296
+not_b2	; only basic 4 left
+	;----------------------------------------------------
 basic4	.(
-	phy
 	; -----------------------
 	; copy over @MON 
 	lda #$10
@@ -232,115 +277,50 @@ basic4	.(
 	jsr flash2direct_xl
 	
 	; -----------------------
-	; copy over PET ROM for 40 columns into low RAM
-	; $9000-$dfff in bootimg
-	lda #$90
+	; copy over PET BASIC4 $b000-$dfff
+	lda #$c0
 	ldx #$b000
-	ldy #$5000
+	ldy #$3000
 	jsr flash2direct_xl
 
-	bit shift	; are we using a C64 kbd?
-	bpl b4ext
-	; copy over bare minimum editor for 40col
-	lda #$00
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct2_xl
-	
-b4ext	ply
-	dey
-	bne not4
-
-	; 4032
-	pla
-	bpl notc64
-
-	; copy over PET4 editor with C64 kbd mapping
-	; check bare minimum
-	bit shift
-	bpl c64ext
-	; copy over bare min c64 kbd editor
-	lda #$20
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct2_xl
-	jmp notc64
-
-	; extended c64 kbd editor
-c64ext	lda #$e0
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct_xl
-
-notc64	lda #%11000000	; write protect $b000-$ffff
-	jmp end
-	.)
-
-	; -----------------------
-	; 1=Basic4/80, 2=Basic4/8296
-not4	.(
-	; copying 80 col editor?
-	pla
-	phy
-
-	cmp #$80	; as y is wide, and a is narrow, is N-flag when set on tay from 8 or 16 bit?
-	bcc notc64
-
-	bit shift
-	bpl ext8c
-	; bare min 80col editor for c64 kbd
-	lda #$30
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct2_xl
-	jmp end8
-
-ext8c	; extended 80col editor for c64kbd
+	; copy over PET KERNEL4 $f000-$ffff
 	lda #$f0
-	ldx #$e000
+	ldx #$f000
 	ldy #$1000
 	jsr flash2direct_xl
-	jmp end8
 
-notc64
-	; BASIC4 with 80 column machines (with CRTC)
-	; as option for BASIC4 with 40 cols
-	; -----------------------
-	; copy over PET 80 column editor ROM into low RAM
-	; $8000-$8fff in bootimg
-	bit shift
-	bpl ext8
-	; bare minimum (orig)
-	lda #$10
+	pla		; bits 7/6/5 have number of editor ROM
+	pha
+	and #%11100000
+	lsr
 	ldx #$e000
 	ldy #$1000
 	jsr flash2direct2_xl
-	jmp end8
-ext8
-	; extended editor
-	lda #$80
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct_xl
-end8
+
+	; check 80 column bit
+	pla
+	pha
+	and #%01000000
+	beq col40
 	lda #%00000010
-	sta $e800	; 80 column
-
-	ply
-	dey
-	bne not8032
-
-	lda #%11000000	; write protect ROM $b000-$ffff
+	sta VCTRL
+col40
+	; check 8296 bit
+	pla
+	and #%00010000
+	beq not_96
+	; 8296
+	lda #%11101000
 	.byt $2c
-not8032	lda #%11001000	; 8296
+not_96	lda #%11100000
+
 	; fallthrough
 	.)
 
 	; -----------------------
 	; switch back to emulation mode
 end
-	sta $e801
-
+	sta MCTRL
 	; set X/Y registers to 8 bit ...
 	sep #%00010000
 	; ... and tell the assembler about it
@@ -439,8 +419,12 @@ nextr	dex
 	bra rloop	; always
 
 done	lda char
+	clc
+	beq ret		
+	rol shift
+	ror		; shift in shift flag to bit 7
 	cmp #1
-	rts
+ret	rts
 
 gotone	; x has number of key
 	; save AC
@@ -460,8 +444,11 @@ gotone	; x has number of key
 	beq is4
 	cpx #50		; 3/6 = "8"
 	beq is8
+	cpx #26		; 6/6 = "1"
+	beq is1
 
 	; C64 keyboard
+
 	; derived from https://www.keymmodore.com/the-matrix/
 	cpx #55		; 3/1 = "R" = Left shift on C64 kbd
 	beq gotshift
@@ -475,6 +462,8 @@ gotone	; x has number of key
 	beq is4c64
 	cpx #21		; 7/3 = "," = "8" on C64 kbd
 	beq is8c64
+;	cpx #80		; 0/0 = "!" = "1" on C64 kbd - no C64 kbd option
+;	beq is1c64
 bloopx
 	pla		; restore AC
 	bra nextr	; always
@@ -483,21 +472,32 @@ gotshift		; after cpx/beq, so C=1
 	ror shift
 	bra bloopx
 
-is8296	lda #4
+	; result is
+	; bit 7   - 1=80 cols
+	; bit 6   - 1=C64
+	; bit 5   - 1=8296 ext.
+	; bit 2/1 - model (01=basic1, 10=basic2, 11=basic4) 
+	; will be shifted right (/2) with ext/base bit in C
+	; must not be all zero (this will be ignored)
+is8296	lda #128+32+6
 	.byt $2c
-is8	lda #3
+is8	lda #128+6
 	.byt $2c
-is4	lda #2
+is4	lda #6
 	.byt $2c
-is2	lda #1
+is2	lda #4
 	.byt $2c
-is8296c64 lda #4+128
+is1	lda #2
 	.byt $2c
-is8c64	lda #3+128
+is8296c64 lda #128+64+32+6
 	.byt $2c
-is4c64	lda #2+128
+is8c64	lda #128+64+6
+	.byt $2c
+is4c64	lda #64+6
 ;	.byt $2c
-;is2c64	lda #1+128
+;is2c64	lda #64+4
+;	.byt $2c
+;is1c64	lda #64+2
 
 	sta char
 	bra bloopx
@@ -532,14 +532,152 @@ endt
 text	.asc "                                        "
 	.asc "PRESS KEY FOR BOOT OPTION:              "
 	.asc "                                        "
+	.asc "* BASIC ", "1"+$80, " (NO C64 KBD)                  "
 	.asc "* BASIC ", "2"+$80, " (40 COLUMNS, NO C64 KBD)      "
 	.asc "* BASIC 4, ", "4"+$80, "0 COLUMNS                   "
 	.asc "* BASIC 4, ", "8"+$80, "0 COLUMNS                   "
 	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)            "
         .asc "                                        "
-	.asc "EXTENDED ROM. LEFT-SHIFT FOR ORIG ROM"
+	.asc "EXTENDED/PATCHED ROMS                   "
+	.asc "USE LEFT-SHIFT FOR ORIG ROM"
 	.asc 0
 
+	.)
+
+PATCH	=$ef00
+
+patch_rom1_xl .(
+
+
+	; transferred over from VICE
+	lda #$ea	; NOP
+	sta $f471
+	sta $f472
+	sta $f180
+	sta $f181
+	lda #$f8
+	sta $f3ef
+	lda #$f7
+	sta $f3f3
+
+	; patch area start
+	ldx #PATCH
+
+	; jmp to first patch
+	txa
+	sta $f370
+	lda #>PATCH
+	sta $f371
+
+	ldy #0
+pl0	lda PATCH_0,y
+	sta 0,x
+	inx
+	iny
+	cpy #5
+	bne pl0
+
+	; jump to second patch
+	txa
+	sta $f379
+	lda #>PATCH
+	sta $f37a
+
+	ldy #0
+pl1	lda PATCH_1,y
+	sta 0,x
+	inx
+	iny
+	cpy #19
+	bne pl1
+
+	; JSR to third patch
+	lda #$20
+	sta $f3cc
+	txa
+	sta $f3cd
+	lda #>PATCH
+	sta $f3ce
+
+	ldy #0
+pl2	lda PATCH_2,y
+	sta 0,x
+	inx
+	iny
+	cpy #10
+	bne pl2
+
+	; jmp to fourth patch
+	txa
+	sta $f6c1
+	lda #>PATCH
+	sta $f6c2
+	
+	ldy #0
+pl3	lda PATCH_3,y
+	sta 0,x
+	inx
+	iny
+	cpy #5
+	bne pl3
+
+	; jump to fifth patch
+	txa
+	sta $f6c7
+	lda #>PATCH
+	sta $f6c8
+	
+	ldy #0
+pl4	lda PATCH_4,y
+	sta 0,x
+	inx
+	iny
+	cpy #18
+	bne pl4
+
+	; insert sixth patch
+	ldy #0
+pl5	lda PATCH_5,y
+	sta $f381,y
+	iny
+	cpy #8
+	bne pl5
+
+	; jump to seventh patch
+	txa
+	sta $f6f4
+	lda #>PATCH
+	sta $f6f5
+
+	ldy #0
+pl6	lda PATCH_6,y
+	sta 0,x
+	inx
+	iny
+	cpy #6
+	bne pl6
+
+	; insert marker
+	ldy #0
+	tya		; fill B with zero, so cmp work?
+plm	lda MARK,y
+	sta 0,x
+	inx
+	iny
+	cmp #0
+	bne plm
+
+	rts
+
+PATCH_0	.byt $a9, $60, $85, $f0, $60 
+PATCH_1 .byt $20, $b6, $f0, $a5, $f0, $20, $5b, $f1, $20, $87, $f1, $85, $f7, $20, $87, $f1, $85, $f8, $60 
+PATCH_2 .byt $20, $7a, $f1, $20, $e6, $f6, $ad, $0b, $02, $60
+PATCH_3	.byt $a9, $61, $85, $f0, $60 
+PATCH_4	.byt $20, $ba, $f0, $a5, $f0, $20, $2c, $f1, $a5, $f7, $20, $67, $f1, $a5, $f8, $4c, $67, $f1 
+PATCH_5	.byt $ae, $0c, $02, $70, $46, $20, $87, $f1
+PATCH_6	.byt $20, $2c, $f1, $4c, $7e, $f1 
+
+MARK	.asc "BASIC1 PATCH FOR IEEE488",0
 	.)
 
 	.dsb RUNADDR+2048-*,$ff
