@@ -102,10 +102,11 @@ and specific VHDL programming.
 
 The ROM image can be built using gcc, xa65, and make. Use your favourite EPROM programmer to burn it into the SPI Flash chip.
 
-Two options are provided:
+The ROM contains images of all required ROM images for BASIC 1, 2, and 4, and corresponding editor ROMs, including
+some that have been extended with wedges.
 
-1. An original ROM version that boots into the original editor ROMs
-2. Updated editor ROMs from [Steve's Editor ROM project](http://www.6502.org/users/sjgray/projects/editrom/index.html) that can optionally handle C64 keyboards, has a DOS wedge included, and resets into the Micro-PET boot menu
+The updated editor ROMs are from [Steve's Editor ROM project](http://www.6502.org/users/sjgray/projects/editrom/index.html) and can handle C64 keyboards, has a DOS wedge included, and resets into the Micro-PET boot menu.
+For more details see the [ROM description](ROM/README.md)
 
 
 ## Future Plans
