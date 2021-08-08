@@ -130,23 +130,23 @@ TSRRUN	.(
 	ldx current
 	sta sp,x
 
-	; alt1 - check both SHIFT
-	lda #%11011110
-	ldx #8
+	; alt1 - check both SHIFT - interferes with RESET key sequence @ - LSHIFT - RSHIFT - DEL!
+;	lda #%11011110
+;	ldx #8
+;	stx PIA1PA
+;	cmp PIA1PB
+;	bne end
+
+	; alt2 - check SQR+CTRL
+	lda #%11011111
+	ldx #9
 	stx PIA1PA
 	cmp PIA1PB
 	bne end
-
-	; alt2 - check SQR+CTRL
-;	lda #%11011111
-;	ldx #9
-;	stx PIA1PA
-;	cmp PIA1PB
-;	bne end
-;	ldx #1
-;	stx PIA1PA
-;	cmp PIA1PB
-;	bne end
+	ldx #1
+	stx PIA1PA
+	cmp PIA1PB
+	bne end
 
 	; wait for key release
 loop	cmp PIA1PB
