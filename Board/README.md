@@ -48,7 +48,7 @@ The main chips are:
 
 - div. resistors/caps to generate 3.3V output
 
-More details can be found in the [Eagle parts list](micropet_v1.parts).
+More details can be found in the [Eagle parts list](micropet_v2.parts).
 
 ## Erratum
 
