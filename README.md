@@ -5,7 +5,7 @@ This is a re-incarnation of the Commodore PET computer(s) from the later 1970s.
 It is build on a Eurocard board and has only parts that can still be obtained new in 2021.
 The current version is 2.0B.
 
-![Picture of a MicroPET](images/upet.png)
+![Picture of a MicroPET](images/cover.jpg)
 
 Some videos on the build process can be found here [YT 8-bit times](https://youtube.com/playlist?list=PLi1dzy7kw1iybjcUccgjCV4fhNH4IPWSx)
 
@@ -115,6 +115,10 @@ These are future expansions I want to look into. Not all may be possible to impl
 - n/a
 
 ## Gallery
+
+![Picture of a MicroPET](images/upet.png)
+
+Note: the published schematics and board has the extra wires fixed/included.
 
 ![MicroPET with self-printed key caps](images/case-with-caps.jpg)
 
