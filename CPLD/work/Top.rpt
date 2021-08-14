@@ -1,7 +1,7 @@
  
 cpldfit:  version P.20131013                        Xilinx Inc.
                                   Fitter Report
-Design Name: Top                                 Date:  8- 1-2021,  2:51PM
+Design Name: Top                                 Date:  8-14-2021,  6:32PM
 Device Used: XC95288XL-6-TQ144
 Fitting Status: Successful
 
@@ -9,7 +9,7 @@ Fitting Status: Successful
 
 Macrocells     Product Terms    Function Block   Registers      Pins           
 Used/Tot       Used/Tot         Inps Used/Tot    Used/Tot       Used/Tot       
-277/288 ( 96%) 947 /1440 ( 66%) 680/864 ( 79%)   201/288 ( 70%) 86 /117 ( 73%)
+277/288 ( 96%) 948 /1440 ( 66%) 680/864 ( 79%)   201/288 ( 70%) 86 /117 ( 73%)
 
 ** Function Block Resources **
 
@@ -21,7 +21,7 @@ FB3          18/18*      32/54       49/90       2/ 5
 FB4          17/18       49/54       62/90       3/ 6
 FB5          18/18*      28/54       52/90       6/ 8
 FB6          17/18       51/54       90/90*      7/ 8
-FB7          18/18*      45/54       66/90       4/ 4*
+FB7          18/18*      45/54       67/90       4/ 4*
 FB8          18/18*      45/54       61/90       5/ 5*
 FB9          18/18*      39/54       64/90       6/ 9
 FB10         16/18       51/54       56/90       8/10
@@ -32,7 +32,7 @@ FB14         16/18       51/54       48/90       8/ 8*
 FB15         18/18*      51/54       81/90       9/ 9*
 FB16         18/18*      20/54       26/90       8/ 8*
              -----       -----       -----      -----    
-            277/288     680/864     947/1440    86/117
+            277/288     680/864     948/1440    86/117
 
 * - Resource is exhausted
 
@@ -247,15 +247,15 @@ viccy/vid_addr<12>                                                              
 viccy/vid_addr<11>                                                                  6     10    FB6_17  STD  RESET
 viccy/vid_addr<10>                                                                  6     9     FB6_18  STD  RESET
 viccy/slot_cnt<0>                                                                   2     3     FB7_1   STD  RESET
-viccy/last_vis_slot_of_line                                                         2     8     FB7_2   STD  RESET
-viccy/last_slot_of_line                                                             2     8     FB7_4   STD  RESET
-viccy/slot_cnt<6>                                                                   3     9     FB7_6   STD  RESET
-viccy/slot_cnt<5>                                                                   3     8     FB7_7   STD  RESET
-viccy/slot_cnt<4>                                                                   3     7     FB7_8   STD  RESET
-viccy/slot_cnt<3>                                                                   3     6     FB7_9   STD  RESET
-viccy/slot_cnt<2>                                                                   3     5     FB7_10  STD  RESET
-viccy/slot_cnt<1>                                                                   3     4     FB7_11  STD  RESET
-viccy/h_enable                                                                      3     10    FB7_13  STD  RESET
+viccy/last_slot_of_line                                                             2     8     FB7_2   STD  RESET
+viccy/slot_cnt<6>                                                                   3     9     FB7_4   STD  RESET
+viccy/slot_cnt<5>                                                                   3     8     FB7_6   STD  RESET
+viccy/slot_cnt<4>                                                                   3     7     FB7_7   STD  RESET
+viccy/slot_cnt<3>                                                                   3     6     FB7_8   STD  RESET
+viccy/slot_cnt<2>                                                                   3     5     FB7_9   STD  RESET
+viccy/slot_cnt<1>                                                                   3     4     FB7_10  STD  RESET
+viccy/last_vis_slot_of_line                                                         3     9     FB7_11  STD  RESET
+viccy/h_enable                                                                      3     9     FB7_13  STD  RESET
 viccy/vid_addr<8>                                                                   6     15    FB7_14  STD  RESET
 viccy/vid_addr<7>                                                                   6     14    FB7_16  STD  RESET
 viccy/vid_addr<6>                                                                   6     13    FB7_17  STD  RESET
@@ -295,7 +295,7 @@ viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2                                    
 spi_cs/spi_cs_D2                                                                    2     19    FB10_13 STD  
 movesync_or0000/movesync_or0000_D2                                                  2     21    FB10_14 STD  
 mode_or0000/mode_or0000_D2                                                          2     21    FB10_15 STD  
-$OpTx$FX_DC$424                                                                     2     18    FB10_16 STD  
+$OpTx$FX_DC$429                                                                     2     18    FB10_16 STD  
 D_and0000/D_and0000_D2                                                              4     15    FB10_17 STD  
 do_cpu                                                                              7     15    FB10_18 STD  RESET
 vidblock<1>                                                                         3     4     FB11_1  STD  RESET
@@ -376,8 +376,8 @@ memclk_d                                                                        
 is_vid_out                                                                          1     2     FB16_5  STD  RESET
 clocky/cpu_cnt1<0>                                                                  1     1     FB16_6  STD  RESET
 clocky/clk_cnt_0_0                                                                  0     0     FB16_7  STD  RESET
-$OpTx$FX_DC$386                                                                     1     2     FB16_8  STD  
-$OpTx$FX_DC$383                                                                     1     2     FB16_9  STD  
+$OpTx$FX_DC$391                                                                     1     2     FB16_8  STD  
+$OpTx$FX_DC$388                                                                     1     2     FB16_9  STD  
 viccy/charhold<7>                                                                   2     2     FB16_10 STD  RESET
 viccy/charhold<6>                                                                   2     2     FB16_11 STD  RESET
 viccy/charhold<5>                                                                   2     2     FB16_12 STD  RESET
@@ -649,8 +649,8 @@ viccy/rows_per_char<3>
 spi_comp/cpol         3       0     0   2     FB4_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$386   18: D<4>.PIN          34: mappy/low64k/mappy/low64k_D2 
-  2: $OpTx$FX_DC$424   19: D<3>.PIN          35: memclk 
+  1: $OpTx$FX_DC$391   18: D<4>.PIN          34: mappy/low64k/mappy/low64k_D2 
+  2: $OpTx$FX_DC$429   19: D<3>.PIN          35: memclk 
   3: A<0>              20: D<2>.PIN          36: phi2 
   4: A<10>             21: D<1>.PIN          37: rwb 
   5: A<11>             22: D<0>.PIN          38: screenb0 
@@ -716,7 +716,7 @@ viccy/rline_cnt<1>    3       0   \/1   1     FB5_17  44    I/O     (b)
 viccy/v_enable        6       1<-   0   0     FB5_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$383               11: spi_sel<0>                 20: viccy/rline_cnt<4> 
+  1: $OpTx$FX_DC$388               11: spi_sel<0>                 20: viccy/rline_cnt<4> 
   2: dclk                          12: spi_sel<1>                 21: viccy/rline_cnt<5> 
   3: do_cpu                        13: spi_sel<2>                 22: viccy/rline_cnt<6> 
   4: hsync                         14: viccy/h_enable             23: viccy/rline_cnt<7> 
@@ -782,7 +782,7 @@ viccy/vid_addr<11>    6       2<- \/1   0     FB6_17        (b)     (b)
 viccy/vid_addr<10>    6       1<-   0   0     FB6_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$386               18: rwb                                                                                 35: viccy/vid_addr<13> 
+  1: $OpTx$FX_DC$391               18: rwb                                                                                 35: viccy/vid_addr<13> 
   2: A<12>                         19: screenb0                                                                            36: viccy/vid_addr<1> 
   3: A<13>                         20: slotclk                                                                             37: viccy/vid_addr<7> 
   4: A<14>                         21: viccy/Madd_vid_addr_addsub0000__and0007/viccy/Madd_vid_addr_addsub0000__and0007_D2  38: viccy/vid_addr<8> 
@@ -833,18 +833,18 @@ Number of signals used by logic mapping into function block:  45
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 viccy/slot_cnt<0>     2       0   /\3   0     FB7_1         (b)     (b)
-viccy/last_vis_slot_of_line
+viccy/last_slot_of_line
                       2       0     0   3     FB7_2         (b)     (b)
 dclk                  2       0     0   3     FB7_3   45    I/O     O
-viccy/last_slot_of_line
-                      2       0     0   3     FB7_4         (b)     (b)
+viccy/slot_cnt<6>     3       0     0   2     FB7_4         (b)     (b)
 pxl                   2       0     0   3     FB7_5   46    I/O     O
-viccy/slot_cnt<6>     3       0     0   2     FB7_6         (b)     (b)
-viccy/slot_cnt<5>     3       0     0   2     FB7_7         (b)     (b)
-viccy/slot_cnt<4>     3       0     0   2     FB7_8         (b)     (b)
-viccy/slot_cnt<3>     3       0     0   2     FB7_9         (b)     (b)
-viccy/slot_cnt<2>     3       0     0   2     FB7_10        (b)     (b)
-viccy/slot_cnt<1>     3       0     0   2     FB7_11        (b)     (b)
+viccy/slot_cnt<5>     3       0     0   2     FB7_6         (b)     (b)
+viccy/slot_cnt<4>     3       0     0   2     FB7_7         (b)     (b)
+viccy/slot_cnt<3>     3       0     0   2     FB7_8         (b)     (b)
+viccy/slot_cnt<2>     3       0     0   2     FB7_9         (b)     (b)
+viccy/slot_cnt<1>     3       0     0   2     FB7_10        (b)     (b)
+viccy/last_vis_slot_of_line
+                      3       0     0   2     FB7_11        (b)     (b)
 hsync                 4       0   \/1   0     FB7_12  48    I/O     O
 viccy/h_enable        3       1<- \/3   0     FB7_13        (b)     (b)
 viccy/vid_addr<8>     6       3<- \/2   0     FB7_14        (b)     (b)
@@ -873,20 +873,20 @@ Signals Used by Logic in Function Block
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
 viccy/slot_cnt<0>    ......X....X.............X........................ 3
-viccy/last_vis_slot_of_line 
-                     ......X..................XXXXXXX.................. 8
-dclk                 X....X............................................ 2
 viccy/last_slot_of_line 
                      ......X..................XXXXXXX.................. 8
-pxl                  .XX..........X.................................... 3
+dclk                 X....X............................................ 2
 viccy/slot_cnt<6>    ......X....X.............XXXXXXX.................. 9
+pxl                  .XX..........X.................................... 3
 viccy/slot_cnt<5>    ......X....X.............XXXXXX................... 8
 viccy/slot_cnt<4>    ......X....X.............XXXXX.................... 7
 viccy/slot_cnt<3>    ......X....X.............XXXX..................... 6
 viccy/slot_cnt<2>    ......X....X.............XXX...................... 5
 viccy/slot_cnt<1>    ......X....X.............XX....................... 4
+viccy/last_vis_slot_of_line 
+                     ......X.....X............XXXXXXX.................. 9
 hsync                ......X..................XXXXXXX.................. 8
-viccy/h_enable       ......XX....X............XXXXXXX.................. 10
+viccy/h_enable       ......XX.................XXXXXXX.................. 9
 viccy/vid_addr<8>    ......X.XXXX....................XXXXXXXXX...X..... 15
 vsync                ...XXX........XXXXXXXXXXX......................... 14
 viccy/vid_addr<7>    ......X.XXXX....................XXXXXXXX...X...... 14
@@ -1044,13 +1044,13 @@ movesync_or0000/movesync_or0000_D2
                       2       0     0   3     FB10_14 128   I/O     (b)
 mode_or0000/mode_or0000_D2
                       2       0     0   3     FB10_15       (b)     (b)
-$OpTx$FX_DC$424       2       0     0   3     FB10_16       (b)     (b)
+$OpTx$FX_DC$429       2       0     0   3     FB10_16       (b)     (b)
 D_and0000/D_and0000_D2
                       4       0   \/1   0     FB10_17 129   I/O     I
 do_cpu                7       2<-   0   0     FB10_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$386   18: boot                          35: rwb 
+  1: $OpTx$FX_DC$391   18: boot                          35: rwb 
   2: A<0>              19: ipl                           36: screenb0 
   3: A<10>             20: ipl_cnt<4>                    37: viccy/charhold<6> 
   4: A<11>             21: ipl_cnt<5>                    38: viccy/chr_fetch 
@@ -1089,7 +1089,7 @@ movesync_or0000/movesync_or0000_D2
                      XXXXXXXXXXXXXXXXX...........XXX...X......................... 21
 mode_or0000/mode_or0000_D2 
                      XXXXXXXXXXXXXXXXX...........XXX...X......................... 21
-$OpTx$FX_DC$424      XXXXXXXX...XXXXXX...........XXX...X......................... 18
+$OpTx$FX_DC$429      XXXXXXXX...XXXXXX...........XXX...X......................... 18
 D_and0000/D_and0000_D2 
                      X...XXXX.........X......XXXX.XX..XXX........................ 15
 do_cpu               X...XXXX.........XX.....XXXX.XX.X..X........................ 15
@@ -1120,7 +1120,7 @@ lowbank<1>            3       0     0   2     FB11_17 70    I/O     I
 lowbank<0>            3       0     0   2     FB11_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$386   16: D<5>.PIN          31: mappy/cfg_mp<5> 
+  1: $OpTx$FX_DC$391   16: D<5>.PIN          31: mappy/cfg_mp<5> 
   2: A<10>             17: D<3>.PIN          32: mappy/cfg_mp<6> 
   3: A<11>             18: D<2>.PIN          33: mappy/cfg_mp<7> 
   4: A<12>             19: D<1>.PIN          34: mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 
@@ -1394,7 +1394,7 @@ viccy/vid_addr<3>     6       1<-   0   0     FB15_17 88    I/O     I
 viccy/vid_addr<2>     6       2<- /\1   0     FB15_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$383             18: spi_comp/N01/spi_comp/N01_D2  35: viccy/last_slot_of_line 
+  1: $OpTx$FX_DC$388             18: spi_comp/N01/spi_comp/N01_D2  35: viccy/last_slot_of_line 
   2: A<0>                        19: spi_comp/cpha                 36: viccy/pxlhold<0> 
   3: A<1>                        20: spi_comp/cpol                 37: viccy/pxlhold<1> 
   4: D_7_IOBUFE/D_7_IOBUFE_TRST  21: spi_comp/sr<0>                38: viccy/pxlhold<2> 
@@ -1449,8 +1449,8 @@ memclk_d              1       0     0   4     FB16_4        (b)     (b)
 is_vid_out            1       0     0   4     FB16_5  93    I/O     I
 clocky/cpu_cnt1<0>    1       0     0   4     FB16_6  94    I/O     I
 clocky/clk_cnt_0_0    0       0     0   5     FB16_7        (b)     (b)
-$OpTx$FX_DC$386       1       0     0   4     FB16_8  95    I/O     I
-$OpTx$FX_DC$383       1       0     0   4     FB16_9        (b)     (b)
+$OpTx$FX_DC$391       1       0     0   4     FB16_8  95    I/O     I
+$OpTx$FX_DC$388       1       0     0   4     FB16_9        (b)     (b)
 viccy/charhold<7>     2       0     0   3     FB16_10 96    I/O     I
 viccy/charhold<6>     2       0     0   3     FB16_11 97    I/O     I
 viccy/charhold<5>     2       0     0   3     FB16_12 98    I/O     I
@@ -1482,8 +1482,8 @@ memclk_d             .........X.............................. 1
 is_vid_out           ................XX...................... 2
 clocky/cpu_cnt1<0>   ........X............................... 1
 clocky/clk_cnt_0_0   ........................................ 0
-$OpTx$FX_DC$386      ...............X...X.................... 2
-$OpTx$FX_DC$383      .................XX..................... 2
+$OpTx$FX_DC$391      ...............X...X.................... 2
+$OpTx$FX_DC$388      .................XX..................... 2
 viccy/charhold<7>    X...............X....................... 2
 viccy/charhold<6>    .X..............X....................... 2
 viccy/charhold<5>    ..X.............X....................... 2
@@ -1501,20 +1501,20 @@ spi_outx/spi_outx_CLKF
 ********** Mapped Logic **********
 
 
-$OpTx$FX_DC$383 <= (viccy/pxl_fetch AND viccy/sr_load_d);
+$OpTx$FX_DC$388 <= (viccy/pxl_fetch AND viccy/sr_load_d);
 
 
-$OpTx$FX_DC$386 <= (NOT vpa AND NOT vda);
+$OpTx$FX_DC$391 <= (NOT vpa AND NOT vda);
 
 
-$OpTx$FX_DC$424 <= ((NOT A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND A(7) AND NOT A(6) AND 
+$OpTx$FX_DC$429 <= ((NOT A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND A(7) AND NOT A(6) AND 
 	NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND 
-	NOT $OpTx$FX_DC$386)
+	NOT $OpTx$FX_DC$391)
 	OR (NOT A(0) AND NOT rwb AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND 
 	NOT A(8) AND NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND 
-	NOT $OpTx$FX_DC$386));
+	NOT $OpTx$FX_DC$391));
 
 
 D_I(0) <= ((VD(0).PIN AND D_and0000/D_and0000_D2)
@@ -1594,15 +1594,15 @@ D_7_IOBUFE/D_7_IOBUFE_TRST <= ((NOT rwb AND NOT D_and0000/D_and0000_D2)
 
 
 D_and0000/D_and0000_D2 <= ((rwb AND is_cpu AND mappy/bankl(3) AND NOT boot AND phi2 AND 
-	NOT is_vid_out AND NOT $OpTx$FX_DC$386)
+	NOT is_vid_out AND NOT $OpTx$FX_DC$391)
 	OR (rwb AND is_cpu AND NOT mappy/bankl(3) AND boot AND phi2 AND 
-	NOT is_vid_out AND NOT $OpTx$FX_DC$386)
+	NOT is_vid_out AND NOT $OpTx$FX_DC$391)
 	OR (NOT mappy/cfg_mp(7) AND rwb AND is_cpu AND A(15) AND NOT A(14) AND 
 	NOT A(13) AND NOT A(12) AND screenb0 AND phi2 AND NOT is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (rwb AND is_cpu AND mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND 
 	NOT A(13) AND NOT A(12) AND screenb0 AND phi2 AND NOT is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 
 
@@ -1977,32 +1977,32 @@ FDCPE_dclk: FDCPE port map (dclk,clocky/clk_cnt_0_0,NOT q50m,'0','0',nres);
 
 FDCPE_dena: FDCPE port map (dena,dena_D,NOT dclk,'0','0',dena_CE);
 dena_D <= (viccy/h_enable AND viccy/v_enable);
-dena_CE <= (nres AND $OpTx$FX_DC$383);
+dena_CE <= (nres AND $OpTx$FX_DC$388);
 
 FDCPE_do_cpu: FDCPE port map (do_cpu,do_cpu_D,memclk_d,NOT nres,'0');
 do_cpu_D <= ((NOT is_cpu)
 	OR (ipl)
 	OR (mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (mappy/bankl(3) AND NOT boot AND is_vid_out AND 
-	NOT $OpTx$FX_DC$386)
+	NOT $OpTx$FX_DC$391)
 	OR (NOT mappy/bankl(3) AND boot AND is_vid_out AND 
-	NOT $OpTx$FX_DC$386));
+	NOT $OpTx$FX_DC$391));
 
 FDCPE_dot2clk: FDCPE port map (dot2clk,clocky/clk_cnt_0_1,NOT q50m,'0','0',nres);
 
 FDCPE_hsync: FDCPE port map (hsync,hsync_D,NOT slotclk,'0','0');
-hsync_D <= ((NOT viccy/slot_cnt(5) AND viccy/slot_cnt(2) AND 
-	viccy/slot_cnt(6) AND viccy/slot_cnt(4))
-	OR (NOT viccy/slot_cnt(5) AND viccy/slot_cnt(6) AND 
-	viccy/slot_cnt(3) AND viccy/slot_cnt(4))
-	OR (NOT viccy/slot_cnt(0) AND viccy/slot_cnt(5) AND 
-	NOT viccy/slot_cnt(2) AND viccy/slot_cnt(6) AND NOT viccy/slot_cnt(1) AND 
-	NOT viccy/slot_cnt(3) AND NOT viccy/slot_cnt(4)));
+hsync_D <= ((viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	viccy/slot_cnt(2) AND NOT viccy/slot_cnt(5))
+	OR (viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	viccy/slot_cnt(3) AND NOT viccy/slot_cnt(5))
+	OR (NOT viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	viccy/slot_cnt(5) AND NOT viccy/slot_cnt(1)));
 
 FDCPE_interlace: FDCPE port map (interlace,interlace_D,NOT phi2,NOT nres,'0');
 interlace_D <= ((D(4).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -2218,7 +2218,7 @@ mappy/cfg_mp_D(7) <= ((D(7).PIN AND
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 <= (NOT A(1) AND NOT A(0) AND NOT rwb AND A(7) AND A(6) AND A(5) AND 
 	A(4) AND A(15) AND A(14) AND A(13) AND A(12) AND is8296 AND NOT A(3) AND 
 	NOT A(2) AND A(11) AND A(9) AND A(8) AND A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386);
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391);
 
 
 mappy/low64k/mappy/low64k_D2 <= (NOT mappy/bankl(0) AND NOT mappy/bankl(1) AND NOT mappy/bankl(2) AND 
@@ -2241,11 +2241,11 @@ mode_D(1) <= ((D(1).PIN AND mode_or0000/mode_or0000_D2)
 mode_or0000/mode_or0000_D2 <= ((A(1) AND A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND NOT A(7) AND 
 	NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(1) AND A(0) AND NOT rwb AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 FDCPE_movesync: FDCPE port map (movesync,movesync_D,NOT phi2,NOT nres,'0');
 movesync_D <= ((D(6).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -2255,11 +2255,11 @@ movesync_D <= ((D(6).PIN AND movesync_or0000/movesync_or0000_D2)
 movesync_or0000/movesync_or0000_D2 <= ((NOT A(1) AND NOT A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND NOT A(7) AND 
 	NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(1) AND NOT A(0) AND NOT rwb AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 
 nflash <= NOT (((nres AND ipl)
@@ -2267,7 +2267,7 @@ nflash <= NOT (((nres AND ipl)
 
 
 nframsel <= ((NOT memclk)
-	OR ($OpTx$FX_DC$386)
+	OR ($OpTx$FX_DC$391)
 	OR (mappy/cfg_mp(7) AND NOT rwb AND A(15) AND NOT A(14) AND 
 	mappy/cfg_mp(0) AND mappy/low64k/mappy/low64k_D2)
 	OR (NOT mappy/cfg_mp(7) AND NOT rwb AND A(15) AND A(14) AND 
@@ -2296,40 +2296,40 @@ nframsel <= ((NOT memclk)
 
 nsel1 <= NOT (((NOT mappy/cfg_mp(7) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(7) AND NOT A(6) AND NOT A(5) AND A(4) AND mappy/cfg_mp(6) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)));
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)));
 
 
 nsel2 <= NOT (((NOT mappy/cfg_mp(7) AND NOT A(7) AND NOT A(6) AND A(5) AND NOT A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(7) AND NOT A(6) AND A(5) AND NOT A(4) AND mappy/cfg_mp(6) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)));
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)));
 
 
 nsel4 <= NOT (((NOT mappy/cfg_mp(7) AND NOT A(7) AND A(6) AND NOT A(5) AND NOT A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(7) AND A(6) AND NOT A(5) AND NOT A(4) AND mappy/cfg_mp(6) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)));
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)));
 
 
 nvramsel <= NOT (((mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND memclk AND NOT wait_int_d AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (memclk AND ipl)
 	OR (memclk AND is_vid_out)
 	OR (mappy/bankl(3) AND NOT boot AND memclk AND NOT wait_int_d AND 
-	NOT $OpTx$FX_DC$386)
+	NOT $OpTx$FX_DC$391)
 	OR (NOT mappy/bankl(3) AND boot AND memclk AND NOT wait_int_d AND 
-	NOT $OpTx$FX_DC$386)
+	NOT $OpTx$FX_DC$391)
 	OR (NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND memclk AND NOT wait_int_d AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)));
 
 FDCPE_pet_vsync: FDCPE port map (pet_vsync,pet_vsync_D,NOT hsync,'0','0',nres);
 pet_vsync_D <= ((viccy/rows_per_char(3) AND NOT viccy/rline_cnt(0) AND 
@@ -2379,14 +2379,14 @@ pxl_window_D <= (clocky/clk_cnt_0_2 AND clocky/clk_cnt_0_3);
 ramrwb <= NOT (((ipl)
 	OR (NOT mappy/cfg_mp(7) AND NOT rwb AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND memclk AND NOT is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT rwb AND mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	NOT A(12) AND screenb0 AND memclk AND NOT is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT rwb AND mappy/bankl(3) AND NOT boot AND memclk AND 
-	NOT is_vid_out AND NOT $OpTx$FX_DC$386)
+	NOT is_vid_out AND NOT $OpTx$FX_DC$391)
 	OR (NOT rwb AND NOT mappy/bankl(3) AND boot AND memclk AND 
-	NOT is_vid_out AND NOT $OpTx$FX_DC$386)));
+	NOT is_vid_out AND NOT $OpTx$FX_DC$391)));
 
 FDCPE_screenb0: FDCPE port map (screenb0,screenb0_D,NOT phi2,'0',NOT nres);
 screenb0_D <= ((NOT D(2).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -2617,11 +2617,11 @@ spi_comp/txd_valid/spi_comp/txd_valid_RSTF <= (nres AND NOT spi_comp/ack_txd);
 spi_cs/spi_cs_D2 <= ((NOT mappy/cfg_mp(7) AND NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND 
 	phi2 AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND mappy/cfg_mp(6) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(3) AND NOT A(2) AND A(11) AND 
 	phi2 AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 
 spi_nsel2 <= NOT ((nres AND NOT spi_sel(2) AND NOT spi_sel(0) AND spi_sel(1)));
@@ -2699,22 +2699,24 @@ viccy/chr_fetch_D <= ((NOT vis_hires_in AND vis_enable AND interlace AND
 	NOT viccy/in_slot AND chr_window));
 
 FDCPE_viccy/crtc_reg0: FDCPE port map (viccy/crtc_reg(0),viccy/crtc_reg_D(0),NOT memclk,NOT nres,'0');
-viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$424)
+viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$429)
 	OR (NOT D(2).PIN AND D(0).PIN AND NOT D(1).PIN AND D(3).PIN AND 
-	$OpTx$FX_DC$424));
+	$OpTx$FX_DC$429));
 
 FDCPE_viccy/crtc_reg1: FDCPE port map (viccy/crtc_reg(1),viccy/crtc_reg_D(1),NOT memclk,NOT nres,'0');
 viccy/crtc_reg_D(1) <= ((D(2).PIN AND NOT D(0).PIN AND NOT D(1).PIN AND D(3).PIN AND 
-	$OpTx$FX_DC$424)
-	OR (viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$424));
+	$OpTx$FX_DC$429)
+	OR (viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$429));
 
 FDCPE_viccy/dot2clk_d: FDCPE port map (viccy/dot2clk_d,dot2clk,q50m,'0','0');
 
-FDCPE_viccy/h_enable: FDCPE port map (viccy/h_enable,viccy/h_enable_D,NOT slotclk,'0','0');
-viccy/h_enable_D <= ((NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(5) AND 
-	NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(6) AND NOT viccy/slot_cnt(1) AND 
-	NOT viccy/slot_cnt(3) AND NOT viccy/slot_cnt(4) AND NOT viccy/last_vis_slot_of_line)
-	OR (viccy/h_enable AND NOT viccy/last_vis_slot_of_line));
+FTCPE_viccy/h_enable: FTCPE port map (viccy/h_enable,viccy/h_enable_T,NOT slotclk,'0','0');
+viccy/h_enable_T <= ((NOT viccy/slot_cnt(4) AND NOT viccy/slot_cnt(6) AND 
+	NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	NOT viccy/slot_cnt(5) AND NOT viccy/slot_cnt(1) AND NOT viccy/h_enable)
+	OR (viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	NOT viccy/slot_cnt(5) AND NOT viccy/slot_cnt(1) AND viccy/h_enable));
 
 FDCPE_viccy/in_slot: FDCPE port map (viccy/in_slot,viccy/slot_cnt(0),NOT slotclk,NOT nres,'0');
 
@@ -2745,14 +2747,17 @@ viccy/last_line_of_screen_D <= (viccy/rline_cnt(0) AND NOT viccy/rline_cnt(4) AN
 	NOT viccy/rline_cnt(8) AND viccy/rline_cnt(9));
 
 FDCPE_viccy/last_slot_of_line: FDCPE port map (viccy/last_slot_of_line,viccy/last_slot_of_line_D,NOT slotclk,'0','0');
-viccy/last_slot_of_line_D <= (viccy/slot_cnt(0) AND viccy/slot_cnt(5) AND 
-	NOT viccy/slot_cnt(2) AND viccy/slot_cnt(6) AND viccy/slot_cnt(1) AND 
-	NOT viccy/slot_cnt(3) AND NOT viccy/slot_cnt(4));
+viccy/last_slot_of_line_D <= (NOT viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	viccy/slot_cnt(5) AND viccy/slot_cnt(1));
 
 FDCPE_viccy/last_vis_slot_of_line: FDCPE port map (viccy/last_vis_slot_of_line,viccy/last_vis_slot_of_line_D,NOT slotclk,'0','0');
-viccy/last_vis_slot_of_line_D <= (NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(5) AND 
-	NOT viccy/slot_cnt(2) AND viccy/slot_cnt(6) AND NOT viccy/slot_cnt(1) AND 
-	NOT viccy/slot_cnt(3) AND viccy/slot_cnt(4));
+viccy/last_vis_slot_of_line_D <= ((viccy/slot_cnt(4) AND viccy/slot_cnt(6) AND 
+	NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	NOT viccy/slot_cnt(5) AND NOT viccy/slot_cnt(1))
+	OR (NOT viccy/slot_cnt(4) AND NOT viccy/slot_cnt(6) AND 
+	NOT viccy/slot_cnt(0) AND NOT viccy/slot_cnt(2) AND NOT viccy/slot_cnt(3) AND 
+	NOT viccy/slot_cnt(5) AND NOT viccy/slot_cnt(1) AND viccy/last_vis_slot_of_line));
 
 FDCPE_viccy/pxl_fetch: FDCPE port map (viccy/pxl_fetch,viccy/pxl_fetch_D,q50m,'0','0');
 viccy/pxl_fetch_D <= ((vis_enable AND interlace AND viccy/is_80 AND 
@@ -2765,65 +2770,65 @@ viccy/pxl_fetch_D <= ((vis_enable AND interlace AND viccy/is_80 AND
 	pxl_window));
 
 FDCPE_viccy/pxlhold0: FDCPE port map (viccy/pxlhold(0),viccy/pxlhold_D(0),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(0) <= ((VD(0).PIN AND $OpTx$FX_DC$383)
+viccy/pxlhold_D(0) <= ((VD(0).PIN AND $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(0) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold1: FDCPE port map (viccy/pxlhold(1),viccy/pxlhold_D(1),NOT dclk,NOT nres,'0');
 viccy/pxlhold_D(1) <= ((viccy/pxlhold(1) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
-	OR (VD(1).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(0) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
+	OR (VD(1).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(0) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(0) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold2: FDCPE port map (viccy/pxlhold(2),viccy/pxlhold_D(2),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(2) <= ((VD(2).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(1) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(2) <= ((VD(2).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(1) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(1) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(2) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold3: FDCPE port map (viccy/pxlhold(3),viccy/pxlhold_D(3),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(3) <= ((VD(3).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(2) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(3) <= ((VD(3).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(2) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(2) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(3) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold4: FDCPE port map (viccy/pxlhold(4),viccy/pxlhold_D(4),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(4) <= ((VD(4).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(3) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(4) <= ((VD(4).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(3) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(3) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(4) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold5: FDCPE port map (viccy/pxlhold(5),viccy/pxlhold_D(5),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(5) <= ((VD(5).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(4) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(5) <= ((VD(5).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(4) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(4) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(5) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold6: FDCPE port map (viccy/pxlhold(6),viccy/pxlhold_D(6),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(6) <= ((VD(6).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(5) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(6) <= ((VD(6).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(5) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(5) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(6) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/pxlhold7: FDCPE port map (viccy/pxlhold(7),viccy/pxlhold_D(7),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(7) <= ((VD(7).PIN AND $OpTx$FX_DC$383)
-	OR (viccy/pxlhold(6) AND viccy/is_80 AND NOT $OpTx$FX_DC$383)
+viccy/pxlhold_D(7) <= ((VD(7).PIN AND $OpTx$FX_DC$388)
+	OR (viccy/pxlhold(6) AND viccy/is_80 AND NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(6) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383)
+	NOT $OpTx$FX_DC$388)
 	OR (viccy/pxlhold(7) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$383));
+	NOT $OpTx$FX_DC$388));
 
 FDCPE_viccy/rcline_cnt0: FDCPE port map (viccy/rcline_cnt(0),viccy/rcline_cnt_D(0),NOT hsync,NOT nres,'0');
 viccy/rcline_cnt_D(0) <= ((NOT viccy/rcline_cnt(0) AND vis_double_in AND 
@@ -2931,22 +2936,22 @@ viccy/rows_per_char_T(3) <= ((A(0) AND NOT mappy/cfg_mp(7) AND D(3).PIN AND
 	NOT viccy/rows_per_char(3) AND NOT rwb AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(0) AND NOT mappy/cfg_mp(7) AND NOT D(3).PIN AND 
 	viccy/rows_per_char(3) AND NOT rwb AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(0) AND D(3).PIN AND NOT viccy/rows_per_char(3) AND NOT rwb AND 
 	A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND mappy/cfg_mp(6) AND 
 	viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(0) AND NOT D(3).PIN AND viccy/rows_per_char(3) AND NOT rwb AND 
 	A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND mappy/cfg_mp(6) AND 
 	viccy/crtc_reg(0) AND NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 FDCPE_viccy/slot_cnt0: FDCPE port map (viccy/slot_cnt(0),viccy/slot_cnt_D(0),slotclk,NOT nres,'0');
 viccy/slot_cnt_D(0) <= (NOT viccy/slot_cnt(0) AND NOT viccy/last_slot_of_line);
@@ -2970,19 +2975,19 @@ viccy/slot_cnt_T(3) <= ((viccy/slot_cnt(3) AND viccy/last_slot_of_line)
 FTCPE_viccy/slot_cnt4: FTCPE port map (viccy/slot_cnt(4),viccy/slot_cnt_T(4),slotclk,NOT nres,'0');
 viccy/slot_cnt_T(4) <= ((viccy/slot_cnt(4) AND viccy/last_slot_of_line)
 	OR (viccy/slot_cnt(0) AND viccy/slot_cnt(2) AND 
-	viccy/slot_cnt(1) AND viccy/slot_cnt(3) AND NOT viccy/last_slot_of_line));
+	viccy/slot_cnt(3) AND viccy/slot_cnt(1) AND NOT viccy/last_slot_of_line));
 
 FTCPE_viccy/slot_cnt5: FTCPE port map (viccy/slot_cnt(5),viccy/slot_cnt_T(5),slotclk,NOT nres,'0');
 viccy/slot_cnt_T(5) <= ((viccy/slot_cnt(5) AND viccy/last_slot_of_line)
-	OR (viccy/slot_cnt(0) AND viccy/slot_cnt(2) AND 
-	viccy/slot_cnt(1) AND viccy/slot_cnt(3) AND viccy/slot_cnt(4) AND 
+	OR (viccy/slot_cnt(4) AND viccy/slot_cnt(0) AND 
+	viccy/slot_cnt(2) AND viccy/slot_cnt(3) AND viccy/slot_cnt(1) AND 
 	NOT viccy/last_slot_of_line));
 
 FTCPE_viccy/slot_cnt6: FTCPE port map (viccy/slot_cnt(6),viccy/slot_cnt_T(6),slotclk,NOT nres,'0');
 viccy/slot_cnt_T(6) <= ((viccy/slot_cnt(6) AND viccy/last_slot_of_line)
-	OR (viccy/slot_cnt(0) AND viccy/slot_cnt(5) AND 
-	viccy/slot_cnt(2) AND viccy/slot_cnt(1) AND viccy/slot_cnt(3) AND 
-	viccy/slot_cnt(4) AND NOT viccy/last_slot_of_line));
+	OR (viccy/slot_cnt(4) AND viccy/slot_cnt(0) AND 
+	viccy/slot_cnt(2) AND viccy/slot_cnt(3) AND viccy/slot_cnt(5) AND 
+	viccy/slot_cnt(1) AND NOT viccy/last_slot_of_line));
 
 FDCPE_viccy/sr_load_d: FDCPE port map (viccy/sr_load_d,sr_load,q50m,'0','0');
 
@@ -3194,14 +3199,14 @@ viccy/vid_addr_hold_D(0) <= ((viccy/vid_addr_hold(0) AND
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(0) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(0) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(0) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold1: FDCPE port map (viccy/vid_addr_hold(1),viccy/vid_addr_hold_D(1),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(1) <= ((viccy/vid_addr_hold(1) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(1) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char)
+	OR (viccy/vid_addr(1) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char)
 	OR (viccy/vid_addr_hold(1) AND 
 	NOT viccy/last_vis_slot_of_line));
 
@@ -3210,102 +3215,102 @@ viccy/vid_addr_hold_D(2) <= ((viccy/vid_addr_hold(2) AND
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(2) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(2) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(2) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold3: FDCPE port map (viccy/vid_addr_hold(3),viccy/vid_addr_hold_D(3),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(3) <= ((viccy/vid_addr_hold(3) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(3) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(3) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(3) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold4: FDCPE port map (viccy/vid_addr_hold(4),viccy/vid_addr_hold_D(4),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(4) <= ((viccy/vid_addr_hold(4) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(4) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(4) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(4) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold5: FDCPE port map (viccy/vid_addr_hold(5),viccy/vid_addr_hold_D(5),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(5) <= ((viccy/vid_addr_hold(5) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(5) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(5) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(5) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold6: FDCPE port map (viccy/vid_addr_hold(6),viccy/vid_addr_hold_D(6),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(6) <= ((viccy/vid_addr_hold(6) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(6) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(6) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(6) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold7: FDCPE port map (viccy/vid_addr_hold(7),viccy/vid_addr_hold_D(7),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(7) <= ((viccy/vid_addr_hold(7) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(7) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(7) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(7) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold8: FDCPE port map (viccy/vid_addr_hold(8),viccy/vid_addr_hold_D(8),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(8) <= ((viccy/vid_addr_hold(8) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(8) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(8) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(8) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold9: FDCPE port map (viccy/vid_addr_hold(9),viccy/vid_addr_hold_D(9),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(9) <= ((viccy/vid_addr_hold(9) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(9) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(9) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char));
+	OR (viccy/vid_addr(9) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char));
 
 FDCPE_viccy/vid_addr_hold10: FDCPE port map (viccy/vid_addr_hold(10),viccy/vid_addr_hold_D(10),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(10) <= ((viccy/vid_addr_hold(10) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(10) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char)
+	OR (viccy/vid_addr(10) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char)
 	OR (viccy/vid_addr_hold(10) AND 
 	NOT viccy/last_vis_slot_of_line)
-	OR (viccy/vpage(2) AND viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line));
+	OR (viccy/vpage(2) AND viccy/last_vis_slot_of_line AND 
+	viccy/last_line_of_screen));
 
 FDCPE_viccy/vid_addr_hold11: FDCPE port map (viccy/vid_addr_hold(11),viccy/vid_addr_hold_D(11),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(11) <= ((viccy/vid_addr_hold(11) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
-	OR (viccy/vid_addr(11) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char)
+	OR (viccy/vid_addr(11) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char)
 	OR (viccy/vid_addr_hold(11) AND 
 	NOT viccy/last_vis_slot_of_line)
-	OR (viccy/vpage(3) AND viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line));
+	OR (viccy/vpage(3) AND viccy/last_vis_slot_of_line AND 
+	viccy/last_line_of_screen));
 
 FDCPE_viccy/vid_addr_hold12: FDCPE port map (viccy/vid_addr_hold(12),viccy/vid_addr_hold_D(12),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(12) <= ((NOT vis_hires_in AND NOT viccy/vpage(4) AND 
-	viccy/last_line_of_screen AND viccy/last_vis_slot_of_line)
-	OR (viccy/vid_addr(12) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char)
+	viccy/last_vis_slot_of_line AND viccy/last_line_of_screen)
+	OR (viccy/vid_addr(12) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char)
 	OR (viccy/vid_addr_hold(12) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(12) AND 
 	NOT viccy/last_line_of_screen AND NOT viccy/last_line_of_char)
 	OR (vis_hires_in AND viccy/vpage(4) AND 
-	viccy/last_line_of_screen AND viccy/last_vis_slot_of_line));
+	viccy/last_vis_slot_of_line AND viccy/last_line_of_screen));
 
 FDCPE_viccy/vid_addr_hold13: FDCPE port map (viccy/vid_addr_hold(13),viccy/vid_addr_hold_D(13),slotclk,NOT nres,'0');
 viccy/vid_addr_hold_D(13) <= ((vis_hires_in AND viccy/vpage(5) AND 
-	viccy/last_line_of_screen AND viccy/last_vis_slot_of_line)
-	OR (viccy/vid_addr(13) AND NOT viccy/last_line_of_screen AND 
-	viccy/last_vis_slot_of_line AND viccy/last_line_of_char)
+	viccy/last_vis_slot_of_line AND viccy/last_line_of_screen)
+	OR (viccy/vid_addr(13) AND viccy/last_vis_slot_of_line AND 
+	NOT viccy/last_line_of_screen AND viccy/last_line_of_char)
 	OR (viccy/vid_addr_hold(13) AND 
 	NOT viccy/last_vis_slot_of_line)
 	OR (viccy/vid_addr_hold(13) AND 
@@ -3351,11 +3356,11 @@ viccy/vpage_D(7) <= ((D(7).PIN AND
 viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 <= ((A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND A(7) AND NOT A(6) AND 
 	NOT A(5) AND NOT A(4) AND NOT viccy/crtc_reg(0) AND viccy/crtc_reg(1) AND 
 	A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND 
-	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	NOT A(10) AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(0) AND NOT rwb AND A(7) AND NOT A(6) AND NOT A(5) AND NOT A(4) AND 
 	mappy/cfg_mp(6) AND NOT viccy/crtc_reg(0) AND viccy/crtc_reg(1) AND A(15) AND 
 	A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 FDCPE_vidblock0: FDCPE port map (vidblock(0),vidblock_D(0),NOT phi2,NOT nres,'0');
 vidblock_D(0) <= ((D(4).PIN AND vidblock_or0000/vidblock_or0000_D2)
@@ -3369,11 +3374,11 @@ vidblock_D(1) <= ((D(5).PIN AND vidblock_or0000/vidblock_or0000_D2)
 vidblock_or0000/vidblock_or0000_D2 <= ((A(1) AND NOT A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND NOT A(7) AND 
 	NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (A(1) AND NOT A(0) AND NOT rwb AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 FDCPE_vis_80_in: FDCPE port map (vis_80_in,vis_80_in_D,NOT phi2,NOT nres,'0');
 vis_80_in_D <= ((D(1).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -3439,11 +3444,11 @@ wp_romPET_D <= ((D(7).PIN AND wp_romPET_or0000/wp_romPET_or0000_D2)
 wp_romPET_or0000/wp_romPET_or0000_D2 <= ((NOT A(1) AND A(0) AND NOT mappy/cfg_mp(7) AND NOT rwb AND NOT A(7) AND 
 	NOT A(6) AND NOT A(5) AND NOT A(4) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391)
 	OR (NOT A(1) AND A(0) AND NOT rwb AND NOT A(7) AND NOT A(6) AND NOT A(5) AND 
 	NOT A(4) AND mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND NOT A(3) AND NOT A(2) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$386));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$FX_DC$391));
 
 Register Legend:
  FDCPE (Q,D,C,CLR,PRE,CE); 
