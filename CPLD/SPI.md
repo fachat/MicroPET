@@ -18,12 +18,10 @@ The CPHA and CPOL bits in the control register can be used to select the require
 The SPI interface has four addresses, of which 3 are currently used:
 
 - $e808: control register (read/write)
-  - Bit 0: SPI select output 1
-  - Bit 1: SPI select output 2
-  - Bit 2: SPI select output 3
-  - Bit 3: SPI select output 4
-  - Bit 4: CPHA
-  - Bit 5: CPOL
+  - Bit 0-2: SPI device selection (write only)
+  - Bit 3: - unused, must be 0
+  - Bit 4: CPHA (write only)
+  - Bit 5: CPOL (write only)
   - Bit 6: 1: tx data register is occupied; 0: tx data register is free, you can reload it (read only)
   - Bit 7: 1: shift register is in use (read only)
 
