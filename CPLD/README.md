@@ -4,6 +4,21 @@
 The CPLD is a Xilinx xc95288xl chip, a 5V tolerable CPLD running with 3.3V supply voltage.
 I programmed it in VHDL.
 
+## Overview
+
+This is an overview on the register set:
+
+- $e800 (59392)  [Video control](#e800-59392-video-control)
+- $e801 (59393)  [Memory map control](#e801-59393-memory-map-control)
+- $e802 (59394)  [Low32k bank / video window map](#e802-59394-low32k-bank)
+- $e803 (59395)  [Speed control](#e803-59395-speed-control)
+
+- $fff0 (65520)  [8296 memory control (8296 memory map only)](#8296-control-port)
+
+- $e880/e881 (59520/59521) [CRTC emulation](#crtc-emulation)
+  - register 9: pixel rows per char - 1
+  - register 12: start of video memory high
+
 ## Memory Map
 
 The memory map looks as follows. There are 512k "Fast" RAM
@@ -172,7 +187,7 @@ at $08xxx.
 
 ### 8296 control port
 
-This control port enables the RAM mapping in the upper 32k of bank 0, as implemented
+This write only control port at $fff0 (65520) enables the RAM mapping in the upper 32k of bank 0, as implemented
 in the 8296 machine. The address of this port is $FFF0.
 To enable it, bit 3 in the Memory Map Control register must be set.
 
