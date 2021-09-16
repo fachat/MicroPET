@@ -641,10 +641,10 @@ begin
 	spi_nsel2 <= '1'	when reset = '1' else
 			'0' 	when spi_sel = "010" else
 			'1';
---	spi_nsel3 <= '1'	when reset = '1' else
---			'0' 	when spi_sel = "011" else
---			'1';
-	spi_nsel3 <= v_dbg_out;
+	spi_nsel3 <= '1'	when reset = '1' else
+			'0' 	when spi_sel = "011" else
+			'1';
+--	spi_nsel3 <= v_dbg_out;
 	
 	spi_nsel4 <= '1'	when reset = '1' else
 			'0' 	when spi_sel = "100" else

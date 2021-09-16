@@ -87,7 +87,8 @@ architecture Behavioral of Video is
 	
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now
-        signal crtc_reg: T_REGNO;
+        --signal crtc_reg: T_REGNO;
+	signal crtc_reg: std_logic_vector(3 downto 0);
         
 	signal rows_per_char: std_logic_vector(3 downto 0);
 	signal slots_per_line: std_logic_vector(6 downto 0);
@@ -495,26 +496,28 @@ begin
 	regfile: process(memclk, CPU_D, crtc_sel, crtc_rs, reset) 
 	begin
 		if (reset = '1') then
-			crtc_reg <= RNONE;
+			--crtc_reg <= RNONE;
+			crtc_reg <= "1111";
 		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
 				and crtc_rs='0'
 				and crtc_rwb = '0'
 				) then
-                        case (CPU_D(3 downto 0)) is
-                        when x"1" =>
-                                crtc_reg <= R1;
-			when x"6" => 
-				crtc_reg <= R6;
-                        when x"9" =>
-                                crtc_reg <= R9;
-                        when x"c" =>
-                                crtc_reg <= R12;
-                        when x"d" =>
-                                crtc_reg <= R13;
-                        when others =>
-                                crtc_reg <= RNONE;
-                        end case;
+			crtc_reg <= CPU_D(3 downto 0);
+--                        case (CPU_D(3 downto 0)) is
+--                        when x"1" =>
+--                                crtc_reg <= R1;
+--			when x"6" => 
+--				crtc_reg <= R6;
+--                        when x"9" =>
+--                                crtc_reg <= R9;
+--                        when x"c" =>
+--                                crtc_reg <= R12;
+--                        when x"d" =>
+--                                crtc_reg <= R13;
+--                        when others =>
+--                                crtc_reg <= RNONE;
+--                        end case;
 		end if;
 	end process;
 	
@@ -526,7 +529,7 @@ begin
 			if (crtc_sel = '1' and 
 					crtc_rs = '1' and 
 					crtc_rwb = '0' and 
-					crtc_reg = R9) then
+					crtc_reg = "1001") then
 				dbg_out <= '1';
 			else
 				dbg_out <= '0';
@@ -548,18 +551,18 @@ begin
 				and crtc_rwb = '0'
 				) then
 			case (crtc_reg) is
-			when R1 =>
+			when "0001" =>		--R1 =>
 				-- we only allow to write up to 63, to save one register
 				-- (bit 7 is constant)
 				slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
-			when R6 =>
+			when "0110" =>		--R6 =>
 				clines_per_screen <= CPU_D(6 downto 0);
-			when R9 =>
+			when "1001" =>		--R9 =>
 				rows_per_char <= CPU_D(3 downto 0);
-			when R12 =>
+			when "1100" =>		-- R12 =>
 				--vpage <= CPU_D;
 				vpage(3 downto 0) <= CPU_D(3 downto 0);
-			when R13 =>
+			when "1101" => 		--R13 =>
 				vpagelo(7 downto 3) <= CPU_D(7 downto 3);
 			when others =>
 				null;
