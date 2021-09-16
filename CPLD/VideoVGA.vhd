@@ -50,7 +50,6 @@ entity Video is
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- (ignored)
 	   interlace: in std_logic;
-	   statusline: in std_logic;
 	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;

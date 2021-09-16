@@ -31,6 +31,11 @@ use ieee.numeric_std.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+-- low power modes
+--library METAMOR;
+-- package attribtues contains declaration of the Metamor --specific synthesis attributes
+--use METAMOR.attributes.all;
+
 entity Top is
     Port ( 
 	-- clock
@@ -89,16 +94,20 @@ entity Top is
 	   spi_nsel2 : out std_logic;	-- in1
 	   spi_nsel3 : out std_logic;	-- sd card, in3
 	   spi_nsel4 : out std_logic;	-- in1
-	   spi_nsel5 : out std_logic;	-- in1
+	   spi_nsel5 : out std_logic	-- in1
+	   
 	   
 	-- Debug
-	   dbg_out: out std_logic;
-	   test: out std_logic
+--	   dbg_out: out std_logic;
+--	   test: out std_logic;
+--	   unused: in std_logic_vector(24 downto 0)
 	 );
 end Top;
 
 architecture Behavioral of Top is
 
+	attribute LOWPWR: string;
+	
 	attribute NOREDUCE : string;
 	
 	-- Initial program load
@@ -119,16 +128,20 @@ architecture Behavioral of Top is
 	signal sr_load: std_logic;
 	
 	signal memclk: std_logic;
+	signal intclk: std_logic;
 	signal clk1m: std_logic;
 	signal clk2m: std_logic;
 	signal clk4m: std_logic;
 	
 	signal phi2_int: std_logic;
+	signal phi2_int2: std_logic;
 	signal phi2_out: std_logic;
 	signal phi2_io_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
 	signal rdy_out: std_logic;
+	
+	signal phi2_x: std_logic;
 		
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
@@ -155,12 +168,15 @@ architecture Behavioral of Top is
 	signal vidblock : std_logic_vector(1 downto 0);
 	signal lockb0 : std_logic;
 	signal forceb0 : std_logic;
-	signal statusline : std_logic;
 	signal movesync : std_logic;
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
+	attribute LOWPWR of va_out: signal is "on";
+	
 	signal vd_in: std_logic_vector(7 downto 0);
+	--attribute LOWPWR of vd_in: signal is "on";
+	
 	signal vis_enable: std_logic;
 	signal vis_80_in: std_logic;
 	signal vis_hires_in: std_logic;
@@ -173,9 +189,15 @@ architecture Behavioral of Top is
 
 	signal is_vid_out_x: std_logic;
 	
+	signal v_dbg_out: std_logic;
+	
 	-- cpu
 	signal ca_in: std_logic_vector(15 downto 0);
+	attribute LOWPWR of ca_in: signal is "on";
+	
 	signal cd_in: std_logic_vector(7 downto 0);
+	--attribute LOWPWR of cd_in: signal is "on";
+	
 	signal reset: std_logic;
 	signal wait_ram: std_logic;
 	signal wait_int: std_logic;
@@ -186,9 +208,13 @@ architecture Behavioral of Top is
 	
 	-- SPI
 	signal spi_dout : std_logic_vector(7 downto 0);
+	attribute LOWPWR of spi_dout: signal is "on";
+
 	signal spi_cs : std_logic;
 	signal spi_in : std_logic;
 	signal spi_sel : std_logic_vector(2 downto 0);
+	attribute LOWPWR of spi_sel: signal is "on";
+	
 	signal spi_outx : std_logic;
 	signal spi_clkx : std_logic;
 		
@@ -200,6 +226,7 @@ architecture Behavioral of Top is
 	   reset	: in std_logic;
 	   
 	   memclk 	: out std_logic;	-- memory access clock signal
+	   intclk	: out std_logic;	-- internal register load from CPU
 	   
 	   clk1m 	: out std_logic;	-- trigger CPU access @ 1MHz
 	   clk2m	: out std_logic;	-- trigger CPU access @ 2MHz
@@ -271,7 +298,6 @@ architecture Behavioral of Top is
 	   is_double: in std_logic;	-- when set, use 50 char rows / 400 pixel rows
 	   is_nowrap: in std_logic;
 	   interlace: in std_logic;
-	   statusline: in std_logic;
 	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;	-- select line for CRTC
@@ -289,6 +315,9 @@ architecture Behavioral of Top is
 	   
            is_vid : out STD_LOGIC;	-- true during video access phase
 	   is_char: out std_logic;	-- map character data fetch
+	   
+	   dbg_out: out std_logic;
+	   
 	   reset : in std_logic
 	 );
 	end component;
@@ -323,11 +352,16 @@ architecture Behavioral of Top is
 
 begin
 
+--	unused <= (others => '0');
+--	test <= '0';
+	
+
 	clocky: Clock
 	port map (
 	   q50m,
 	   reset,
 	   memclk,
+	   intclk,
 	   clk1m,
 	   clk2m,
 	   clk4m,
@@ -425,6 +459,7 @@ begin
 	-- Note if we use phi2 without setting it high on waits (and would use RDY instead), 
 	-- the I/O timers will always count on 8MHz - which is not what we want (at 1MHz at least)
 	phi2_int <= memclk or not(do_cpu);
+	phi2_int2 <= intclk or not(do_cpu);
 	
 	-- split phi2, stretched phi2 for the CPU to accomodate for waits.
 	-- for full speed, don't delay VIA timers
@@ -517,7 +552,7 @@ begin
 		va_out,
 		vd_in,
 		cd_in, 
-		phi2_int,
+		phi2_int2,
 		pxl,
 		dena,
 		vsync,
@@ -530,7 +565,6 @@ begin
 		vis_double_in,
 		'1',
 		interlace,
-		statusline,
 		movesync,
 		sel8,
 		ca_in(0),
@@ -545,9 +579,12 @@ begin
 		sr_load,
 		is_vid_out,
 		is_char_out,
+		v_dbg_out,
 		reset
 	);
 
+	phi2_x <= phi2_io_out and not(dotclk);
+	
 	-- switch with is_vid_out to disable video memory accesses
 	is_vid_out_x <= '0';
 	
@@ -576,8 +613,13 @@ begin
 	);
 
 	-- CPU access to SPI registers
-	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
-	
+--	spi_cs <= To_Std_Logic(sel0 = '1' and ca_in(3) = '1' and ca_in(2) = '0' and phi2_int = '1');
+	spi_cs <= '1' when phi2_int = '1' 
+			and sel0 = '1'			-- $e80x
+			and ca_in(3 downto 2) = "10"	-- $e808-$e80b
+			else
+			'0';
+			
 	-- SPI serial data in - shared except IN3 for SD card
 	spi_in <= spi_in3 when spi_sel = "011" else
 			spi_in1;
@@ -599,9 +641,11 @@ begin
 	spi_nsel2 <= '1'	when reset = '1' else
 			'0' 	when spi_sel = "010" else
 			'1';
-	spi_nsel3 <= '1'	when reset = '1' else
-			'0' 	when spi_sel = "011" else
-			'1';
+--	spi_nsel3 <= '1'	when reset = '1' else
+--			'0' 	when spi_sel = "011" else
+--			'1';
+	spi_nsel3 <= v_dbg_out;
+	
 	spi_nsel4 <= '1'	when reset = '1' else
 			'0' 	when spi_sel = "100" else
 			'1';
@@ -636,7 +680,6 @@ begin
 			vidblock <= (others => '0');
 			boot <= '1';
 			lockb0 <= '0';
-			statusline <= '0';
 			movesync <= '0';
 		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
 			-- Write to $E80x
@@ -647,7 +690,6 @@ begin
 				screenb0 <= not(D(2));
 				vis_double_in <= D(3);
 				interlace <= D(4);
-				statusline <= D(5);
 				movesync <= D(6);
 				vis_enable <= not(D(7));
 			when "01" =>
@@ -713,17 +755,22 @@ begin
 		D 		when ramrwb_int = '0'	else	-- CPU write
 		(others => 'Z');
 		
-	D <= 	VD when is_vid_out='0' 
---		x"EA" when is_vid_out='0'	-- NOP sled
-			and rwb='1' 
-			and m_vramsel_out ='1' 
-			and phi2_int='1' 
-			and is_cpu='1' 	-- do not bleed video access into system bus when waiting but breaks timing
-		else
-		spi_dout when spi_cs = '1'
-			and rwb = '1'
-		else
-			(others => 'Z');
+--	D <= 	VD when is_vid_out='0' 
+----		x"EA" when is_vid_out='0'	-- NOP sled
+--			and rwb='1' 
+--			and m_vramsel_out ='1' 
+--			and phi2_int='1' 
+--			and is_cpu='1' 	-- do not bleed video access into system bus when waiting but breaks timing
+--		else
+--		spi_dout when spi_cs = '1'
+--			and rwb = '1'
+--		else
+--			(others => 'Z');
+	D <= 	(others => 'Z') when phi2_int = '0'
+			or rwb = '0'
+		else VD when m_vramsel_out = '1'
+		else spi_dout when spi_cs = '1'
+		else (others => 'Z');
 		
 	-- select RAM
 	

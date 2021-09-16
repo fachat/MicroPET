@@ -50,7 +50,6 @@ entity Video is
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- when set, don't wrap screen mem at 1k/2k border
            interlace: in std_logic;
-           statusline: in std_logic;
            movesync:  in std_logic;
 
 	   crtc_sel : in std_logic;
@@ -491,13 +490,13 @@ begin
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now
 
-	dbg_out <= '0';
+	--dbg_out <= '0';
 	
 	regfile: process(memclk, CPU_D, crtc_sel, crtc_rs, reset) 
 	begin
 		if (reset = '1') then
 			crtc_reg <= RNONE;
-		elsif (falling_edge(memclk) 
+		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
 				and crtc_rs='0'
 				and crtc_rwb = '0'
@@ -519,6 +518,22 @@ begin
 		end if;
 	end process;
 	
+	dbg: process(phi2, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset)
+	begin
+		if (reset = '1') then
+			dbg_out <= '0';
+		elsif (falling_edge(phi2)) then
+			if (crtc_sel = '1' and 
+					crtc_rs = '1' and 
+					crtc_rwb = '0' and 
+					crtc_reg = R9) then
+				dbg_out <= '1';
+			else
+				dbg_out <= '0';
+			end if;
+		end if;
+	end process;
+	
 	reg9: process(phi2, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
 	begin
 		if (reset = '1') then
@@ -527,9 +542,9 @@ begin
 			clines_per_screen <= "0011001";	-- 25
 			vpage <= x"10"; -- inverted for PET
 			vpagelo <= x"00";
-		elsif (falling_edge(memclk)
-				and crtc_sel = '1' 
-				and crtc_rs='1' 
+		elsif (falling_edge(phi2)
+				and crtc_sel = '1'
+				and crtc_rs= '1'
 				and crtc_rwb = '0'
 				) then
 			case (crtc_reg) is
