@@ -13,18 +13,18 @@ Some more videos on the build process can be found here [YT 8-bit times](https:/
 
 ## Features
 
-The board is built with a number of potential features, not all of them have been implemented at this time.
+The board is built with a number of features:
 
 - Commodore 3032 / 4032 / 8032 / 8296 with options menu to select at boot
-  - Boot-menu to select different PET versions to run
+  - Boot-menu to select different PET versions to run (BASIC 1, 2, 4)
   - 40 col character display
   - 80 col character display
   - 8296 memory map emulation
-  - IEEE488 interface (card edge)
+  - IEEE488 interface (card edge and 24pin flat ribbon cable)
   - Tape connector (card edge)
   - PET graphics keyboard, or alternatively a C64 keyboard
 - Improved system design:
-  - 512k video RAM, 512k fast RAM accessible using banks on the W65816 CPU
+  - 512k video RAM, plus 512k fast RAM, accessible using banks on the W65816 CPU
   - boot from an SPI Flash ROM
   - up to 12.5 MHz mode (via configuration register)
   - VGA b/w video output
@@ -119,11 +119,13 @@ These are future expansions I want to look into. Not all may be possible to impl
 
 ## Gallery
 
-![Picture of a MicroPET](images/upet.png)
+![Picture of a MicroPET](images/upet-c64kbd.jpg)
 
 Note: the published schematics and board has the extra wires fixed/included.
 
 ![MicroPET with self-printed key caps](images/case-with-caps.jpg)
 
 ![MicroPET running the 8296 burnin](images/8296diag.jpg)
+
+![MicroPET before adjusting a C64 case](images/upet.png)
  

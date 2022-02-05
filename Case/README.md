@@ -34,12 +34,16 @@ and alignes in the right direction. Also, for thos switches you need to have app
 ### Supports
 
 For each of the options there are different keyboard supports. You need the common
-[keyboard support plate](kbd_support/C64c keyboard support plate.stl) and then
-either
+[keyboard support plate](kbd_support/C64c keyboard support plate.stl) and the C64 keyboard supports, i.e. two of [supports for C64 keyboards](kbd_support/C64 keyboard support.stl).
+Using these parts you can use a C64 keyboard. 
 
-1. four [supports for SJG keyboards](kbd_support/Lower sjg keyboard support.stl) or
-2. four [supports for petskeys keyboards](kbd_support/Lower petskey keyboard support.stl), or
-3. two [supports for C64 keyboards](kbd_support/C64 keyboard support.stl)
+If you want to use a PET keyboard, you have two options:
+1. two [supports for SJG keyboards](kbd_support/sjg keybd full support plate.stl) or
+2. two [supports for petskey keyboards](kbd_support/petskey full support plate.stl), or
+
+Two of each of those make up a keyboard base plate, where you only need to clip in the PCB for the keyboard
+with the mounted key switches. Then they have about the same dimensions as a C64 keyboard, and you can use
+them on top of the C64 keyboard support stands.
 
 ### Standard Keycaps
 
@@ -94,8 +98,8 @@ Here are the links to the Tinkercad designs I created:
 
 1. [Keycaps]( https://www.tinkercad.com/things/dNZ8wI2zuYY )
 2. [base plate for keyboard support]( https://www.tinkercad.com/things/4DlYD3iQAby )
-3. [keyboard supports for Steve Gray's keyboard]( https://www.tinkercad.com/things/gnzI8KjmwVx )
-4. [keyboard supports for petskey keyboard]( https://www.tinkercad.com/things/6I5xIL65aiV )
+3. [keyboard plates for Steve Gray's keyboard (needed 2x, on top of C64 keyboard supports)](  https://www.tinkercad.com/things/a3phGKtNsUp  )
+4. [keyboard plates for petskey keyboard (needed 2x, on top of C64 keyboard supports)](  https://www.tinkercad.com/things/5lenSoehSRu  )
 5. [keyboard supports for C64 keyboard]( https://www.tinkercad.com/things/6t9EtqgGbSE )
 6. [Board mount]( https://www.tinkercad.com/things/aFCF30m60Vp )
 7. [Back cover]( https://www.tinkercad.com/things/5eZ8UNyYb2q )
@@ -104,5 +108,12 @@ Here are the links to the Tinkercad designs I created:
 
 The material here is published under the Creative Commons Attribution-ShareAlike 3.0 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) license.
 
+## Gallery
+
+![Keyboard supports](../images/keyb-supports.jpg)
+
+![Keyboard side view with plate](../images/keyb-side.jpg)
+
+![Keyboard mounted on plate](../images/keyb-mounted.jpg)
 
 
