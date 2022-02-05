@@ -34,12 +34,12 @@ and alignes in the right direction. Also, for thos switches you need to have app
 ### Supports
 
 For each of the options there are different keyboard supports. You need the common
-[keyboard support plate](kbd_support/C64c keyboard support plate.stl) and the C64 keyboard supports, i.e. two of [supports for C64 keyboards](kbd_support/C64 keyboard support.stl).
+[keyboard support plate](kbd_support/C64c%20keyboard%20support%20plate.stl) and the C64 keyboard supports, i.e. two of [supports for C64 keyboards](kbd_support/C64%20keyboard%20support.stl).
 Using these parts you can use a C64 keyboard. 
 
 If you want to use a PET keyboard, you have two options:
-1. two [supports for SJG keyboards](kbd_support/sjg keybd full support plate.stl) or
-2. two [supports for petskey keyboards](kbd_support/petskey full support plate.stl), or
+1. two [supports for SJG keyboards](kbd_support/sjg%20keybd%20full%20support%20plate.stl) or
+2. two [supports for petskey keyboards](kbd_support/petskey%20full%20support%20plate.stl), or
 
 Two of each of those make up a keyboard base plate, where you only need to clip in the PCB for the keyboard
 with the mounted key switches. Then they have about the same dimensions as a C64 keyboard, and you can use
