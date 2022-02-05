@@ -521,21 +521,21 @@ begin
 		end if;
 	end process;
 	
-	dbg: process(phi2, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset)
-	begin
-		if (reset = '1') then
-			dbg_out <= '0';
-		elsif (falling_edge(phi2)) then
-			if (crtc_sel = '1' and 
-					crtc_rs = '1' and 
-					crtc_rwb = '0' and 
-					crtc_reg = "1001") then
-				dbg_out <= '1';
-			else
-				dbg_out <= '0';
-			end if;
-		end if;
-	end process;
+--	dbg: process(phi2, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset)
+--	begin
+--		if (reset = '1') then
+--			dbg_out <= '0';
+--		elsif (falling_edge(phi2)) then
+--			if (crtc_sel = '1' and 
+--					crtc_rs = '1' and 
+--					crtc_rwb = '0' and 
+--					crtc_reg = "1001") then
+--				dbg_out <= '1';
+--			else
+--				dbg_out <= '0';
+--			end if;
+--		end if;
+--	end process;
 	
 	reg9: process(phi2, CPU_D, crtc_sel, crtc_rs, crtc_rwb, crtc_reg, reset) 
 	begin

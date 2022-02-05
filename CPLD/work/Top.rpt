@@ -1,7 +1,7 @@
  
 cpldfit:  version P.20131013                        Xilinx Inc.
                                   Fitter Report
-Design Name: Top                                 Date:  9-17-2021, 12:58PM
+Design Name: Top                                 Date:  2- 5-2022, 11:27AM
 Device Used: XC95288XL-6-TQ144
 Fitting Status: Successful
 
@@ -9,30 +9,30 @@ Fitting Status: Successful
 
 Macrocells     Product Terms    Function Block   Registers      Pins           
 Used/Tot       Used/Tot         Inps Used/Tot    Used/Tot       Used/Tot       
-277/288 ( 96%) 952 /1440 ( 66%) 630/864 ( 73%)   200/288 ( 69%) 88 /117 ( 75%)
+277/288 ( 96%) 953 /1440 ( 66%) 622/864 ( 72%)   200/288 ( 69%) 88 /117 ( 75%)
 
 ** Function Block Resources **
 
 Function    Mcells      FB Inps     Pterms      IO          
 Block       Used/Tot    Used/Tot    Used/Tot    Used/Tot    
-FB1          18/18*      41/54       57/90       4/ 8
+FB1          18/18*      42/54       59/90       4/ 8
 FB2          18/18*      41/54       52/90       3/10
-FB3          18/18*      33/54       42/90       1/ 5
-FB4          16/18       48/54       53/90       3/ 6
+FB3          18/18*      22/54       30/90       1/ 5
+FB4          16/18       48/54       55/90       3/ 6
 FB5          18/18*      32/54       56/90       6/ 8
 FB6          18/18*      47/54       83/90       7/ 8
 FB7          18/18*      45/54       67/90       4/ 4*
 FB8          18/18*      46/54       72/90       5/ 5*
 FB9          16/18       38/54       73/90       6/ 9
 FB10         18/18*      43/54       90/90*      8/10
-FB11         18/18*      44/54       50/90       5/ 7
-FB12         18/18*      43/54       58/90       6/ 6*
-FB13         15/18       47/54       67/90       5/ 6
-FB14         18/18*      30/54       54/90       8/ 8*
+FB11         18/18*      41/54       57/90       5/ 7
+FB12         18/18*      44/54       58/90       6/ 6*
+FB13         18/18*      46/54       69/90       5/ 6
+FB14         18/18*      34/54       54/90       8/ 8*
 FB15         18/18*      31/54       59/90       9/ 9*
-FB16         14/18       21/54       19/90       8/ 8*
+FB16         11/18       22/54       19/90       8/ 8*
              -----       -----       -----      -----    
-            277/288     630/864     952/1440    88/117
+            277/288     622/864     953/1440    88/117
 
 * - Resource is exhausted
 
@@ -89,7 +89,7 @@ Name                                                                            
 VA<16>                                                                              3     7     FB2_2   9    I/O     O       STD  SLOW 
 VA<15>                                                                              6     12    FB2_3   10   I/O     O       STD  SLOW 
 VA<18>                                                                              3     6     FB2_5   11   I/O     O       STD  SLOW 
-nframsel                                                                            13    24    FB4_2   2    GTS/I/O O       STD  SLOW 
+nframsel                                                                            14    25    FB4_2   2    GTS/I/O O       STD  SLOW 
 VA<17>                                                                              3     6     FB4_6   4    I/O     O       STD  SLOW 
 VA<14>                                                                              3     6     FB4_14  7    I/O     O       STD  SLOW 
 spi_nsel2                                                                           1     4     FB5_2   34   I/O     O       STD  SLOW 
@@ -157,57 +157,57 @@ Name                                                                            
 viccy/Madd_vid_addr_addsub0000__and0007/viccy/Madd_vid_addr_addsub0000__and0007_D2  1     9     FB1_1   STD  
 viccy/rline_cnt<0>                                                                  2     3     FB1_2   STD  RESET
 vis_hires_in                                                                        3     4     FB1_3   STD  RESET
-vis_80_in                                                                           3     4     FB1_4   STD  RESET
-viccy/rline_cnt<5>                                                                  3     4     FB1_5   STD  RESET
-viccy/is_80                                                                         3     5     FB1_6   STD  RESET
-screenb0                                                                            3     4     FB1_7   STD  RESET
-mappy/cfg_mp<3>                                                                     3     4     FB1_8   STD  RESET
-mappy/cfg_mp<2>                                                                     3     4     FB1_9   STD  RESET
-mappy/cfg_mp<1>                                                                     3     4     FB1_10  STD  RESET
-mappy/cfg_mp<0>                                                                     3     4     FB1_11  STD  RESET
-interlace                                                                           3     4     FB1_12  STD  RESET
-viccy/vid_addr_hold<8>                                                              4     6     FB1_13  STD  RESET
-viccy/vid_addr_hold<6>                                                              4     6     FB1_14  STD  RESET
-viccy/vid_addr_hold<5>                                                              4     6     FB1_15  STD  RESET
-viccy/vid_addr_hold<4>                                                              4     6     FB1_16  STD  RESET
-viccy/vid_addr_hold<3>                                                              4     6     FB1_17  STD  RESET
-viccy/vid_addr_hold<2>                                                              4     6     FB1_18  STD  RESET
+vis_enable                                                                          3     4     FB1_4   STD  RESET
+vis_80_in                                                                           3     4     FB1_5   STD  RESET
+viccy/rline_cnt<5>                                                                  3     4     FB1_6   STD  RESET
+viccy/is_80                                                                         3     5     FB1_7   STD  RESET
+mode<1>                                                                             3     4     FB1_8   STD  RESET
+mode<0>                                                                             3     4     FB1_9   STD  RESET
+interlace                                                                           3     4     FB1_10  STD  RESET
+viccy/vid_addr_hold<8>                                                              4     6     FB1_11  STD  RESET
+viccy/vid_addr_hold<6>                                                              4     6     FB1_12  STD  RESET
+viccy/vid_addr_hold<5>                                                              4     6     FB1_13  STD  RESET
+viccy/vid_addr_hold<4>                                                              4     6     FB1_14  STD  RESET
+viccy/vid_addr_hold<3>                                                              4     6     FB1_15  STD  RESET
+viccy/vid_addr_hold<2>                                                              4     6     FB1_16  STD  RESET
+viccy/pxl_fetch                                                                     4     6     FB1_17  STD  RESET
+viccy/chr_fetch                                                                     4     7     FB1_18  STD  RESET
 mappy/low64k/mappy/low64k_D2                                                        1     8     FB2_1   STD  
 clk1m                                                                               1     4     FB2_4   STD  RESET
 wait_int_d                                                                          2     3     FB2_6   STD  RESET
 clk2m                                                                               2     4     FB2_7   STD  RESET
 viccy/vpage<7>                                                                      3     5     FB2_8   STD  RESET
-viccy/vpage<6>                                                                      3     5     FB2_9   STD  RESET
-mappy/bankl<7>                                                                      3     4     FB2_10  STD  RESET
-mappy/bankl<6>                                                                      3     4     FB2_11  STD  RESET
-mappy/bankl<2>                                                                      3     4     FB2_12  STD  RESET
-mappy/bankl<1>                                                                      3     4     FB2_13  STD  RESET
-mappy/bankl<0>                                                                      3     4     FB2_14  STD  RESET
+mappy/bankl<7>                                                                      3     4     FB2_9   STD  RESET
+mappy/bankl<6>                                                                      3     4     FB2_10  STD  RESET
+mappy/bankl<5>                                                                      3     4     FB2_11  STD  RESET
+mappy/bankl<4>                                                                      3     4     FB2_12  STD  RESET
+mappy/bankl<3>                                                                      3     4     FB2_13  STD  RESET
+lowbank<3>                                                                          3     4     FB2_14  STD  RESET
 do_cpu                                                                              3     5     FB2_15  STD  RESET
 clocky/cpu_cnt1<3>                                                                  3     5     FB2_16  STD  RESET
 clocky/cpu_cnt1<2>                                                                  3     5     FB2_17  STD  RESET
 clk4m                                                                               4     4     FB2_18  STD  RESET
-sr_load                                                                             1     4     FB3_1   STD  RESET
-pxl_window                                                                          1     2     FB3_2   STD  RESET
-memclk_d                                                                            1     1     FB3_3   STD  RESET
-clocky/clk_cnt_0_3                                                                  1     3     FB3_4   STD  RESET
-clocky/clk_cnt_0_2                                                                  1     2     FB3_5   STD  RESET
-chr_window                                                                          1     2     FB3_6   STD  RESET
-dot2clk                                                                             2     2     FB3_7   STD  RESET
+viccy/dot2clk_d                                                                     1     1     FB3_1   STD  RESET
+sr_load                                                                             1     4     FB3_2   STD  RESET
+pxl_window                                                                          1     2     FB3_3   STD  RESET
+memclk_d                                                                            1     1     FB3_4   STD  RESET
+clocky/clk_cnt_0_3                                                                  1     3     FB3_5   STD  RESET
+clocky/clk_cnt_0_2                                                                  1     2     FB3_6   STD  RESET
+clocky/clk_cnt_0_1                                                                  1     1     FB3_7   STD  RESET
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
-wp_romPET                                                                           3     4     FB3_8   STD  RESET
-vis_enable                                                                          3     4     FB3_9   STD  RESET
-vis_double_in                                                                       3     4     FB3_10  STD  RESET
-phi2_io_and0000                                                                     3     5     FB3_11  STD  
-movesync                                                                            3     4     FB3_12  STD  RESET
-mode<1>                                                                             3     4     FB3_13  STD  RESET
-mode<0>                                                                             3     4     FB3_14  STD  RESET
-mappy/cfg_mp<7>                                                                     3     4     FB3_15  STD  RESET
-mappy/cfg_mp<6>                                                                     3     4     FB3_16  STD  RESET
-mappy/cfg_mp<5>                                                                     3     4     FB3_17  STD  RESET
-viccy/pxl_fetch                                                                     4     6     FB3_18  STD  RESET
+clocky/clk_cnt_0_0                                                                  0     0     FB3_8   STD  RESET
+chr_window                                                                          1     2     FB3_9   STD  RESET
+spi_outx/spi_outx_CLKF                                                              2     3     FB3_10  STD  
+slotclk                                                                             2     2     FB3_11  STD  RESET
+ipl_state_d                                                                         2     2     FB3_12  STD  RESET
+dot2clk                                                                             2     2     FB3_13  STD  RESET
+clocky/cpu_cnt1<1>                                                                  2     2     FB3_14  STD  RESET
+vis_double_in                                                                       3     4     FB3_15  STD  RESET
+screenb0                                                                            3     4     FB3_16  STD  RESET
+phi2_io_and0000                                                                     3     5     FB3_17  STD  
+movesync                                                                            3     4     FB3_18  STD  RESET
 wp_romPET_or0000/wp_romPET_or0000_D2                                                2     21    FB4_1   STD  
 vidblock_or0000/vidblock_or0000_D2                                                  2     21    FB4_5   STD  
 viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2                                        2     20    FB4_7   STD  
@@ -215,11 +215,11 @@ spi_cs/spi_cs_D2                                                                
 movesync_or0000/movesync_or0000_D2                                                  2     21    FB4_9   STD  
 mode_or0000/mode_or0000_D2                                                          2     21    FB4_10  STD  
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2                                        2     21    FB4_11  STD  
-D_or0000/D_or0000_D2                                                                2     4     FB4_12  STD  
-$OpTx$FX_DC$449                                                                     2     20    FB4_13  STD  
-$OpTx$FX_DC$412                                                                     2     18    FB4_15  STD  
+$OpTx$FX_DC$483                                                                     2     20    FB4_12  STD  
+$OpTx$FX_DC$445                                                                     2     18    FB4_13  STD  
+spi_comp/txd_valid                                                                  3     5     FB4_15  STD  RESET
 spi_comp/start_rx                                                                   3     5     FB4_16  STD  RESET
-$OpTx$INV$366                                                                       3     11    FB4_17  STD  
+$OpTx$INV$393                                                                       3     11    FB4_17  STD  
 m_vramsel_out/m_vramsel_out_D2                                                      8     12    FB4_18  STD  
 viccy/rline_cnt_Madd__add0000__and0003/viccy/rline_cnt_Madd__add0000__and0003_D2    1     5     FB5_1   STD  
 viccy/last_line_of_screen                                                           2     11    FB5_3   STD  RESET
@@ -301,40 +301,43 @@ viccy/vid_addr<3>                                                               
 viccy/vid_addr<2>                                                                   6     9     FB10_16 STD  RESET
 viccy/vid_addr<1>                                                                   6     8     FB10_17 STD  RESET
 viccy/last_line_of_char                                                             7     9     FB10_18 STD  RESET
-viccy/charhold<7>                                                                   2     2     FB11_1  STD  RESET
-viccy/charhold<6>                                                                   2     2     FB11_2  STD  RESET
-viccy/charhold<5>                                                                   2     2     FB11_4  STD  RESET
-viccy/charhold<4>                                                                   2     2     FB11_5  STD  RESET
-viccy/charhold<3>                                                                   2     2     FB11_6  STD  RESET
-viccy/charhold<2>                                                                   2     2     FB11_7  STD  RESET
-viccy/charhold<1>                                                                   2     2     FB11_8  STD  RESET
-viccy/charhold<0>                                                                   2     2     FB11_9  STD  RESET
-viccy/pxlhold<0>                                                                    3     6     FB11_10 STD  RESET
-viccy/chr_fetch                                                                     4     7     FB11_13 STD  RESET
+viccy/charhold<5>                                                                   2     2     FB11_1  STD  RESET
+viccy/charhold<4>                                                                   2     2     FB11_2  STD  RESET
+viccy/charhold<3>                                                                   2     2     FB11_4  STD  RESET
+viccy/charhold<2>                                                                   2     2     FB11_5  STD  RESET
+viccy/charhold<1>                                                                   2     2     FB11_6  STD  RESET
+viccy/charhold<0>                                                                   2     2     FB11_7  STD  RESET
+viccy/pxlhold<0>                                                                    3     6     FB11_8  STD  RESET
+viccy/pxlhold<7>                                                                    5     7     FB11_9  STD  RESET
+viccy/pxlhold<6>                                                                    5     7     FB11_10 STD  RESET
+viccy/pxlhold<5>                                                                    5     7     FB11_13 STD  RESET
 viccy/pxlhold<4>                                                                    5     7     FB11_15 STD  RESET
 viccy/pxlhold<3>                                                                    5     7     FB11_16 STD  RESET
 viccy/pxlhold<2>                                                                    5     7     FB11_17 STD  RESET
 viccy/pxlhold<1>                                                                    5     7     FB11_18 STD  RESET
 ipl                                                                                 2     4     FB12_1  STD  RESET
-viccy/vpage<5>                                                                      3     5     FB12_4  STD  RESET
-viccy/vpage<4>                                                                      3     5     FB12_6  STD  RESET
-viccy/vpage<3>                                                                      3     5     FB12_7  STD  RESET
-viccy/vpage<2>                                                                      3     5     FB12_9  STD  RESET
-viccy/rows_per_char<3>                                                              3     5     FB12_11 STD  RESET
-viccy/crtc_reg<1>                                                                   3     7     FB12_13 STD  RESET
-viccy/crtc_reg<0>                                                                   3     7     FB12_14 STD  RESET
+viccy/vpage<6>                                                                      3     5     FB12_4  STD  RESET
+viccy/vpage<5>                                                                      3     5     FB12_6  STD  RESET
+viccy/vpage<4>                                                                      3     5     FB12_7  STD  RESET
+viccy/vpage<3>                                                                      3     5     FB12_9  STD  RESET
+viccy/vpage<2>                                                                      3     5     FB12_11 STD  RESET
+viccy/rows_per_char<3>                                                              3     5     FB12_13 STD  RESET
+viccy/crtc_reg<1>                                                                   3     7     FB12_14 STD  RESET
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
-spi_comp/txd_valid                                                                  3     5     FB12_15 STD  RESET
+viccy/crtc_reg<0>                                                                   3     7     FB12_15 STD  RESET
 ipl_state                                                                           3     4     FB12_16 STD  RESET
 ipl_cnt<7>                                                                          3     6     FB12_17 STD  RESET
 ipl_cnt<0>                                                                          3     5     FB12_18 STD  RESET
-spi_comp/run_sr_d                                                                   2     2     FB13_5  STD  RESET
-spi_comp/ack_txd                                                                    2     3     FB13_6  STD  RESET
-viccy/pxlhold<7>                                                                    5     7     FB13_7  STD  RESET
-viccy/pxlhold<6>                                                                    5     7     FB13_8  STD  RESET
-viccy/pxlhold<5>                                                                    5     7     FB13_9  STD  RESET
+spi_comp/run_sr_d                                                                   2     2     FB13_1  STD  RESET
+spi_comp/ack_txd                                                                    2     3     FB13_3  STD  RESET
+D_or0000/D_or0000_D2                                                                2     4     FB13_4  STD  
+mappy/bankl<2>                                                                      3     4     FB13_5  STD  RESET
+mappy/bankl<1>                                                                      3     4     FB13_6  STD  RESET
+mappy/bankl<0>                                                                      3     4     FB13_7  STD  RESET
+lowbank<0>                                                                          3     4     FB13_8  STD  RESET
+lockb0                                                                              3     4     FB13_9  STD  RESET
 spi_comp/sr<6>                                                                      5     7     FB13_10 STD  RESET
 spi_comp/sr<5>                                                                      5     7     FB13_11 STD  RESET
 spi_comp/sr<4>                                                                      5     7     FB13_12 STD  RESET
@@ -342,19 +345,19 @@ spi_comp/sr<3>                                                                  
 spi_comp/sr<2>                                                                      5     7     FB13_14 STD  RESET
 spi_comp/sr<1>                                                                      5     7     FB13_16 STD  RESET
 spi_comp/sr<0>                                                                      5     7     FB13_18 STD  RESET
-wp_romB                                                                             3     5     FB14_1  STD  RESET
-wp_romA                                                                             3     4     FB14_2  STD  RESET
-wp_rom9                                                                             3     4     FB14_3  STD  RESET
+wp_romPET                                                                           3     4     FB14_1  STD  RESET
+wp_romB                                                                             3     5     FB14_2  STD  RESET
+wp_romA                                                                             3     4     FB14_3  STD  RESET
 vidblock<1>                                                                         3     4     FB14_4  STD  RESET
-vidblock<0>                                                                         3     4     FB14_5  STD  RESET
-mappy/bankl<5>                                                                      3     4     FB14_6  STD  RESET
-mappy/bankl<4>                                                                      3     4     FB14_7  STD  RESET
-mappy/bankl<3>                                                                      3     4     FB14_8  STD  RESET
-lowbank<3>                                                                          3     4     FB14_9  STD  RESET
-lowbank<2>                                                                          3     4     FB14_10 STD  RESET
-lowbank<1>                                                                          3     4     FB14_12 STD  RESET
-lowbank<0>                                                                          3     4     FB14_13 STD  RESET
-lockb0                                                                              3     4     FB14_16 STD  RESET
+mappy/cfg_mp<7>                                                                     3     4     FB14_5  STD  RESET
+mappy/cfg_mp<6>                                                                     3     4     FB14_6  STD  RESET
+mappy/cfg_mp<5>                                                                     3     4     FB14_7  STD  RESET
+mappy/cfg_mp<3>                                                                     3     4     FB14_8  STD  RESET
+mappy/cfg_mp<2>                                                                     3     4     FB14_9  STD  RESET
+mappy/cfg_mp<1>                                                                     3     4     FB14_10 STD  RESET
+mappy/cfg_mp<0>                                                                     3     4     FB14_12 STD  RESET
+lowbank<2>                                                                          3     4     FB14_13 STD  RESET
+lowbank<1>                                                                          3     4     FB14_16 STD  RESET
 is8296                                                                              3     4     FB14_17 STD  RESET
 boot                                                                                3     4     FB14_18 STD  RESET
 spi_sel<2>                                                                          3     5     FB15_1  LOW  RESET
@@ -363,29 +366,26 @@ spi_sel<0>                                                                      
 spi_comp/txd<5>                                                                     3     5     FB15_6  STD  RESET
 spi_comp/txd<4>                                                                     3     5     FB15_7  STD  RESET
 spi_comp/txd<3>                                                                     3     5     FB15_9  STD  RESET
-spi_comp/txd<2>                                                                     3     5     FB15_12 STD  RESET
-spi_comp/txd<1>                                                                     3     5     FB15_13 STD  RESET
-spi_comp/txd<0>                                                                     3     5     FB15_15 STD  RESET
 
 Signal                                                                              Total Total Loc     Pwr  Reg Init
 Name                                                                                Pts   Inps          Mode State
+spi_comp/txd<2>                                                                     3     5     FB15_12 STD  RESET
+spi_comp/txd<1>                                                                     3     5     FB15_13 STD  RESET
+spi_comp/txd<0>                                                                     3     5     FB15_15 STD  RESET
 spi_comp/cpol                                                                       3     5     FB15_16 STD  RESET
 spi_comp/cpha                                                                       3     5     FB15_17 STD  RESET
 spi_comp/N01/spi_comp/N01_D2                                                        3     5     FB15_18 STD  
-viccy/sr_load_d                                                                     1     1     FB16_5  STD  RESET
-viccy/dot2clk_d                                                                     1     1     FB16_6  STD  RESET
-spi_comp/txd_valid/spi_comp/txd_valid_RSTF                                          1     2     FB16_7  STD  
-spi_comp/start_rx/spi_comp/start_rx_RSTF                                            1     2     FB16_8  STD  
-is_vid_out                                                                          1     2     FB16_9  STD  RESET
-clocky/clk_cnt_0_1                                                                  1     1     FB16_10 STD  RESET
-clocky/clk_cnt_0_0                                                                  0     0     FB16_11 STD  RESET
-$OpTx$FX_DC$371                                                                     1     2     FB16_12 STD  
+viccy/sr_load_d                                                                     1     1     FB16_8  STD  RESET
+spi_comp/txd_valid/spi_comp/txd_valid_RSTF                                          1     2     FB16_9  STD  
+spi_comp/start_rx/spi_comp/start_rx_RSTF                                            1     2     FB16_10 STD  
+is_vid_out                                                                          1     2     FB16_11 STD  RESET
+$OpTx$FX_DC$405                                                                     1     2     FB16_12 STD  
 viccy/in_slot                                                                       2     2     FB16_13 STD  RESET
-spi_outx/spi_outx_CLKF                                                              2     3     FB16_14 STD  
-spi_comp/ack_rxtx                                                                   2     5     FB16_15 STD  RESET
-slotclk                                                                             2     2     FB16_16 STD  RESET
-ipl_state_d                                                                         2     2     FB16_17 STD  RESET
-clocky/cpu_cnt1<1>                                                                  2     2     FB16_18 STD  RESET
+viccy/charhold<7>                                                                   2     2     FB16_14 STD  RESET
+viccy/charhold<6>                                                                   2     2     FB16_15 STD  RESET
+spi_comp/ack_rxtx                                                                   2     5     FB16_16 STD  RESET
+wp_rom9                                                                             3     4     FB16_17 STD  RESET
+vidblock<0>                                                                         3     4     FB16_18 STD  RESET
 
 ** 28 Inputs **
 
@@ -436,79 +436,79 @@ Pin Type/Use - I  - Input             GCK - Global Clock
 X            - Signal used as input to the macrocell logic.
 Pin No.      - ~  - User Assigned
 *********************************** FB1  ***********************************
-Number of function block inputs used/remaining:               41/13
-Number of signals used by logic mapping into function block:  41
+Number of function block inputs used/remaining:               42/12
+Number of signals used by logic mapping into function block:  42
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 viccy/Madd_vid_addr_addsub0000__and0007/viccy/Madd_vid_addr_addsub0000__and0007_D2
                       1       0     0   4     FB1_1         (b)     (b)
 viccy/rline_cnt<0>    2       0     0   3     FB1_2         (b)     (b)
 vis_hires_in          3       0     0   2     FB1_3         (b)     (b)
-vis_80_in             3       0     0   2     FB1_4         (b)     (b)
-viccy/rline_cnt<5>    3       0     0   2     FB1_5   20    I/O     I
-viccy/is_80           3       0     0   2     FB1_6   21    I/O     I
-screenb0              3       0     0   2     FB1_7         (b)     (b)
-mappy/cfg_mp<3>       3       0     0   2     FB1_8   22    I/O     I
-mappy/cfg_mp<2>       3       0     0   2     FB1_9         (b)     (b)
-mappy/cfg_mp<1>       3       0     0   2     FB1_10  23    I/O     (b)
-mappy/cfg_mp<0>       3       0     0   2     FB1_11        (b)     (b)
-interlace             3       0     0   2     FB1_12  24    I/O     I
+vis_enable            3       0     0   2     FB1_4         (b)     (b)
+vis_80_in             3       0     0   2     FB1_5   20    I/O     I
+viccy/rline_cnt<5>    3       0     0   2     FB1_6   21    I/O     I
+viccy/is_80           3       0     0   2     FB1_7         (b)     (b)
+mode<1>               3       0     0   2     FB1_8   22    I/O     I
+mode<0>               3       0     0   2     FB1_9         (b)     (b)
+interlace             3       0     0   2     FB1_10  23    I/O     (b)
 viccy/vid_addr_hold<8>
-                      4       0     0   1     FB1_13        (b)     (b)
+                      4       0     0   1     FB1_11        (b)     (b)
 viccy/vid_addr_hold<6>
-                      4       0     0   1     FB1_14  25    I/O     (b)
+                      4       0     0   1     FB1_12  24    I/O     I
 viccy/vid_addr_hold<5>
-                      4       0     0   1     FB1_15  26    I/O     (b)
+                      4       0     0   1     FB1_13        (b)     (b)
 viccy/vid_addr_hold<4>
-                      4       0     0   1     FB1_16        (b)     (b)
+                      4       0     0   1     FB1_14  25    I/O     (b)
 viccy/vid_addr_hold<3>
-                      4       0     0   1     FB1_17  27    I/O     (b)
+                      4       0     0   1     FB1_15  26    I/O     (b)
 viccy/vid_addr_hold<2>
-                      4       0     0   1     FB1_18        (b)     (b)
+                      4       0     0   1     FB1_16        (b)     (b)
+viccy/pxl_fetch       4       0     0   1     FB1_17  27    I/O     (b)
+viccy/chr_fetch       4       0     0   1     FB1_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: D<4>.PIN                                      15: phi2                                                                              29: viccy/vid_addr<4> 
-  2: D<3>.PIN                                      16: screenb0                                                                          30: viccy/vid_addr<5> 
-  3: D<2>.PIN                                      17: slotclk                                                                           31: viccy/vid_addr<6> 
-  4: D<1>.PIN                                      18: viccy/last_line_of_char                                                           32: viccy/vid_addr<7> 
-  5: D<0>.PIN                                      19: viccy/last_line_of_screen                                                         33: viccy/vid_addr<8> 
-  6: hsync                                         20: viccy/last_slot_of_line                                                           34: viccy/vid_addr_hold<2> 
-  7: interlace                                     21: viccy/last_vis_slot_of_line                                                       35: viccy/vid_addr_hold<3> 
-  8: mappy/cfg_mp<0>                               22: viccy/rline_cnt<0>                                                                36: viccy/vid_addr_hold<4> 
-  9: mappy/cfg_mp<1>                               23: viccy/rline_cnt<5>                                                                37: viccy/vid_addr_hold<5> 
- 10: mappy/cfg_mp<2>                               24: viccy/rline_cnt_Madd__add0000__and0003/viccy/rline_cnt_Madd__add0000__and0003_D2  38: viccy/vid_addr_hold<6> 
- 11: mappy/cfg_mp<3>                               25: viccy/vid_addr<0>                                                                 39: viccy/vid_addr_hold<8> 
- 12: mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2  26: viccy/vid_addr<1>                                                                 40: vis_80_in 
- 13: movesync_or0000/movesync_or0000_D2            27: viccy/vid_addr<2>                                                                 41: vis_hires_in 
- 14: nres                                          28: viccy/vid_addr<3>                                                                
+  1: D<7>.PIN                            15: slotclk                                                                           29: viccy/vid_addr<4> 
+  2: D<4>.PIN                            16: viccy/in_slot                                                                     30: viccy/vid_addr<5> 
+  3: D<1>.PIN                            17: viccy/is_80                                                                       31: viccy/vid_addr<6> 
+  4: D<0>.PIN                            18: viccy/last_line_of_char                                                           32: viccy/vid_addr<7> 
+  5: chr_window                          19: viccy/last_line_of_screen                                                         33: viccy/vid_addr<8> 
+  6: hsync                               20: viccy/last_slot_of_line                                                           34: viccy/vid_addr_hold<2> 
+  7: interlace                           21: viccy/last_vis_slot_of_line                                                       35: viccy/vid_addr_hold<3> 
+  8: mode<0>                             22: viccy/rline_cnt<0>                                                                36: viccy/vid_addr_hold<4> 
+  9: mode<1>                             23: viccy/rline_cnt<5>                                                                37: viccy/vid_addr_hold<5> 
+ 10: mode_or0000/mode_or0000_D2          24: viccy/rline_cnt_Madd__add0000__and0003/viccy/rline_cnt_Madd__add0000__and0003_D2  38: viccy/vid_addr_hold<6> 
+ 11: movesync_or0000/movesync_or0000_D2  25: viccy/vid_addr<0>                                                                 39: viccy/vid_addr_hold<8> 
+ 12: nres                                26: viccy/vid_addr<1>                                                                 40: vis_80_in 
+ 13: phi2                                27: viccy/vid_addr<2>                                                                 41: vis_enable 
+ 14: pxl_window                          28: viccy/vid_addr<3>                                                                 42: vis_hires_in 
 
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
 viccy/Madd_vid_addr_addsub0000__and0007/viccy/Madd_vid_addr_addsub0000__and0007_D2 
                      ........................XXXXXXXXX................. 9
 viccy/rline_cnt<0>   .....X............X..X............................ 3
-vis_hires_in         ....X.......X.X.........................X......... 4
-vis_80_in            ...X........X.X........................X.......... 4
+vis_hires_in         ...X......X.X............................X........ 4
+vis_enable           X.........X.X...........................X......... 4
+vis_80_in            ..X.......X.X..........................X.......... 4
 viccy/rline_cnt<5>   .....X............X...XX.......................... 4
-viccy/is_80          .............X..X.XX...................X.......... 5
-screenb0             ..X.........X.XX.................................. 4
-mappy/cfg_mp<3>      .X........XX..X................................... 4
-mappy/cfg_mp<2>      ..X......X.X..X................................... 4
-mappy/cfg_mp<1>      ...X....X..X..X................................... 4
-mappy/cfg_mp<0>      ....X..X...X..X................................... 4
-interlace            X.....X.....X.X................................... 4
+viccy/is_80          ...........X..X...XX...................X.......... 5
+mode<1>              ..X.....XX..X..................................... 4
+mode<0>              ...X...X.X..X..................................... 4
+interlace            .X....X...X.X..................................... 4
 viccy/vid_addr_hold<8> 
-                     ................XXX.X...........X.....X........... 6
+                     ..............X..XX.X...........X.....X........... 6
 viccy/vid_addr_hold<6> 
-                     ................XXX.X.........X......X............ 6
+                     ..............X..XX.X.........X......X............ 6
 viccy/vid_addr_hold<5> 
-                     ................XXX.X........X......X............. 6
+                     ..............X..XX.X........X......X............. 6
 viccy/vid_addr_hold<4> 
-                     ................XXX.X.......X......X.............. 6
+                     ..............X..XX.X.......X......X.............. 6
 viccy/vid_addr_hold<3> 
-                     ................XXX.X......X......X............... 6
+                     ..............X..XX.X......X......X............... 6
 viccy/vid_addr_hold<2> 
-                     ................XXX.X.....X......X................ 6
+                     ..............X..XX.X.....X......X................ 6
+viccy/pxl_fetch      ......X......X.XX....X..................X......... 6
+viccy/chr_fetch      ....X.X........XX....X..................XX........ 7
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB2  ***********************************
@@ -525,30 +525,30 @@ VA<18>                3       0     0   2     FB2_5   11    I/O     O
 wait_int_d            2       0     0   3     FB2_6   12    I/O     (b)
 clk2m                 2       0     0   3     FB2_7         (b)     (b)
 viccy/vpage<7>        3       0     0   2     FB2_8   13    I/O     (b)
-viccy/vpage<6>        3       0     0   2     FB2_9         (b)     (b)
-mappy/bankl<7>        3       0     0   2     FB2_10  14    I/O     (b)
-mappy/bankl<6>        3       0     0   2     FB2_11        (b)     (b)
-mappy/bankl<2>        3       0     0   2     FB2_12  15    I/O     (b)
-mappy/bankl<1>        3       0     0   2     FB2_13        (b)     (b)
-mappy/bankl<0>        3       0     0   2     FB2_14  16    I/O     (b)
+mappy/bankl<7>        3       0     0   2     FB2_9         (b)     (b)
+mappy/bankl<6>        3       0     0   2     FB2_10  14    I/O     (b)
+mappy/bankl<5>        3       0     0   2     FB2_11        (b)     (b)
+mappy/bankl<4>        3       0     0   2     FB2_12  15    I/O     (b)
+mappy/bankl<3>        3       0     0   2     FB2_13        (b)     (b)
+lowbank<3>            3       0     0   2     FB2_14  16    I/O     (b)
 do_cpu                3       0     0   2     FB2_15  17    I/O     (b)
 clocky/cpu_cnt1<3>    3       0     0   2     FB2_16        (b)     (b)
 clocky/cpu_cnt1<2>    3       0     0   2     FB2_17  19    I/O     (b)
 clk4m                 4       0     0   1     FB2_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$366       15: e                               29: mappy/bankl<5> 
+  1: $OpTx$INV$393       15: e                               29: mappy/bankl<5> 
   2: D<7>.PIN            16: ipl                             30: mappy/bankl<6> 
   3: D<6>.PIN            17: is_cpu                          31: mappy/bankl<7> 
-  4: D<2>.PIN            18: is_vid_out                      32: mappy/cfg_mp<2> 
-  5: D<1>.PIN            19: lockb0                          33: mappy/cfg_mp<3> 
-  6: D<0>.PIN            20: lowbank<0>                      34: mappy/low64k/mappy/low64k_D2 
+  4: D<5>.PIN            18: is_vid_out                      32: mappy/cfg_mp<2> 
+  5: D<4>.PIN            19: lockb0                          33: mappy/cfg_mp<3> 
+  6: D<3>.PIN            20: lowbank<0>                      34: mappy/low64k/mappy/low64k_D2 
   7: A<14>               21: lowbank<1>                      35: memclk_d 
   8: A<15>               22: lowbank<3>                      36: phi2 
   9: clocky/cpu_cnt1<0>  23: m_vramsel_out/m_vramsel_out_D2  37: viccy/pxl_fetch 
- 10: clocky/cpu_cnt1<1>  24: mappy/bankl<0>                  38: viccy/vpage<6> 
- 11: clocky/cpu_cnt1<2>  25: mappy/bankl<1>                  39: viccy/vpage<7> 
- 12: clocky/cpu_cnt1<3>  26: mappy/bankl<2>                  40: viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 
+ 10: clocky/cpu_cnt1<1>  24: mappy/bankl<0>                  38: viccy/vpage<7> 
+ 11: clocky/cpu_cnt1<2>  25: mappy/bankl<1>                  39: viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 
+ 12: clocky/cpu_cnt1<3>  26: mappy/bankl<2>                  40: vidblock_or0000/vidblock_or0000_D2 
  13: do_cpu              27: mappy/bankl<3>                  41: vis_hires_in 
  14: dot2clk             28: mappy/bankl<4>                 
 
@@ -557,18 +557,18 @@ Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
 mappy/low64k/mappy/low64k_D2 
                      .......................XXXXXXXX................... 8
 VA<16>               X......X.......X.X..X..X.........X................ 7
-VA<15>               X.....XX.......X.X.X...........XXX..X.X.X......... 12
+VA<15>               X.....XX.......X.X.X...........XXX..XX..X......... 12
 clk1m                ........XXXX...................................... 4
 VA<18>               .......X.......X.X...X...X.......X................ 6
 wait_int_d           .............X.XX................................. 3
 clk2m                ........XXXX...................................... 4
-viccy/vpage<7>       .X..........XX........................XX.......... 5
-viccy/vpage<6>       ..X.........XX.......................X.X.......... 5
+viccy/vpage<7>       .X..........XX.......................XX........... 5
 mappy/bankl<7>       .X............X...X................X.............. 4
 mappy/bankl<6>       ..X...........X...X................X.............. 4
-mappy/bankl<2>       ...X..........X...X................X.............. 4
-mappy/bankl<1>       ....X.........X...X................X.............. 4
-mappy/bankl<0>       .....X........X...X................X.............. 4
+mappy/bankl<5>       ...X..........X...X................X.............. 4
+mappy/bankl<4>       ....X.........X...X................X.............. 4
+mappy/bankl<3>       .....X........X...X................X.............. 4
+lowbank<3>           .....X...............X.............X...X.......... 4
 do_cpu               ...............XXX....X...........X............... 5
 clocky/cpu_cnt1<3>   ........XXXX.X.................................... 5
 clocky/cpu_cnt1<2>   ........XXXX.X.................................... 5
@@ -576,62 +576,61 @@ clk4m                ........XXXX...................................... 4
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB3  ***********************************
-Number of function block inputs used/remaining:               33/21
-Number of signals used by logic mapping into function block:  33
+Number of function block inputs used/remaining:               22/32
+Number of signals used by logic mapping into function block:  22
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
-sr_load               1       0     0   4     FB3_1         (b)     (b)
-pxl_window            1       0     0   4     FB3_2   28    I/O     (b)
-memclk_d              1       0     0   4     FB3_3         (b)     (b)
-clocky/clk_cnt_0_3    1       0     0   4     FB3_4         (b)     (b)
-clocky/clk_cnt_0_2    1       0     0   4     FB3_5         (b)     (b)
-chr_window            1       0     0   4     FB3_6         (b)     (b)
-dot2clk               2       0     0   3     FB3_7         (b)     (b)
-wp_romPET             3       0     0   2     FB3_8         (b)     (b)
-vis_enable            3       0     0   2     FB3_9         (b)     (b)
-vis_double_in         3       0     0   2     FB3_10  30    GCK/I/O GCK
-phi2_io_and0000       3       0     0   2     FB3_11        (b)     (b)
-movesync              3       0     0   2     FB3_12  31    I/O     (b)
-mode<1>               3       0     0   2     FB3_13        (b)     (b)
-mode<0>               3       0     0   2     FB3_14  32    GCK/I/O (b)
-mappy/cfg_mp<7>       3       0     0   2     FB3_15  33    I/O     (b)
-mappy/cfg_mp<6>       3       0     0   2     FB3_16        (b)     (b)
-mappy/cfg_mp<5>       3       0     0   2     FB3_17        (b)     (b)
-viccy/pxl_fetch       4       0     0   1     FB3_18        (b)     (b)
+viccy/dot2clk_d       1       0     0   4     FB3_1         (b)     (b)
+sr_load               1       0     0   4     FB3_2   28    I/O     (b)
+pxl_window            1       0     0   4     FB3_3         (b)     (b)
+memclk_d              1       0     0   4     FB3_4         (b)     (b)
+clocky/clk_cnt_0_3    1       0     0   4     FB3_5         (b)     (b)
+clocky/clk_cnt_0_2    1       0     0   4     FB3_6         (b)     (b)
+clocky/clk_cnt_0_1    1       0     0   4     FB3_7         (b)     (b)
+clocky/clk_cnt_0_0    0       0     0   5     FB3_8         (b)     (b)
+chr_window            1       0     0   4     FB3_9         (b)     (b)
+spi_outx/spi_outx_CLKF
+                      2       0     0   3     FB3_10  30    GCK/I/O GCK
+slotclk               2       0     0   3     FB3_11        (b)     (b)
+ipl_state_d           2       0     0   3     FB3_12  31    I/O     (b)
+dot2clk               2       0     0   3     FB3_13        (b)     (b)
+clocky/cpu_cnt1<1>    2       0     0   3     FB3_14  32    GCK/I/O (b)
+vis_double_in         3       0     0   2     FB3_15  33    I/O     (b)
+screenb0              3       0     0   2     FB3_16        (b)     (b)
+phi2_io_and0000       3       0     0   2     FB3_17        (b)     (b)
+movesync              3       0     0   2     FB3_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: phi2_io.PIN         12: do_cpu                                        23: movesync_or0000/movesync_or0000_D2 
-  2: D<7>.PIN            13: dot2clk                                       24: nres 
-  3: D<6>.PIN            14: interlace                                     25: phi2 
-  4: D<5>.PIN            15: mappy/cfg_mp<5>                               26: pxl_window 
-  5: D<3>.PIN            16: mappy/cfg_mp<6>                               27: viccy/in_slot 
-  6: D<1>.PIN            17: mappy/cfg_mp<7>                               28: viccy/is_80 
-  7: D<0>.PIN            18: mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2  29: viccy/rline_cnt<0> 
-  8: clocky/clk_cnt_0_0  19: mode<0>                                       30: vis_double_in 
-  9: clocky/clk_cnt_0_1  20: mode<1>                                       31: vis_enable 
- 10: clocky/clk_cnt_0_2  21: mode_or0000/mode_or0000_D2                    32: wp_romPET 
- 11: clocky/clk_cnt_0_3  22: movesync                                      33: wp_romPET_or0000/wp_romPET_or0000_D2 
+  1: phi2_io.PIN          9: clocky/cpu_cnt1<0>  16: movesync_or0000/movesync_or0000_D2 
+  2: D<6>.PIN            10: do_cpu              17: nres 
+  3: D<3>.PIN            11: dot2clk             18: phi2 
+  4: D<2>.PIN            12: ipl_state           19: screenb0 
+  5: clocky/clk_cnt_0_0  13: mode<0>             20: spi_comp/spiclk_half 
+  6: clocky/clk_cnt_0_1  14: mode<1>             21: spi_sel<2> 
+  7: clocky/clk_cnt_0_2  15: movesync            22: vis_double_in 
+  8: clocky/clk_cnt_0_3 
 
 Signal                        1         2         3         4 FB
 Name                0----+----0----+----0----+----0----+----0 Inputs
-sr_load              .......XXXX............................. 4
-pxl_window           .........XX............................. 2
-memclk_d             ............X........................... 1
-clocky/clk_cnt_0_3   .......XXX.............................. 3
-clocky/clk_cnt_0_2   .......XX............................... 2
-chr_window           .........XX............................. 2
-dot2clk              ........X..............X................ 2
-wp_romPET            .X......................X......XX....... 4
-vis_enable           .X....................X.X.....X......... 4
-vis_double_in        ....X.................X.X....X.......... 4
-phi2_io_and0000      X..........XX.....XX.................... 5
-movesync             ..X..................XX.X............... 4
-mode<1>              .....X.............XX...X............... 4
-mode<0>              ......X...........X.X...X............... 4
-mappy/cfg_mp<7>      .X..............XX......X............... 4
-mappy/cfg_mp<6>      ..X............X.X......X............... 4
-mappy/cfg_mp<5>      ...X..........X..X......X............... 4
-viccy/pxl_fetch      .............X...........XXXX.X......... 6
+viccy/dot2clk_d      ..........X............................. 1
+sr_load              ....XXXX................................ 4
+pxl_window           ......XX................................ 2
+memclk_d             ..........X............................. 1
+clocky/clk_cnt_0_3   ....XXX................................. 3
+clocky/clk_cnt_0_2   ....XX.................................. 2
+clocky/clk_cnt_0_1   ....X................................... 1
+clocky/clk_cnt_0_0   ........................................ 0
+chr_window           ......XX................................ 2
+spi_outx/spi_outx_CLKF 
+                     ..........X........XX................... 3
+slotclk              .......X........X....................... 2
+ipl_state_d          ..........XX............................ 2
+dot2clk              .....X..........X....................... 2
+clocky/cpu_cnt1<1>   ........X.X............................. 2
+vis_double_in        ..X............X.X...X.................. 4
+screenb0             ...X...........X.XX..................... 4
+phi2_io_and0000      X........XX.XX.......................... 5
+movesync             .X............XX.X...................... 4
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *********************************** FB4  ***********************************
@@ -641,9 +640,9 @@ Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 wp_romPET_or0000/wp_romPET_or0000_D2
                       2       0   \/3   0     FB4_1         (b)     (b)
-nframsel             13       8<-   0   0     FB4_2   2     GTS/I/O O
+nframsel             14       9<-   0   0     FB4_2   2     GTS/I/O O
 (unused)              0       0   /\5   0     FB4_3         (b)     (b)
-(unused)              0       0     0   5     FB4_4         (b)     
+(unused)              0       0   /\1   4     FB4_4         (b)     (b)
 vidblock_or0000/vidblock_or0000_D2
                       2       0     0   3     FB4_5   3     GTS/I/O (b)
 VA<17>                3       0     0   2     FB4_6   4     I/O     O
@@ -656,60 +655,58 @@ mode_or0000/mode_or0000_D2
                       2       0     0   3     FB4_10        (b)     (b)
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2
                       2       0     0   3     FB4_11        (b)     (b)
-D_or0000/D_or0000_D2
-                      2       0     0   3     FB4_12  6     GTS/I/O (b)
-$OpTx$FX_DC$449       2       0     0   3     FB4_13        (b)     (b)
+$OpTx$FX_DC$483       2       0     0   3     FB4_12  6     GTS/I/O (b)
+$OpTx$FX_DC$445       2       0     0   3     FB4_13        (b)     (b)
 VA<14>                3       0     0   2     FB4_14  7     I/O     O
-$OpTx$FX_DC$412       2       0     0   3     FB4_15        (b)     (b)
+spi_comp/txd_valid    3       0     0   2     FB4_15        (b)     (b)
 spi_comp/start_rx     3       0   \/1   1     FB4_16        (b)     (b)
-$OpTx$INV$366         3       1<- \/3   0     FB4_17        (b)     (b)
+$OpTx$INV$393         3       1<- \/3   0     FB4_17        (b)     (b)
 m_vramsel_out/m_vramsel_out_D2
                       8       3<-   0   0     FB4_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$366     17: A<8>                            33: phi2 
-  2: boot              18: A<9>                            34: rwb 
-  3: A<0>              19: dot2clk                         35: screenb0 
-  4: A<10>             20: ipl                             36: spi_comp/start_rx/spi_comp/start_rx_RSTF 
-  5: A<11>             21: is8296                          37: spi_cs/spi_cs_D2 
-  6: A<12>             22: is_vid_out                      38: vda 
-  7: A<13>             23: lowbank<2>                      39: viccy/crtc_reg<0> 
-  8: A<14>             24: m_vramsel_out/m_vramsel_out_D2  40: viccy/crtc_reg<1> 
-  9: A<15>             25: mappy/bankl<1>                  41: viccy/pxl_fetch 
- 10: A<1>              26: mappy/bankl<3>                  42: viccy/vpage<6> 
- 11: A<2>              27: mappy/cfg_mp<0>                 43: vis_hires_in 
- 12: A<3>              28: mappy/cfg_mp<1>                 44: vpa 
- 13: A<4>              29: mappy/cfg_mp<5>                 45: wp_rom9 
- 14: A<5>              30: mappy/cfg_mp<6>                 46: wp_romA 
- 15: A<6>              31: mappy/cfg_mp<7>                 47: wp_romB 
- 16: A<7>              32: mappy/low64k/mappy/low64k_D2    48: wp_romPET 
+  1: $OpTx$INV$393     17: A<8>                          33: rwb 
+  2: boot              18: A<9>                          34: screenb0 
+  3: A<0>              19: dot2clk                       35: spi_comp/start_rx/spi_comp/start_rx_RSTF 
+  4: A<10>             20: ipl                           36: spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
+  5: A<11>             21: is8296                        37: spi_cs/spi_cs_D2 
+  6: A<12>             22: is_vid_out                    38: vda 
+  7: A<13>             23: lowbank<2>                    39: viccy/crtc_reg<0> 
+  8: A<14>             24: mappy/bankl<1>                40: viccy/crtc_reg<1> 
+  9: A<15>             25: mappy/bankl<3>                41: viccy/pxl_fetch 
+ 10: A<1>              26: mappy/cfg_mp<0>               42: viccy/vpage<6> 
+ 11: A<2>              27: mappy/cfg_mp<1>               43: vis_hires_in 
+ 12: A<3>              28: mappy/cfg_mp<5>               44: vpa 
+ 13: A<4>              29: mappy/cfg_mp<6>               45: wp_rom9 
+ 14: A<5>              30: mappy/cfg_mp<7>               46: wp_romA 
+ 15: A<6>              31: mappy/low64k/mappy/low64k_D2  47: wp_romB 
+ 16: A<7>              32: phi2                          48: wp_romPET 
 
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
 wp_romPET_or0000/wp_romPET_or0000_D2 
-                     X.XXXXXXXXXXXXXXXX.............X.X...X.....X...... 21
-nframsel             .X.XXXXXX.......XXX....X.XXX.XXX.X...X.....XXXXX.. 24
+                     X.XXXXXXXXXXXXXXXX............X.X....X.....X...... 21
+nframsel             .X.XXXXXX.......XXX.....XXXXXXX.XX...X.....XXXXX.. 25
 vidblock_or0000/vidblock_or0000_D2 
-                     X.XXXXXXXXXXXXXXXX.............X.X...X.....X...... 21
-VA<17>               ........X..........X.XX.X......X.................. 6
+                     X.XXXXXXXXXXXXXXXX............X.X....X.....X...... 21
+VA<17>               ........X..........X.XXX......X................... 6
 viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 
-                     X.XXXXXXX...XXXXXX.............X.X...XXX...X...... 20
-spi_cs/spi_cs_D2     X..XXXXXX.XXXXXXXX.............XX....X.....X...... 19
+                     X.XXXXXXX...XXXXXX............X.X....XXX...X...... 20
+spi_cs/spi_cs_D2     X..XXXXXX.XXXXXXXX............XX.....X.....X...... 19
 movesync_or0000/movesync_or0000_D2 
-                     X.XXXXXXXXXXXXXXXX.............X.X...X.....X...... 21
+                     X.XXXXXXXXXXXXXXXX............X.X....X.....X...... 21
 mode_or0000/mode_or0000_D2 
-                     X.XXXXXXXXXXXXXXXX.............X.X...X.....X...... 21
+                     X.XXXXXXXXXXXXXXXX............X.X....X.....X...... 21
 mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 
-                     ..XXXXXXXXXXXXXXXX..X..........X.X...X.....X...... 21
-D_or0000/D_or0000_D2 
-                     .......................X........XX..X............. 4
-$OpTx$FX_DC$449      X.XXXXXXX...XXXXXX.............X.X...XXX...X...... 20
+                     ..XXXXXXXXXXXXXXXX..X.........X.X....X.....X...... 21
+$OpTx$FX_DC$483      X.XXXXXXX...XXXXXX............X.X....XXX...X...... 20
+$OpTx$FX_DC$445      X.XXXXXXX...XXXXXX............X.X....X.....X...... 18
 VA<14>               .......X...........X.X..................XXX....... 6
-$OpTx$FX_DC$412      X.XXXXXXX...XXXXXX.............X.X...X.....X...... 18
-spi_comp/start_rx    ..X......X.......................X.XX............. 5
-$OpTx$INV$366        ...XXXXXX.......XX..........XXX................... 11
+spi_comp/txd_valid   ..X......X......................X..XX............. 5
+spi_comp/start_rx    ..X......X......................X.X.X............. 5
+$OpTx$INV$393        ...XXXXXX.......XX.........XXX.................... 11
 m_vramsel_out/m_vramsel_out_D2 
-                     .X...XXXX................X..X.XX..X..X.....X...... 12
+                     .X...XXXX...............X..X.XX..X...X.....X...... 12
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB5  ***********************************
@@ -739,7 +736,7 @@ viccy/v_enable        6       1<-   0   0     FB5_17  44    I/O     (b)
 is_cpu                7       3<- /\1   0     FB5_18        (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$371   12: movesync                   23: viccy/rline_cnt<3> 
+  1: $OpTx$FX_DC$405   12: movesync                   23: viccy/rline_cnt<3> 
   2: clk1m             13: nres                       24: viccy/rline_cnt<4> 
   3: clk2m             14: phi2_io_and0000            25: viccy/rline_cnt<5> 
   4: clk4m             15: spi_sel<0>                 26: viccy/rline_cnt<6> 
@@ -1117,23 +1114,23 @@ viccy/last_line_of_char
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB11 ***********************************
-Number of function block inputs used/remaining:               44/10
-Number of signals used by logic mapping into function block:  44
+Number of function block inputs used/remaining:               41/13
+Number of signals used by logic mapping into function block:  41
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
-viccy/charhold<7>     2       0     0   3     FB11_1        (b)     (b)
-viccy/charhold<6>     2       0     0   3     FB11_2        (b)     (b)
+viccy/charhold<5>     2       0     0   3     FB11_1        (b)     (b)
+viccy/charhold<4>     2       0     0   3     FB11_2        (b)     (b)
 spi_nsel5             1       0     0   4     FB11_3  60    I/O     O
-viccy/charhold<5>     2       0     0   3     FB11_4        (b)     (b)
-viccy/charhold<4>     2       0     0   3     FB11_5  61    I/O     (b)
-viccy/charhold<3>     2       0     0   3     FB11_6        (b)     (b)
-viccy/charhold<2>     2       0     0   3     FB11_7        (b)     (b)
-viccy/charhold<1>     2       0     0   3     FB11_8        (b)     (b)
-viccy/charhold<0>     2       0     0   3     FB11_9        (b)     (b)
-viccy/pxlhold<0>      3       0     0   2     FB11_10 64    I/O     (b)
+viccy/charhold<3>     2       0     0   3     FB11_4        (b)     (b)
+viccy/charhold<2>     2       0     0   3     FB11_5  61    I/O     (b)
+viccy/charhold<1>     2       0     0   3     FB11_6        (b)     (b)
+viccy/charhold<0>     2       0     0   3     FB11_7        (b)     (b)
+viccy/pxlhold<0>      3       0     0   2     FB11_8        (b)     (b)
+viccy/pxlhold<7>      5       0     0   0     FB11_9        (b)     (b)
+viccy/pxlhold<6>      5       0     0   0     FB11_10 64    I/O     (b)
 nsel4                 2       0     0   3     FB11_11 66    I/O     O
 nsel2                 2       0     0   3     FB11_12 68    I/O     O
-viccy/chr_fetch       4       0     0   1     FB11_13       (b)     (b)
+viccy/pxlhold<5>      5       0     0   0     FB11_13       (b)     (b)
 nsel1                 2       0     0   3     FB11_14 69    I/O     O
 viccy/pxlhold<4>      5       0     0   0     FB11_15       (b)     (b)
 viccy/pxlhold<3>      5       0     0   0     FB11_16       (b)     (b)
@@ -1141,123 +1138,123 @@ viccy/pxlhold<2>      5       0     0   0     FB11_17 70    I/O     I
 viccy/pxlhold<1>      5       0     0   0     FB11_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$371   16: A<15>                         31: vda 
-  2: $OpTx$INV$366     17: A<4>                          32: viccy/chr_fetch 
-  3: VD<7>.PIN         18: A<5>                          33: viccy/dot2clk_d 
-  4: VD<6>.PIN         19: A<6>                          34: viccy/in_slot 
-  5: VD<5>.PIN         20: A<7>                          35: viccy/is_80 
-  6: VD<4>.PIN         21: A<8>                          36: viccy/pxlhold<0> 
-  7: VD<3>.PIN         22: A<9>                          37: viccy/pxlhold<1> 
-  8: VD<2>.PIN         23: chr_window                    38: viccy/pxlhold<2> 
-  9: VD<1>.PIN         24: dclk                          39: viccy/pxlhold<3> 
- 10: VD<0>.PIN         25: interlace                     40: viccy/pxlhold<4> 
- 11: A<10>             26: mappy/low64k/mappy/low64k_D2  41: viccy/rline_cnt<0> 
- 12: A<11>             27: nres                          42: vis_enable 
- 13: A<12>             28: spi_sel<0>                    43: vis_hires_in 
- 14: A<13>             29: spi_sel<1>                    44: vpa 
- 15: A<14>             30: spi_sel<2>                   
+  1: $OpTx$FX_DC$405   15: A<14>                         29: vda 
+  2: $OpTx$INV$393     16: A<15>                         30: viccy/chr_fetch 
+  3: VD<7>.PIN         17: A<4>                          31: viccy/dot2clk_d 
+  4: VD<6>.PIN         18: A<5>                          32: viccy/is_80 
+  5: VD<5>.PIN         19: A<6>                          33: viccy/pxlhold<0> 
+  6: VD<4>.PIN         20: A<7>                          34: viccy/pxlhold<1> 
+  7: VD<3>.PIN         21: A<8>                          35: viccy/pxlhold<2> 
+  8: VD<2>.PIN         22: A<9>                          36: viccy/pxlhold<3> 
+  9: VD<1>.PIN         23: dclk                          37: viccy/pxlhold<4> 
+ 10: VD<0>.PIN         24: mappy/low64k/mappy/low64k_D2  38: viccy/pxlhold<5> 
+ 11: A<10>             25: nres                          39: viccy/pxlhold<6> 
+ 12: A<11>             26: spi_sel<0>                    40: viccy/pxlhold<7> 
+ 13: A<12>             27: spi_sel<1>                    41: vpa 
+ 14: A<13>             28: spi_sel<2>                   
 
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
-viccy/charhold<7>    ..X............................X.................. 2
-viccy/charhold<6>    ...X...........................X.................. 2
-spi_nsel5            ..........................XXXX.................... 4
-viccy/charhold<5>    ....X..........................X.................. 2
-viccy/charhold<4>    .....X.........................X.................. 2
-viccy/charhold<3>    ......X........................X.................. 2
-viccy/charhold<2>    .......X.......................X.................. 2
-viccy/charhold<1>    ........X......................X.................. 2
-viccy/charhold<0>    .........X.....................X.................. 2
-viccy/pxlhold<0>     X........X.............X........X.XX.............. 6
-nsel4                .X........XXXXXXXXXXXX...X....X............X...... 16
-nsel2                .X........XXXXXXXXXXXX...X....X............X...... 16
-viccy/chr_fetch      ......................X.X........XX.....XXX....... 7
-nsel1                .X........XXXXXXXXXXXX...X....X............X...... 16
-viccy/pxlhold<4>     X....X.................X........X.X...XX.......... 7
-viccy/pxlhold<3>     X.....X................X........X.X..XX........... 7
-viccy/pxlhold<2>     X......X...............X........X.X.XX............ 7
-viccy/pxlhold<1>     X.......X..............X........X.XXX............. 7
+viccy/charhold<5>    ....X........................X.................... 2
+viccy/charhold<4>    .....X.......................X.................... 2
+spi_nsel5            ........................XXXX...................... 4
+viccy/charhold<3>    ......X......................X.................... 2
+viccy/charhold<2>    .......X.....................X.................... 2
+viccy/charhold<1>    ........X....................X.................... 2
+viccy/charhold<0>    .........X...................X.................... 2
+viccy/pxlhold<0>     X........X............X.......XXX................. 6
+viccy/pxlhold<7>     X.X...................X.......XX......XX.......... 7
+viccy/pxlhold<6>     X..X..................X.......XX.....XX........... 7
+nsel4                .X........XXXXXXXXXXXX.X....X...........X......... 16
+nsel2                .X........XXXXXXXXXXXX.X....X...........X......... 16
+viccy/pxlhold<5>     X...X.................X.......XX....XX............ 7
+nsel1                .X........XXXXXXXXXXXX.X....X...........X......... 16
+viccy/pxlhold<4>     X....X................X.......XX...XX............. 7
+viccy/pxlhold<3>     X.....X...............X.......XX..XX.............. 7
+viccy/pxlhold<2>     X......X..............X.......XX.XX............... 7
+viccy/pxlhold<1>     X.......X.............X.......XXXX................ 7
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB12 ***********************************
-Number of function block inputs used/remaining:               43/11
-Number of signals used by logic mapping into function block:  43
+Number of function block inputs used/remaining:               44/10
+Number of signals used by logic mapping into function block:  44
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 ipl                   2       0     0   3     FB12_1        (b)     (b)
 VD<3>                 3       0     0   2     FB12_2  110   I/O     I/O
 VD<2>                 4       0     0   1     FB12_3  111   I/O     I/O
-viccy/vpage<5>        3       0     0   2     FB12_4        (b)     (b)
+viccy/vpage<6>        3       0     0   2     FB12_4        (b)     (b)
 VD<4>                 4       0     0   1     FB12_5  112   I/O     I/O
-viccy/vpage<4>        3       0     0   2     FB12_6        (b)     (b)
-viccy/vpage<3>        3       0     0   2     FB12_7        (b)     (b)
+viccy/vpage<5>        3       0     0   2     FB12_6        (b)     (b)
+viccy/vpage<4>        3       0     0   2     FB12_7        (b)     (b)
 VD<1>                 4       0     0   1     FB12_8  113   I/O     I/O
-viccy/vpage<2>        3       0     0   2     FB12_9        (b)     (b)
+viccy/vpage<3>        3       0     0   2     FB12_9        (b)     (b)
 VD<5>                 4       0     0   1     FB12_10 115   I/O     I/O
-viccy/rows_per_char<3>
-                      3       0     0   2     FB12_11       (b)     (b)
+viccy/vpage<2>        3       0     0   2     FB12_11       (b)     (b)
 VD<0>                 4       0     0   1     FB12_12 116   I/O     I/O
-viccy/crtc_reg<1>     3       0     0   2     FB12_13       (b)     (b)
-viccy/crtc_reg<0>     3       0     0   2     FB12_14       (b)     (b)
-spi_comp/txd_valid    3       0     0   2     FB12_15       (b)     (b)
+viccy/rows_per_char<3>
+                      3       0     0   2     FB12_13       (b)     (b)
+viccy/crtc_reg<1>     3       0     0   2     FB12_14       (b)     (b)
+viccy/crtc_reg<0>     3       0     0   2     FB12_15       (b)     (b)
 ipl_state             3       0     0   2     FB12_16       (b)     (b)
 ipl_cnt<7>            3       0     0   2     FB12_17       (b)     (b)
 ipl_cnt<0>            3       0     0   2     FB12_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$412   16: ipl_cnt_Madd__add0000__and0005/ipl_cnt_Madd__add0000__and0005_D2  30: spi_comp/sr<5> 
-  2: $OpTx$FX_DC$449   17: ipl_next                                                          31: spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
-  3: D<5>.PIN          18: ipl_state                                                         32: spi_cs/spi_cs_D2 
-  4: D<4>.PIN          19: ipl_state_d                                                       33: spi_sel<0> 
-  5: D<3>.PIN          20: ramrwb                                                            34: spi_sel<1> 
-  6: D<2>.PIN          21: rwb                                                               35: spi_sel<2> 
-  7: D<1>.PIN          22: spi_comp/N01/spi_comp/N01_D2                                      36: viccy/crtc_reg<0> 
-  8: D<0>.PIN          23: spi_comp/cpha                                                     37: viccy/crtc_reg<1> 
-  9: A<0>              24: spi_comp/cpol                                                     38: viccy/rows_per_char<3> 
- 10: A<1>              25: spi_comp/sr<0>                                                    39: viccy/vpage<2> 
- 11: do_cpu            26: spi_comp/sr<1>                                                    40: viccy/vpage<3> 
- 12: dot2clk           27: spi_comp/sr<2>                                                    41: viccy/vpage<4> 
- 13: ipl               28: spi_comp/sr<3>                                                    42: viccy/vpage<5> 
- 14: ipl_cnt<0>        29: spi_comp/sr<4>                                                    43: viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 
- 15: ipl_cnt<7>       
+  1: $OpTx$FX_DC$445   16: ipl_cnt<7>                                                        31: spi_comp/sr<5> 
+  2: $OpTx$FX_DC$483   17: ipl_cnt_Madd__add0000__and0005/ipl_cnt_Madd__add0000__and0005_D2  32: spi_cs/spi_cs_D2 
+  3: D<6>.PIN          18: ipl_next                                                          33: spi_sel<0> 
+  4: D<5>.PIN          19: ipl_state                                                         34: spi_sel<1> 
+  5: D<4>.PIN          20: ipl_state_d                                                       35: spi_sel<2> 
+  6: D<3>.PIN          21: ramrwb                                                            36: viccy/crtc_reg<0> 
+  7: D<2>.PIN          22: rwb                                                               37: viccy/crtc_reg<1> 
+  8: D<1>.PIN          23: spi_comp/N01/spi_comp/N01_D2                                      38: viccy/rows_per_char<3> 
+  9: D<0>.PIN          24: spi_comp/cpha                                                     39: viccy/vpage<2> 
+ 10: A<0>              25: spi_comp/cpol                                                     40: viccy/vpage<3> 
+ 11: A<1>              26: spi_comp/sr<0>                                                    41: viccy/vpage<4> 
+ 12: do_cpu            27: spi_comp/sr<1>                                                    42: viccy/vpage<5> 
+ 13: dot2clk           28: spi_comp/sr<2>                                                    43: viccy/vpage<6> 
+ 14: ipl               29: spi_comp/sr<3>                                                    44: viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 
+ 15: ipl_cnt<0>        30: spi_comp/sr<4>                                                   
 
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
-ipl                  ...........XX...X.X............................... 4
-VD<3>                ....X.......X......X.X.....X...................... 5
-VD<2>                .....X..XX..X....X.XXX....X....X..X............... 11
-viccy/vpage<5>       ..X.......XX.............................XX....... 5
-VD<4>                ...X....XX..X....X.XXXX.....X..X.................. 11
-viccy/vpage<4>       ...X......XX............................X.X....... 5
-viccy/vpage<3>       ....X.....XX...........................X..X....... 5
-VD<1>                ......X.XX..X....X.XXX...X.....X.X................ 11
-viccy/vpage<2>       .....X....XX..........................X...X....... 5
-VD<5>                ..X.....XX..X....X.XXX.X.....X.X.................. 11
+ipl                  ............XX...X.X.............................. 4
+VD<3>                .....X.......X......X.X.....X..................... 5
+VD<2>                ......X..XX..X....X.XXX....X...X..X............... 11
+viccy/vpage<6>       ..X........XX.............................XX...... 5
+VD<4>                ....X....XX..X....X.XXXX.....X.X.................. 11
+viccy/vpage<5>       ...X.......XX............................X.X...... 5
+viccy/vpage<4>       ....X......XX...........................X..X...... 5
+VD<1>                .......X.XX..X....X.XXX...X....X.X................ 11
+viccy/vpage<3>       .....X.....XX..........................X...X...... 5
+VD<5>                ...X.....XX..X....X.XXX.X.....XX.................. 11
+viccy/vpage<2>       ......X....XX.........................X....X...... 5
+VD<0>                ........XXX..X....X.XXX..X.....XX................. 11
 viccy/rows_per_char<3> 
-                     .X..X.....XX.........................X............ 5
-VD<0>                .......XXX..X....X.XXX..X......XX................. 11
-viccy/crtc_reg<1>    X...XXXX...X........................X............. 7
-viccy/crtc_reg<0>    X...XXXX...X.......................X.............. 7
-spi_comp/txd_valid   ........XX..........X.........XX.................. 5
-ipl_state            ...........XX...X.X............................... 4
-ipl_cnt<7>           ...........XX.XXX.X............................... 6
-ipl_cnt<0>           ...........XXX..X.X............................... 5
+                     .X...X.....XX........................X............ 5
+viccy/crtc_reg<1>    X....XXXX...X.......................X............. 7
+viccy/crtc_reg<0>    X....XXXX...X......................X.............. 7
+ipl_state            ............XX...X.X.............................. 4
+ipl_cnt<7>           ............XX.XXX.X.............................. 6
+ipl_cnt<0>           ............XXX..X.X.............................. 5
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB13 ***********************************
-Number of function block inputs used/remaining:               47/7
-Number of signals used by logic mapping into function block:  47
+Number of function block inputs used/remaining:               46/8
+Number of signals used by logic mapping into function block:  46
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
-(unused)              0       0     0   5     FB13_1        (b)     
+spi_comp/run_sr_d     2       0     0   3     FB13_1        (b)     (b)
 FA<15>                4       0     0   1     FB13_2  71    I/O     O
-(unused)              0       0     0   5     FB13_3        (b)     
-(unused)              0       0     0   5     FB13_4        (b)     
-spi_comp/run_sr_d     2       0     0   3     FB13_5        (b)     (b)
-spi_comp/ack_txd      2       0     0   3     FB13_6        (b)     (b)
-viccy/pxlhold<7>      5       0     0   0     FB13_7        (b)     (b)
-viccy/pxlhold<6>      5       0     0   0     FB13_8  74    I/O     I
-viccy/pxlhold<5>      5       0     0   0     FB13_9        (b)     (b)
+spi_comp/ack_txd      2       0     0   3     FB13_3        (b)     (b)
+D_or0000/D_or0000_D2
+                      2       0     0   3     FB13_4        (b)     (b)
+mappy/bankl<2>        3       0     0   2     FB13_5        (b)     (b)
+mappy/bankl<1>        3       0     0   2     FB13_6        (b)     (b)
+mappy/bankl<0>        3       0     0   2     FB13_7        (b)     (b)
+lowbank<0>            3       0     0   2     FB13_8  74    I/O     I
+lockb0                3       0     0   2     FB13_9        (b)     (b)
 spi_comp/sr<6>        5       0     0   0     FB13_10       (b)     (b)
 spi_comp/sr<5>        5       0     0   0     FB13_11 75    I/O     I
 spi_comp/sr<4>        5       0     0   0     FB13_12       (b)     (b)
@@ -1269,98 +1266,104 @@ D<6>                  4       0     0   1     FB13_17 78    I/O     I/O
 spi_comp/sr<0>        5       0     0   0     FB13_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$FX_DC$371                 17: mappy/low64k/mappy/low64k_D2                    33: spi_comp/txd<2> 
-  2: $OpTx$INV$366                   18: rwb                                             34: spi_comp/txd<3> 
-  3: D_or0000/D_or0000_D2            19: spi_comp/N01/spi_comp/N01_D2                    35: spi_comp/txd<4> 
-  4: VD<7>.PIN                       20: spi_comp/run_sr                                 36: spi_comp/txd<5> 
-  5: VD<6>.PIN                       21: spi_comp/run_sr_d                               37: spi_comp/txd<6> 
-  6: VD<5>.PIN                       22: spi_comp/serin_d                                38: spi_comp/txd_valid 
-  7: A<0>                            23: spi_comp/sr<0>                                  39: spi_cs/spi_cs_D2 
-  8: A<14>                           24: spi_comp/sr<1>                                  40: spi_outx 
-  9: A<15>                           25: spi_comp/sr<2>                                  41: spi_outx/spi_outx_CLKF 
- 10: A<1>                            26: spi_comp/sr<3>                                  42: viccy/dot2clk_d 
- 11: dclk                            27: spi_comp/sr<4>                                  43: viccy/is_80 
- 12: ipl_state                       28: spi_comp/sr<5>                                  44: viccy/pxlhold<4> 
- 13: lowbank<0>                      29: spi_comp/sr<6>                                  45: viccy/pxlhold<5> 
- 14: m_vramsel_out/m_vramsel_out_D2  30: spi_comp/sr_0_and0000/spi_comp/sr_0_and0000_D2  46: viccy/pxlhold<6> 
- 15: mappy/cfg_mp<2>                 31: spi_comp/txd<0>                                 47: viccy/pxlhold<7> 
- 16: mappy/cfg_mp<3>                 32: spi_comp/txd<1>                                
+  1: $OpTx$INV$393                   17: mappy/cfg_mp<2>               32: spi_comp/sr<6> 
+  2: D_or0000/D_or0000_D2            18: mappy/cfg_mp<3>               33: spi_comp/sr_0_and0000/spi_comp/sr_0_and0000_D2 
+  3: D<2>.PIN                        19: mappy/low64k/mappy/low64k_D2  34: spi_comp/txd<0> 
+  4: D<1>.PIN                        20: phi2                          35: spi_comp/txd<1> 
+  5: D<0>.PIN                        21: rwb                           36: spi_comp/txd<2> 
+  6: VD<7>.PIN                       22: spi_comp/N01/spi_comp/N01_D2  37: spi_comp/txd<3> 
+  7: VD<6>.PIN                       23: spi_comp/run_sr               38: spi_comp/txd<4> 
+  8: A<0>                            24: spi_comp/run_sr_d             39: spi_comp/txd<5> 
+  9: A<14>                           25: spi_comp/serin_d              40: spi_comp/txd<6> 
+ 10: A<15>                           26: spi_comp/sr<0>                41: spi_comp/txd_valid 
+ 11: A<1>                            27: spi_comp/sr<1>                42: spi_cs/spi_cs_D2 
+ 12: e                               28: spi_comp/sr<2>                43: spi_outx 
+ 13: ipl_state                       29: spi_comp/sr<3>                44: spi_outx/spi_outx_CLKF 
+ 14: lockb0                          30: spi_comp/sr<4>                45: vidblock_or0000/vidblock_or0000_D2 
+ 15: lowbank<0>                      31: spi_comp/sr<5>                46: wp_romPET_or0000/wp_romPET_or0000_D2 
+ 16: m_vramsel_out/m_vramsel_out_D2 
 
 Signal                        1         2         3         4         5 FB
 Name                0----+----0----+----0----+----0----+----0----+----0 Inputs
-FA<15>               .X.....XX...X.XXX................................. 7
-spi_comp/run_sr_d    ...................X....................X......... 2
-spi_comp/ack_txd     ....................X................X..X......... 3
-viccy/pxlhold<7>     X..X......X..............................XX..XX... 7
-viccy/pxlhold<6>     X...X.....X..............................XX.XX.... 7
-viccy/pxlhold<5>     X....X....X..............................XXXX..... 7
-spi_comp/sr<6>       ....................X......XXX......XX..X......... 7
-spi_comp/sr<5>       ....................X.....XX.X.....X.X..X......... 7
-spi_comp/sr<4>       ....................X....XX..X....X..X..X......... 7
-spi_comp/sr<3>       ....................X...XX...X...X...X..X......... 7
-spi_comp/sr<2>       ....................X..XX....X..X....X..X......... 7
-D<7>                 ..XX..X..X.X.X...XXX.................XXX.......... 12
-spi_comp/sr<1>       ....................X.XX.....X.X.....X..X......... 7
-D<6>                 ..X.X.X..X.X.X...XX.........X........XX........... 11
-spi_comp/sr<0>       ....................XXX......XX......X..X......... 7
+spi_comp/run_sr_d    ......................X....................X...... 2
+FA<15>               X.......XX....X.XXX............................... 7
+spi_comp/ack_txd     .......................X................X..X...... 3
+D_or0000/D_or0000_D2 
+                     ...............X...XX....................X........ 4
+mappy/bankl<2>       ..X........X.X.....X.............................. 4
+mappy/bankl<1>       ...X.......X.X.....X.............................. 4
+mappy/bankl<0>       ....X......X.X.....X.............................. 4
+lowbank<0>           ....X.........X....X........................X..... 4
+lockb0               ....X........X.....X.........................X.... 4
+spi_comp/sr<6>       .......................X......XXX......XX..X...... 7
+spi_comp/sr<5>       .......................X.....XX.X.....X.X..X...... 7
+spi_comp/sr<4>       .......................X....XX..X....X..X..X...... 7
+spi_comp/sr<3>       .......................X...XX...X...X...X..X...... 7
+spi_comp/sr<2>       .......................X..XX....X..X....X..X...... 7
+D<7>                 .X...X.X..X.X..X....XXX.................XXX....... 12
+spi_comp/sr<1>       .......................X.XX.....X.X.....X..X...... 7
+D<6>                 .X....XX..X.X..X....XX.........X........XX........ 11
+spi_comp/sr<0>       .......................XXX......XX......X..X...... 7
                     0----+----1----+----2----+----3----+----4----+----5
                               0         0         0         0         0
 *********************************** FB14 ***********************************
-Number of function block inputs used/remaining:               30/24
-Number of signals used by logic mapping into function block:  30
+Number of function block inputs used/remaining:               34/20
+Number of signals used by logic mapping into function block:  34
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
-wp_romB               3       0     0   2     FB14_1        (b)     (b)
-wp_romA               3       0     0   2     FB14_2        (b)     (b)
-wp_rom9               3       0     0   2     FB14_3  100   I/O     I
+wp_romPET             3       0     0   2     FB14_1        (b)     (b)
+wp_romB               3       0     0   2     FB14_2        (b)     (b)
+wp_romA               3       0     0   2     FB14_3  100   I/O     I
 vidblock<1>           3       0     0   2     FB14_4        (b)     (b)
-vidblock<0>           3       0     0   2     FB14_5  101   I/O     I
-mappy/bankl<5>        3       0     0   2     FB14_6  102   I/O     I
-mappy/bankl<4>        3       0     0   2     FB14_7        (b)     (b)
-mappy/bankl<3>        3       0     0   2     FB14_8  103   I/O     I
-lowbank<3>            3       0     0   2     FB14_9        (b)     (b)
-lowbank<2>            3       0     0   2     FB14_10 104   I/O     I
+mappy/cfg_mp<7>       3       0     0   2     FB14_5  101   I/O     I
+mappy/cfg_mp<6>       3       0     0   2     FB14_6  102   I/O     I
+mappy/cfg_mp<5>       3       0     0   2     FB14_7        (b)     (b)
+mappy/cfg_mp<3>       3       0     0   2     FB14_8  103   I/O     I
+mappy/cfg_mp<2>       3       0     0   2     FB14_9        (b)     (b)
+mappy/cfg_mp<1>       3       0     0   2     FB14_10 104   I/O     I
 FA<16>                3       0     0   2     FB14_11 105   I/O     O
-lowbank<1>            3       0     0   2     FB14_12       (b)     (b)
-lowbank<0>            3       0     0   2     FB14_13       (b)     (b)
+mappy/cfg_mp<0>       3       0     0   2     FB14_12       (b)     (b)
+lowbank<2>            3       0     0   2     FB14_13       (b)     (b)
 FA<17>                3       0     0   2     FB14_14 106   I/O     O
 FA<18>                3       0     0   2     FB14_15 107   I/O     O
-lockb0                3       0     0   2     FB14_16       (b)     (b)
+lowbank<1>            3       0     0   2     FB14_16       (b)     (b)
 is8296                3       0     0   2     FB14_17       (b)     (b)
 boot                  3       0     0   2     FB14_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: $OpTx$INV$366     11: e                 21: mappy/low64k/mappy/low64k_D2 
-  2: D<6>.PIN          12: is8296            22: nres 
-  3: D<5>.PIN          13: lockb0            23: phi2 
-  4: D<4>.PIN          14: lowbank<0>        24: vidblock<0> 
-  5: D<3>.PIN          15: lowbank<1>        25: vidblock<1> 
-  6: D<2>.PIN          16: lowbank<2>        26: vidblock_or0000/vidblock_or0000_D2 
-  7: D<1>.PIN          17: lowbank<3>        27: wp_rom9 
-  8: D<0>.PIN          18: mappy/bankl<0>    28: wp_romA 
-  9: boot              19: mappy/bankl<1>    29: wp_romB 
- 10: A<15>             20: mappy/bankl<2>    30: wp_romPET_or0000/wp_romPET_or0000_D2 
+  1: $OpTx$INV$393     13: lowbank<2>        24: mappy/cfg_mp<7> 
+  2: D<7>.PIN          14: lowbank<3>        25: mappy/cfg_mp_and0000/mappy/cfg_mp_and0000_D2 
+  3: D<6>.PIN          15: mappy/bankl<0>    26: mappy/low64k/mappy/low64k_D2 
+  4: D<5>.PIN          16: mappy/bankl<1>    27: nres 
+  5: D<3>.PIN          17: mappy/bankl<2>    28: phi2 
+  6: D<2>.PIN          18: mappy/cfg_mp<0>   29: vidblock<1> 
+  7: D<1>.PIN          19: mappy/cfg_mp<1>   30: vidblock_or0000/vidblock_or0000_D2 
+  8: D<0>.PIN          20: mappy/cfg_mp<2>   31: wp_romA 
+  9: boot              21: mappy/cfg_mp<3>   32: wp_romB 
+ 10: A<15>             22: mappy/cfg_mp<5>   33: wp_romPET 
+ 11: is8296            23: mappy/cfg_mp<6>   34: wp_romPET_or0000/wp_romPET_or0000_D2 
+ 12: lowbank<1>       
 
 Signal                        1         2         3         4 FB
 Name                0----+----0----+----0----+----0----+----0 Inputs
-wp_romB              .X...................XX.....XX.......... 5
-wp_romA              ..X...................X....X.X.......... 4
-wp_rom9              ...X..................X...X..X.......... 4
-vidblock<1>          ..X...................X.XX.............. 4
-vidblock<0>          ...X..................XX.X.............. 4
-mappy/bankl<5>       ..X.......X.X.........X................. 4
-mappy/bankl<4>       ...X......X.X.........X................. 4
-mappy/bankl<3>       ....X.....X.X.........X................. 4
-lowbank<3>           ....X...........X.....X..X.............. 4
-lowbank<2>           .....X.........X......X..X.............. 4
-FA<16>               X........X....X..X..X................... 5
-lowbank<1>           ......X.......X.......X..X.............. 4
-lowbank<0>           .......X.....X........X..X.............. 4
-FA<17>               .........X.....X..X.X................... 4
-FA<18>               .........X......X..XX................... 4
-lockb0               .......X....X.........X......X.......... 4
-is8296               ....X......X..........X......X.......... 4
-boot                 ......X.X.............X......X.......... 4
+wp_romPET            .X.........................X....XX...... 4
+wp_romB              ..X.......................XX...X.X...... 5
+wp_romA              ...X.......................X..X..X...... 4
+vidblock<1>          ...X.......................XXX.......... 4
+mappy/cfg_mp<7>      .X.....................XX..X............ 4
+mappy/cfg_mp<6>      ..X...................X.X..X............ 4
+mappy/cfg_mp<5>      ...X.................X..X..X............ 4
+mappy/cfg_mp<3>      ....X...............X...X..X............ 4
+mappy/cfg_mp<2>      .....X.............X....X..X............ 4
+mappy/cfg_mp<1>      ......X...........X.....X..X............ 4
+FA<16>               X........X.X..X..........X.............. 5
+mappy/cfg_mp<0>      .......X.........X......X..X............ 4
+lowbank<2>           .....X......X..............X.X.......... 4
+FA<17>               .........X..X..X.........X.............. 4
+FA<18>               .........X...X..X........X.............. 4
+lowbank<1>           ......X....X...............X.X.......... 4
+is8296               ....X.....X................X.....X...... 4
+boot                 ......X.X..................X.....X...... 4
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *********************************** FB15 ***********************************
@@ -1425,60 +1428,56 @@ spi_comp/N01/spi_comp/N01_D2
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *********************************** FB16 ***********************************
-Number of function block inputs used/remaining:               21/33
-Number of signals used by logic mapping into function block:  21
+Number of function block inputs used/remaining:               22/32
+Number of signals used by logic mapping into function block:  22
 Signal              Total   Imp   Exp Unused  Loc     Pin   Pin     Pin
 Name                Pt      Pt    Pt  Pt               #    Type    Use
 (unused)              0       0     0   5     FB16_1        (b)     
 (unused)              0       0     0   5     FB16_2  91    I/O     I
 (unused)              0       0     0   5     FB16_3  92    I/O     I
 (unused)              0       0     0   5     FB16_4        (b)     
-viccy/sr_load_d       1       0     0   4     FB16_5  93    I/O     I
-viccy/dot2clk_d       1       0     0   4     FB16_6  94    I/O     I
+(unused)              0       0     0   5     FB16_5  93    I/O     I
+(unused)              0       0     0   5     FB16_6  94    I/O     I
+(unused)              0       0     0   5     FB16_7        (b)     
+viccy/sr_load_d       1       0     0   4     FB16_8  95    I/O     I
 spi_comp/txd_valid/spi_comp/txd_valid_RSTF
-                      1       0     0   4     FB16_7        (b)     (b)
+                      1       0     0   4     FB16_9        (b)     (b)
 spi_comp/start_rx/spi_comp/start_rx_RSTF
-                      1       0     0   4     FB16_8  95    I/O     I
-is_vid_out            1       0     0   4     FB16_9        (b)     (b)
-clocky/clk_cnt_0_1    1       0     0   4     FB16_10 96    I/O     I
-clocky/clk_cnt_0_0    0       0     0   5     FB16_11 97    I/O     I
-$OpTx$FX_DC$371       1       0     0   4     FB16_12 98    I/O     I
+                      1       0     0   4     FB16_10 96    I/O     I
+is_vid_out            1       0     0   4     FB16_11 97    I/O     I
+$OpTx$FX_DC$405       1       0     0   4     FB16_12 98    I/O     I
 viccy/in_slot         2       0     0   3     FB16_13       (b)     (b)
-spi_outx/spi_outx_CLKF
-                      2       0     0   3     FB16_14       (b)     (b)
-spi_comp/ack_rxtx     2       0     0   3     FB16_15       (b)     (b)
-slotclk               2       0     0   3     FB16_16       (b)     (b)
-ipl_state_d           2       0     0   3     FB16_17       (b)     (b)
-clocky/cpu_cnt1<1>    2       0     0   3     FB16_18       (b)     (b)
+viccy/charhold<7>     2       0     0   3     FB16_14       (b)     (b)
+viccy/charhold<6>     2       0     0   3     FB16_15       (b)     (b)
+spi_comp/ack_rxtx     2       0     0   3     FB16_16       (b)     (b)
+wp_rom9               3       0     0   2     FB16_17       (b)     (b)
+vidblock<0>           3       0     0   2     FB16_18       (b)     (b)
 
 Signals Used by Logic in Function Block
-  1: clocky/clk_cnt_0_0   8: spi_comp/ack_rxtx     15: spi_outx/spi_outx_CLKF 
-  2: clocky/clk_cnt_0_3   9: spi_comp/ack_txd      16: spi_sel<2> 
-  3: clocky/cpu_cnt1<0>  10: spi_comp/spiclk_half  17: sr_load 
-  4: dot2clk             11: spi_comp/stat<0>      18: viccy/chr_fetch 
-  5: ipl_state           12: spi_comp/stat<1>      19: viccy/pxl_fetch 
-  6: nres                13: spi_comp/stat<2>      20: viccy/slot_cnt<0> 
-  7: slotclk             14: spi_comp/stat<3>      21: viccy/sr_load_d 
+  1: D<4>.PIN            9: spi_comp/stat<0>        16: viccy/pxl_fetch 
+  2: VD<7>.PIN          10: spi_comp/stat<1>        17: viccy/slot_cnt<0> 
+  3: VD<6>.PIN          11: spi_comp/stat<2>        18: viccy/sr_load_d 
+  4: nres               12: spi_comp/stat<3>        19: vidblock<0> 
+  5: phi2               13: spi_outx/spi_outx_CLKF  20: vidblock_or0000/vidblock_or0000_D2 
+  6: slotclk            14: sr_load                 21: wp_rom9 
+  7: spi_comp/ack_rxtx  15: viccy/chr_fetch         22: wp_romPET_or0000/wp_romPET_or0000_D2 
+  8: spi_comp/ack_txd  
 
 Signal                        1         2         3         4 FB
 Name                0----+----0----+----0----+----0----+----0 Inputs
-viccy/sr_load_d      ................X....................... 1
-viccy/dot2clk_d      ...X.................................... 1
+viccy/sr_load_d      .............X.......................... 1
 spi_comp/txd_valid/spi_comp/txd_valid_RSTF 
-                     .....X..X............................... 2
+                     ...X...X................................ 2
 spi_comp/start_rx/spi_comp/start_rx_RSTF 
-                     .....X.X................................ 2
-is_vid_out           .................XX..................... 2
-clocky/clk_cnt_0_1   X....................................... 1
-clocky/clk_cnt_0_0   ........................................ 0
-$OpTx$FX_DC$371      ..................X.X................... 2
-viccy/in_slot        ......X............X.................... 2
-spi_outx/spi_outx_CLKF 
-                     ...X.....X.....X........................ 3
-spi_comp/ack_rxtx    ..........XXXXX......................... 5
-slotclk              .X...X.................................. 2
-ipl_state_d          ...XX................................... 2
-clocky/cpu_cnt1<1>   ..XX.................................... 2
+                     ...X..X................................. 2
+is_vid_out           ..............XX........................ 2
+$OpTx$FX_DC$405      ...............X.X...................... 2
+viccy/in_slot        .....X..........X....................... 2
+viccy/charhold<7>    .X............X......................... 2
+viccy/charhold<6>    ..X...........X......................... 2
+spi_comp/ack_rxtx    ........XXXXX........................... 5
+wp_rom9              X...X...............XX.................. 4
+vidblock<0>          X...X.............XX.................... 4
                     0----+----1----+----2----+----3----+----4
                               0         0         0         0
 *******************************  Equations  ********************************
@@ -1486,30 +1485,30 @@ clocky/cpu_cnt1<1>   ..XX.................................... 2
 ********** Mapped Logic **********
 
 
-$OpTx$FX_DC$371 <= (viccy/pxl_fetch AND viccy/sr_load_d);
+$OpTx$FX_DC$405 <= (viccy/pxl_fetch AND viccy/sr_load_d);
 
 
-$OpTx$FX_DC$412 <= ((NOT rwb AND NOT A(0) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
+$OpTx$FX_DC$445 <= ((NOT rwb AND NOT A(0) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	A(11) AND NOT A(5) AND A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND 
 	NOT A(10) AND vpa AND mappy/low64k/mappy/low64k_D2 AND 
-	$OpTx$INV$366)
+	$OpTx$INV$393)
 	OR (NOT rwb AND NOT A(0) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND 
 	A(11) AND NOT A(5) AND A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND 
 	NOT A(10) AND vda AND mappy/low64k/mappy/low64k_D2 AND 
-	$OpTx$INV$366));
+	$OpTx$INV$393));
 
 
-$OpTx$FX_DC$449 <= ((NOT rwb AND A(0) AND viccy/crtc_reg(0) AND 
+$OpTx$FX_DC$483 <= ((NOT rwb AND A(0) AND viccy/crtc_reg(0) AND 
 	NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND A(0) AND viccy/crtc_reg(0) AND 
 	NOT viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 
-$OpTx$INV$366 <= ((NOT mappy/cfg_mp(7))
+$OpTx$INV$393 <= ((NOT mappy/cfg_mp(7))
 	OR (mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10))
 	OR (mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND NOT A(13) AND 
@@ -1598,17 +1597,19 @@ D_or0000/D_or0000_D2 <= ((rwb AND phi2 AND spi_cs/spi_cs_D2)
 
 
 
+
+
 FA(15) <= NOT (((NOT A(15) AND NOT lowbank(0))
 	OR (NOT A(15) AND NOT mappy/low64k/mappy/low64k_D2)
 	OR (A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$393)
 	OR (A(15) AND NOT A(14) AND NOT mappy/cfg_mp(2) AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$366)));
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$393)));
 
 
 FA(16) <= ((mappy/bankl(0))
 	OR (A(15) AND mappy/low64k/mappy/low64k_D2 AND 
-	NOT $OpTx$INV$366)
+	NOT $OpTx$INV$393)
 	OR (NOT A(15) AND lowbank(1) AND 
 	mappy/low64k/mappy/low64k_D2));
 
@@ -1787,7 +1788,7 @@ VA(14) <= NOT (((NOT A(14) AND NOT ipl AND NOT is_vid_out)
 
 
 VA(15) <= NOT (((A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND NOT ipl AND 
-	NOT is_vid_out AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$366)
+	NOT is_vid_out AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$393)
 	OR (vis_hires_in AND NOT viccy/vpage(7) AND NOT ipl AND 
 	is_vid_out)
 	OR (NOT A(15) AND NOT lowbank(0) AND NOT ipl AND NOT is_vid_out)
@@ -1796,12 +1797,12 @@ VA(15) <= NOT (((A(15) AND A(14) AND NOT mappy/cfg_mp(3) AND NOT ipl AND
 	OR (NOT viccy/vpage(7) AND NOT ipl AND is_vid_out AND 
 	viccy/pxl_fetch)
 	OR (A(15) AND NOT A(14) AND NOT mappy/cfg_mp(2) AND NOT ipl AND 
-	NOT is_vid_out AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$366)));
+	NOT is_vid_out AND mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$393)));
 
 
 VA(16) <= ((mappy/bankl(0) AND NOT ipl AND NOT is_vid_out)
 	OR (A(15) AND NOT ipl AND NOT is_vid_out AND 
-	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND NOT $OpTx$INV$393)
 	OR (NOT A(15) AND lowbank(1) AND NOT ipl AND NOT is_vid_out AND 
 	mappy/low64k/mappy/low64k_D2));
 
@@ -1948,7 +1949,7 @@ FDCPE_dclk: FDCPE port map (dclk,clocky/clk_cnt_0_0,NOT q50m,'0','0',nres);
 
 FDCPE_dena: FDCPE port map (dena,dena_D,NOT dclk,'0','0',dena_CE);
 dena_D <= (viccy/h_enable AND viccy/v_enable);
-dena_CE <= (nres AND $OpTx$FX_DC$371);
+dena_CE <= (nres AND $OpTx$FX_DC$405);
 
 FDCPE_do_cpu: FDCPE port map (do_cpu,do_cpu_D,memclk_d,NOT nres,'0');
 do_cpu_D <= ((is_cpu AND NOT ipl AND NOT is_vid_out)
@@ -2216,11 +2217,11 @@ mode_D(1) <= ((D(1).PIN AND mode_or0000/mode_or0000_D2)
 mode_or0000/mode_or0000_D2 <= ((NOT rwb AND A(1) AND A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND A(1) AND A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 FDCPE_movesync: FDCPE port map (movesync,movesync_D,NOT phi2,NOT nres,'0');
 movesync_D <= ((D(6).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -2230,11 +2231,11 @@ movesync_D <= ((D(6).PIN AND movesync_or0000/movesync_or0000_D2)
 movesync_or0000/movesync_or0000_D2 <= ((NOT rwb AND NOT A(1) AND NOT A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND NOT A(1) AND NOT A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 
 nflash <= NOT (((nres AND ipl)
@@ -2242,12 +2243,15 @@ nflash <= NOT (((nres AND ipl)
 
 
 nframsel <= ((NOT dot2clk)
-	OR (A(15) AND mappy/low64k/mappy/low64k_D2 AND 
-	m_vramsel_out/m_vramsel_out_D2)
 	OR (NOT rwb AND mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND 
 	mappy/cfg_mp(0) AND mappy/low64k/mappy/low64k_D2)
 	OR (NOT rwb AND NOT mappy/cfg_mp(7) AND A(15) AND A(14) AND 
 	wp_romPET AND mappy/low64k/mappy/low64k_D2)
+	OR (NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND NOT A(13) AND 
+	NOT A(12) AND screenb0 AND mappy/low64k/mappy/low64k_D2)
+	OR (EXP19_.EXP)
+	OR (mappy/cfg_mp(5) AND A(15) AND NOT A(14) AND NOT A(13) AND 
+	NOT A(12) AND screenb0 AND mappy/low64k/mappy/low64k_D2)
 	OR (NOT rwb AND NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND A(13) AND 
 	A(12) AND wp_romB AND mappy/low64k/mappy/low64k_D2)
 	OR (NOT rwb AND NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND A(13) AND 
@@ -2255,9 +2259,6 @@ nframsel <= ((NOT dot2clk)
 	OR (NOT rwb AND NOT mappy/cfg_mp(7) AND A(15) AND NOT A(14) AND NOT A(13) AND 
 	A(12) AND wp_rom9 AND mappy/low64k/mappy/low64k_D2)
 	OR (NOT mappy/cfg_mp(7) AND A(15) AND A(14) AND A(13) AND 
-	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
-	mappy/low64k/mappy/low64k_D2)
-	OR (mappy/cfg_mp(6) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND 
 	mappy/low64k/mappy/low64k_D2)
 	OR (mappy/bankl(3) AND NOT boot)
@@ -2269,26 +2270,26 @@ nframsel <= ((NOT dot2clk)
 
 nsel1 <= NOT (((A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND NOT A(6) AND A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND NOT A(6) AND A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)));
 
 
 nsel2 <= NOT (((A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND A(5) AND 
 	NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND A(5) AND 
 	NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)));
 
 
 nsel4 <= NOT (((A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)));
 
 
 nvramsel <= NOT (((dot2clk AND NOT wait_int_d AND 
@@ -2561,11 +2562,11 @@ spi_comp/txd_valid/spi_comp/txd_valid_RSTF <= (nres AND NOT spi_comp/ack_txd);
 spi_cs/spi_cs_D2 <= ((A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND NOT A(6) AND NOT A(4) AND phi2 AND NOT A(2) AND NOT A(9) AND NOT A(8) AND 
 	NOT A(10) AND A(3) AND vpa AND mappy/low64k/mappy/low64k_D2 AND 
-	$OpTx$INV$366)
+	$OpTx$INV$393)
 	OR (A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	NOT A(7) AND NOT A(6) AND NOT A(4) AND phi2 AND NOT A(2) AND NOT A(9) AND NOT A(8) AND 
 	NOT A(10) AND A(3) AND vda AND mappy/low64k/mappy/low64k_D2 AND 
-	$OpTx$INV$366));
+	$OpTx$INV$393));
 
 
 spi_nsel2 <= NOT ((nres AND NOT spi_sel(2) AND NOT spi_sel(0) AND spi_sel(1)));
@@ -2643,14 +2644,14 @@ viccy/chr_fetch_D <= ((NOT vis_hires_in AND vis_enable AND interlace AND
 	NOT viccy/in_slot AND chr_window));
 
 FDCPE_viccy/crtc_reg0: FDCPE port map (viccy/crtc_reg(0),viccy/crtc_reg_D(0),NOT dot2clk,NOT nres,'0');
-viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$412)
+viccy/crtc_reg_D(0) <= ((viccy/crtc_reg(0) AND NOT $OpTx$FX_DC$445)
 	OR (NOT D(2).PIN AND D(0).PIN AND NOT D(1).PIN AND D(3).PIN AND 
-	$OpTx$FX_DC$412));
+	$OpTx$FX_DC$445));
 
 FDCPE_viccy/crtc_reg1: FDCPE port map (viccy/crtc_reg(1),viccy/crtc_reg_D(1),NOT dot2clk,NOT nres,'0');
-viccy/crtc_reg_D(1) <= ((viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$412)
+viccy/crtc_reg_D(1) <= ((viccy/crtc_reg(1) AND NOT $OpTx$FX_DC$445)
 	OR (D(2).PIN AND NOT D(0).PIN AND NOT D(1).PIN AND D(3).PIN AND 
-	$OpTx$FX_DC$412));
+	$OpTx$FX_DC$445));
 
 FDCPE_viccy/dot2clk_d: FDCPE port map (viccy/dot2clk_d,dot2clk,q50m,'0','0');
 
@@ -2714,65 +2715,65 @@ viccy/pxl_fetch_D <= ((vis_enable AND interlace AND viccy/is_80 AND
 	pxl_window));
 
 FDCPE_viccy/pxlhold0: FDCPE port map (viccy/pxlhold(0),viccy/pxlhold_D(0),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(0) <= ((VD(0).PIN AND $OpTx$FX_DC$371)
+viccy/pxlhold_D(0) <= ((VD(0).PIN AND $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(0) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold1: FDCPE port map (viccy/pxlhold(1),viccy/pxlhold_D(1),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(1) <= ((VD(1).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(0) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(1) <= ((VD(1).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(0) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(0) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(1) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold2: FDCPE port map (viccy/pxlhold(2),viccy/pxlhold_D(2),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(2) <= ((VD(2).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(1) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(2) <= ((VD(2).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(1) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(1) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(2) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold3: FDCPE port map (viccy/pxlhold(3),viccy/pxlhold_D(3),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(3) <= ((VD(3).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(2) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(3) <= ((VD(3).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(2) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(2) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(3) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold4: FDCPE port map (viccy/pxlhold(4),viccy/pxlhold_D(4),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(4) <= ((VD(4).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(3) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(4) <= ((VD(4).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(3) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(3) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(4) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold5: FDCPE port map (viccy/pxlhold(5),viccy/pxlhold_D(5),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(5) <= ((VD(5).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(4) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(5) <= ((VD(5).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(4) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(4) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(5) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold6: FDCPE port map (viccy/pxlhold(6),viccy/pxlhold_D(6),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(6) <= ((VD(6).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(5) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(6) <= ((VD(6).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(5) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(5) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(6) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/pxlhold7: FDCPE port map (viccy/pxlhold(7),viccy/pxlhold_D(7),NOT dclk,NOT nres,'0');
-viccy/pxlhold_D(7) <= ((VD(7).PIN AND $OpTx$FX_DC$371)
-	OR (viccy/pxlhold(6) AND viccy/is_80 AND NOT $OpTx$FX_DC$371)
+viccy/pxlhold_D(7) <= ((VD(7).PIN AND $OpTx$FX_DC$405)
+	OR (viccy/pxlhold(6) AND viccy/is_80 AND NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(6) AND viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371)
+	NOT $OpTx$FX_DC$405)
 	OR (viccy/pxlhold(7) AND NOT viccy/is_80 AND NOT viccy/dot2clk_d AND 
-	NOT $OpTx$FX_DC$371));
+	NOT $OpTx$FX_DC$405));
 
 FDCPE_viccy/rcline_cnt0: FDCPE port map (viccy/rcline_cnt(0),viccy/rcline_cnt_D(0),NOT hsync,NOT nres,'0');
 viccy/rcline_cnt_D(0) <= ((NOT viccy/rcline_cnt(0) AND vis_double_in AND 
@@ -2876,8 +2877,8 @@ viccy/rline_cnt_Madd__add0000__and0003/viccy/rline_cnt_Madd__add0000__and0003_D2
 	viccy/rline_cnt(1) AND viccy/rline_cnt(2) AND viccy/rline_cnt(3));
 
 FDCPE_viccy/rows_per_char3: FDCPE port map (viccy/rows_per_char(3),viccy/rows_per_char_D(3),viccy/rows_per_char_C(3),NOT nres,'0');
-viccy/rows_per_char_D(3) <= ((D(3).PIN AND $OpTx$FX_DC$449)
-	OR (viccy/rows_per_char(3) AND NOT $OpTx$FX_DC$449));
+viccy/rows_per_char_D(3) <= ((D(3).PIN AND $OpTx$FX_DC$483)
+	OR (viccy/rows_per_char(3) AND NOT $OpTx$FX_DC$483));
 viccy/rows_per_char_C(3) <= (NOT dot2clk AND do_cpu);
 
 FDCPE_viccy/slot_cnt0: FDCPE port map (viccy/slot_cnt(0),viccy/slot_cnt_D(0),slotclk,NOT nres,'0');
@@ -3289,11 +3290,11 @@ viccy/vpage_C(7) <= (NOT dot2clk AND do_cpu);
 viccy/vpage_2_or0000/viccy/vpage_2_or0000_D2 <= ((NOT rwb AND A(0) AND NOT viccy/crtc_reg(0) AND 
 	viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND A(0) AND NOT viccy/crtc_reg(0) AND 
 	viccy/crtc_reg(1) AND A(15) AND A(14) AND A(13) AND NOT A(12) AND A(11) AND NOT A(5) AND 
 	A(7) AND NOT A(6) AND NOT A(4) AND NOT A(9) AND NOT A(8) AND NOT A(10) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 FDCPE_vidblock0: FDCPE port map (vidblock(0),vidblock_D(0),NOT phi2,NOT nres,'0');
 vidblock_D(0) <= ((D(4).PIN AND vidblock_or0000/vidblock_or0000_D2)
@@ -3307,11 +3308,11 @@ vidblock_D(1) <= ((D(5).PIN AND vidblock_or0000/vidblock_or0000_D2)
 vidblock_or0000/vidblock_or0000_D2 <= ((NOT rwb AND A(1) AND NOT A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND A(1) AND NOT A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 FDCPE_vis_80_in: FDCPE port map (vis_80_in,vis_80_in_D,NOT phi2,NOT nres,'0');
 vis_80_in_D <= ((D(1).PIN AND movesync_or0000/movesync_or0000_D2)
@@ -3377,11 +3378,11 @@ wp_romPET_D <= ((D(7).PIN AND wp_romPET_or0000/wp_romPET_or0000_D2)
 wp_romPET_or0000/wp_romPET_or0000_D2 <= ((NOT rwb AND NOT A(1) AND A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vpa AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366)
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393)
 	OR (NOT rwb AND NOT A(1) AND A(0) AND A(15) AND A(14) AND A(13) AND 
 	NOT A(12) AND A(11) AND NOT A(5) AND NOT A(7) AND NOT A(6) AND NOT A(4) AND NOT A(2) AND 
 	NOT A(9) AND NOT A(8) AND NOT A(10) AND NOT A(3) AND vda AND 
-	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$366));
+	mappy/low64k/mappy/low64k_D2 AND $OpTx$INV$393));
 
 Register Legend:
  FDCPE (Q,D,C,CLR,PRE,CE); 

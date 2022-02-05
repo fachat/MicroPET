@@ -740,11 +740,12 @@ begin
 	vd_in <= VD;
 	
 	-- RAM R/W (only for video RAM, FRAM gets /WE from CPU's RWB)
+
 	ramrwb_int <= 
 		'0'	when ipl = '1' else		-- IPL loads data into RAM
-		'1' 	when is_vid_out ='1' else 	-- Video reads
-		'1'	when m_vramsel_out ='0' else	-- not selected
-		'1'	when memclk='0' else		-- protect during memclk low
+		'1' 	when is_vid_out ='1'    	-- Video reads
+			  or m_vramsel_out ='0' 	-- not selected
+			  or memclk='0' else		-- protect during memclk low
 		rwb;
 		
 	ramrwb <= ramrwb_int;
