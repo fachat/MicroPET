@@ -1,15 +1,16 @@
 
-all: low32k map readflash
+ASM=low32k map 8296screen virtpet
+BASIC=readflash rtcc batmem sdcard
+
+all: ${ASM} ${BASIC}
 
 clean:
-	rm -f low32k map readflash
+	rm -f ${ASM} ${BASIC}
 
-map: map.a65
-	xa -w -M map.a65 -o map
+${ASM}: %: %.a65
+	xa -w -M $< -o $@
 
-low32k: low32k.a65
-	xa -w -M low32k.a65 -o low32k
+${BASIC}: %: %.lst
+	petcat -w40 -o $@ $<
 
-readflash: readflash.lst
-	petcat -w40 -o readflash readflash.lst
 

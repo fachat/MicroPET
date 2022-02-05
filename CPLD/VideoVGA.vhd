@@ -49,6 +49,9 @@ entity Video is
 	   is_graph : in std_logic;	-- graphic mode (from PET I/O)
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- (ignored)
+	   interlace: in std_logic;
+	   statusline: in std_logic;
+	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;
 	   crtc_rs : in std_logic;
@@ -74,6 +77,8 @@ end Video;
 
 architecture Behavioral of Video is
 
+	type T_REGNO is (RNONE, R9, R12);
+	
 	-- 1 bit slot counter to enable 40 column
 	signal in_slot: std_logic;
 	
@@ -83,7 +88,7 @@ architecture Behavioral of Video is
 	
 	-- crtc register emulation
 	-- only 8/9 rows per char are emulated right now
-	signal crtc_reg: std_logic_vector(3 downto 0);	
+	signal crtc_reg: T_REGNO;
 	
 	signal rows_per_char: std_logic_vector(3 downto 0);
 	signal slots_per_line: std_logic_vector(6 downto 0);
@@ -91,9 +96,7 @@ architecture Behavioral of Video is
 
 	signal vpage : std_logic_vector(7 downto 0);
 	signal vpagelo : std_logic_vector(7 downto 0);
-	
-	signal interlace : std_logic;
-	
+		
 	-- hold and shift the pixel
 	signal pxlhold : std_logic_vector (8 downto 0) := (others => '0');
 	-- hold the character information
@@ -134,6 +137,7 @@ architecture Behavioral of Video is
 	signal h_enable : std_logic := '0';	
 	signal v_enable : std_logic := '0';
 	signal enable : std_logic;
+	signal v_lastline: std_logic := '0';
 	
 	-- sync
 	signal h_sync_int : std_logic := '0';	
@@ -296,14 +300,14 @@ begin
 				end if;
 			end if;
 			
-			if (rows_per_char(3) = '1') then
-				if (rline_cnt >= 467 and rline_cnt < 469) then
+			if (rows_per_char(3) = '1' or movesync = '1') then
+				if (rline_cnt >= 483 and rline_cnt < 485) then
 					v_sync_int <= '1';
 				else
 					v_sync_int <= '0';
 				end if;
 			else
-				if (rline_cnt >= 450 and rline_cnt < 452) then
+				if (rline_cnt >= 466 and rline_cnt < 468) then
 					v_sync_int <= '1';
 				else
 					v_sync_int <= '0';
@@ -327,11 +331,14 @@ begin
 			end if;
 
 			-- venable
-			if (rline_cnt < 450) then
+			v_enable <= '0';
+			v_lastline <= '0';
+			if (rline_cnt < 450) then	--468) then
 				v_enable <= '1';
-			else
-				v_enable <= '0';
 			end if;
+--			if (rline_cnt >= 450) then
+--				v_enable <= '1';
+--			end if;
 		    else
 			-- timing for 8 pixel rows per character
 			-- end of character line
@@ -343,17 +350,20 @@ begin
 			end if;
 
 			-- venable
-			if (rline_cnt < 400) then
+			v_enable <= '0';
+			v_lastline <= '0';
+			if (rline_cnt < 400) then	--416) then
 				v_enable <= '1';
-			else
-				v_enable <= '0';
 			end if;
-		    end if; -- crtc_is_9rows
+--			if (rline_cnt >= 400) then
+--				v_lastline <= '1';
+--			end if;		    
+		end if; -- crtc_is_9rows
 
 		    -- common for 8/9 pixel rows per char
 		    
 			-- end of screen
-			if (rline_cnt = 524) then
+			if (rline_cnt = 523) then
 				last_line_of_screen <= '1';
 			else
 				last_line_of_screen <= '0';
@@ -419,6 +429,8 @@ begin
 	-----------------------------------------------------------------------------
 	-- address output
 	
+	-- mem_addr = hires fetch or chr fetch (i.e. NOT charrom pxl fetch)
+	
 	a_out(3 downto 0) <= vid_addr(3 downto 0) when mem_addr ='1' else 
 				rcline_cnt;
 	a_out(11 downto 4) <= vid_addr(11 downto 4) when mem_addr = '1' else 
@@ -467,6 +479,7 @@ begin
 			-- note: pxl_fetch is registered with qclk above, as is memclk_d (rising qclk)
 			pxlhold(8) <= pxlhold(7) and enable;
 			if (pxl_fetch = '1' and sr_load_d ='1') then
+--				enable <= h_enable and v_enable and not(not(statusline) and v_lastline);
 				enable <= h_enable and v_enable;
 				pxlhold(7 downto 0) <= D;
 			elsif (dot2clk_d = '1' or is_80 = '1') then 
@@ -494,13 +507,25 @@ begin
 	regfile: process(memclk, CPU_D, crtc_sel, crtc_rs, reset) 
 	begin
 		if (reset = '1') then
-			crtc_reg <= X"0";
+			crtc_reg <= RNONE;
 		elsif (falling_edge(memclk) 
 				and crtc_sel = '1' 
 				and crtc_rs='0'
 				and crtc_rwb = '0'
 				) then
-			crtc_reg <= CPU_D(3 downto 0);
+			
+			case (CPU_D(3 downto 0)) is
+--			when x"8" =>
+--				crtc_reg <= R8;
+			when x"9" =>
+				crtc_reg <= R9;
+			when x"c" =>
+				crtc_reg <= R12;
+--			when x"d" =>
+--				crtc_reg <= R13;
+			when others =>
+				crtc_reg <= RNONE;
+			end case;
 		end if;
 	end process;
 	
@@ -511,7 +536,6 @@ begin
 			slots_per_line <= "1010000";	-- 80
 			clines_per_screen <= "0011001";	-- 25
 			vpage <= x"10"; -- inverted for PET
-			interlace <= '0';
 			vpagelo <= (others => '0');
 		elsif (falling_edge(phi2) 
 				and crtc_sel = '1' 
@@ -519,21 +543,20 @@ begin
 				and crtc_rwb = '0'
 				) then
 			case (crtc_reg) is
-			when x"1" =>
-				-- we only allow to write up to 63, to save one CPLD register
-				-- (bit 7 is constant)
-				--slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
-			when x"6" => 
-				--clines_per_screen <= CPU_D(6 downto 0);
-			when x"9" =>
+--			when R1 =>
+--				-- we only allow to write up to 63, to save one CPLD register
+--				-- (bit 7 is constant)
+--				slots_per_line(6 downto 1) <= CPU_D(5 downto 0);
+--			when R6 => 
+--				clines_per_screen <= CPU_D(6 downto 0);
+			when R9 =>
 				rows_per_char(3) <= CPU_D(3);
 				--rows_per_char <= CPU_D(3 downto 0);
-			when x"c" =>
-				vpage <= CPU_D;
-			when x"d" =>
-				--vpagelo <= CPU_D;
-			when x"8" =>
-				interlace <= CPU_D(0);
+			when R12 =>
+				vpage(1 downto 0) <= (others => '0');
+				vpage(7 downto 2) <= CPU_D(7 downto 2);
+--			when R13 =>
+--				vpagelo <= CPU_D;
 			when others =>
 				null;
 			end case;

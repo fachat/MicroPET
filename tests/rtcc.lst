@@ -1,0 +1,90 @@
+
+ 100 b=59400: rem base address of spi interface
+ 110 d=5: rem device no, i.e. select mask for spi
+ 120 poke b,0: rem init select (deselect)
+ 200 se=0: rem start osci
+ 210 mt=1
+ 220 hr=2
+ 230 dy=3*16+0:rem bcd 30
+ 240 mn=5
+ 250 yr=2*16+1:rem bcd 21
+ 290 r=4:gosub 30100:if v and 32 then 1000:rem skip init if running
+ 300 gosub 20000:rem init
+ 400 gosub 10000:rem set initial time
+
+ 1000 rem ******** main prg
+ 2000 gosub 11000:rem get time
+ 2010 gosub 12000:rem print time
+ 2020 goto 2000
+
+ 10000 rem ******** set time
+ 10100 r=7:v=yr:print "yr=";v: gosub 30200
+ 10110 r=6:v=mn:print "mn=";v: gosub 30200
+ 10120 r=5:v=dy:print "dy=";v: gosub 30200
+ 10130 r=3:v=hr:print "hr=";v: gosub 30200
+ 10140 r=2:v=mt:print "mt=";v: gosub 30200
+ 10150 r=1:v=se+128:print "se=";v: gosub 30200: rem also start oscillator
+ 10200 return
+
+ 11000 rem ******** get time
+ 11100 r=7:rem year
+ 11110 gosub 30100:gosub 21000
+ 11120 yr=v
+ 11130 r=6:rem month
+ 11140 gosub 30100:v=v and 31:gosub 21000
+ 11150 mn=v
+ 11160 r=5:rem day of month
+ 11170 gosub 30100:gosub 21000
+ 11180 dy=v
+ 11190 r=3:rem hour
+ 11200 gosub 30100:v=v and 31:gosub 21000
+ 11210 hr=v
+ 11220 r=2:rem min
+ 11230 gosub 30100:gosub 21000
+ 11240 mt=v
+ 11250 r=1:rem sec
+ 11260 gosub 30100:v=v and 127:gosub 21000
+ 11270 se=v
+ 11300 return
+
+ 12000 rem ******** print time
+ 12100 print hr":"mt":"se" "dy"."mn"."yr
+ 12200 return
+
+ 20000 rem ******** init
+ 20050 print "initializing rtcc"
+ 20100 rem **** read day of week register
+ 20110 r=4:gosub 30100
+ 20200 rem **** enable battery back up
+ 20210 v=v or 8:rem vbaten
+ 20220 gosub 30200
+ 20300 rem **** no alarms, 1hz output
+ 20330 r=8:rem  control
+ 20340 v=0+64+0:rem alm_no+sqwen+clko_01h
+ 20350 gosub30200
+ 20400 return
+ 
+ 21000 rem bcd to dec
+ 21010 h=int(v/16)
+ 21020 l=v and 15
+ 21030 v=l+10*h
+ 21040 return
+
+ 30000 rem ******** rd/wr
+ 30100 rem **** read register r
+ 30110 poke b,d
+ 30120 poke b+1,19:rem ram/rtcc read
+ 30130 poke b+1,r:rem  register
+ 30140 poke b+1,85:rem bogus
+ 30150 v=peek(b+2)
+ 30160 poke b,0
+ 30170 return
+ 30200 rem **** write value v into register r
+ 30210 poke b,d
+ 30220 poke b+1,18:rem ram/rtcc write
+ 30230 poke b+1,r:rem  register
+ 30240 poke b+1,v:rem  value
+ 30250 poke b,0
+ 30200 return
+
+

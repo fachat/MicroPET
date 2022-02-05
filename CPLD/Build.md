@@ -23,27 +23,24 @@ Under the project, "Add Source" and add the "Top.vhd" VHDL file
 
 Then add the other VHDL files underneath by assigning the VHDL files to their respective components.
 Note that for the Video and Clock components, two options are available, Composite video out or VGA (640x480) output.
-For the VGA output, there are also separate 4032 options (see the [README](README.md) for the details.
 
-| Model | Clock | Mapper | Video | SPI |
-|---|---|---|---|---|
-| Base Composite video | ClockComposite8M.vhd | MapperPET.vhd | VideoComposite.vhd | SPI.vhd |
-| Base VGA video | ClockVGA8M.vhd | MapperPET.vhd | VideoVGA.vhd | SPI.vhd |
-| Base VGA video | ClockVGA8M.vhd | MapperPET4032.vhd | VideoVGA4032.vhd | SPI.vhd |
- 
 ![Add other VHDL files](images/add_mapper_and_video.png)
 
 Finally, add the constraints file
 
 ![Add Pinout](images/add_pinout.png)
 
-In the process properties, set "Speed" as optimization goal, and optimization effort to "High".
+In the process properties, set "Area" as optimization goal, and optimization effort to "High".
 
 ![Synthesis properties](images/process_synthesis.png)
 
 Set "Optimize Density" for the Fitting.
 
 ![Fitting properties](images/process_fitting.png)
+
+Also, enable "advanced" build properties, and click "extensive fitting", to allow for slower, but better fitting.
+The r2 managed to be fitted with pterm limit: 12 and input limit: 17 - so this may be a worth a try to shorten
+the fitting time (with full levels it took over 2-3h...).
 
 Then you can build the "Top.jed" file by clicking the green triangle to start the build.
 

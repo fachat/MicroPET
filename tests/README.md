@@ -1,6 +1,13 @@
 
 # Unit tests
 
+## virtpet
+
+This little test program shows the mapping features for the lower 32k, as well as the video memory window (where the
+$8xxx area in CPU address space is mapped to video memory). 
+It installs itself as a terminate-and-stay-resident (TSR), and checks when both SHIFT keys are pressed at the same time.
+It then switches to the next of a total of four "virtual" PETs.
+
 ## low32k / map
 
 These tests check the functionality to re-map the low 32k in bank 0 CPU address space into one of 16 32k-banks

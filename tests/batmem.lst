@@ -1,0 +1,34 @@
+
+ 100 b=59400: rem base address of spi interface
+ 110 d=5: rem device no, i.e. select mask for spi
+ 120 poke b,0: rem init select (deselect)
+
+ 1000 rem ******** main prg
+ 1100 gosub 30000:rem read memory
+ 1200 print"orig value:" + v$
+ 1300 input"new value:"; v$
+ 1400 gosub 30200
+ 1500 run
+
+ 30000 rem ******** rd/wr
+ 30100 rem **** read memory
+ 30105 l=0:v$=""
+ 30110 poke b,d
+ 30120 poke b+1,19:rem ram/rtcc read
+ 30130 poke b+1,32:rem start of sram
+ 30140 poke b+1,85:rem bogus
+ 30150 v=peek(b+1):rem read and trigger
+ 30160 if v<>0 then v$=v$+chr$(v):l=l+1:if l<32 then 30150
+ 30170 poke b,0
+ 30180 return
+ 30200 rem **** write value v into register r
+ 30205 l=len(v$)+1:i=1
+ 30210 poke b,d
+ 30220 poke b+1,18:rem ram/rtcc write
+ 30230 poke b+1,32:rem start of ram
+ 30240 if i<l then v=asc(mid$(v$,i,1)):poke b+1,v:i=i+1:goto 30240
+ 30245 poke b+1,0
+ 30250 poke b,0
+ 30300 return
+
+

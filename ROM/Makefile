@@ -1,27 +1,41 @@
 
-all: spiimg 
+all: spiimg loadrom.bin loadrom
 
-EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit40gx.bin
+EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin edit40gxc.bin edit80gxc.bin 
 
-spiimg: zero basic2 edit2g kernal2 chargen_pet16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS)
+spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax
+	# ROM images
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
-	cat zero zero					>> spiimg	# 4-8k   : 4k reserve
+	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
+	# standard character ROM (converted to 16 byte/char)
 	cat chargen_pet16 				>> spiimg	# 8-16k  : 8k 16bytes/char PET character ROM
-	cat basic2 edit2g zero kernal2 			>> spiimg	# 16-32k : BASIC2/Edit/Kernel ROMs (16k consecutive, $c000-$ffff)
-	#cat edit80g zero				>> spiimg	# 32-36k : BASIC 4 80 column editor ROM (graph keybd)
-	cat edit80gx.bin				>> spiimg	# 32-36k : sjgray BASIC 4 80 column editor w/ wedge by for(;;)
-	cat basic4 					>> spiimg	# 36-48k : BASIC4 ROMS (12k $b000-$dfff)
-	#cat edit40g zero 				>> spiimg	# 48-52k : original BASIC 4 editor ROM graph keybd
-	cat edit40gx.bin  				>> spiimg	# 48-52k : sjgray BASIC 4 40 column editor w/ wedge by for(;;)
-	cat kernal4					>> spiimg	# 52-56k : BASIC4 kernel (4k)
-	cat edit40gc.bin	 			>> spiimg	# 56-60k : sjgray 40 column editor for C64 keyboard (experimental)
-	cat edit80gc.bin	 			>> spiimg	# 60-64k : sjgray 80 column editor for C64 keyboard (experimental)
+	# BASIC 1
+	cat basic1 edit1 zero kernal1			>> spiimg	# 16-32k : BASIC1/Edit/Kernel ROMs (16k $c000-$ffff)
+	# BASIC 2
+	cat basic2 edit2g zero kernal2 			>> spiimg	# 32-48k : BASIC2/Edit/Kernel ROMs (16k $c000-$ffff)
+	# BASIC 4
+	cat basic4 					>> spiimg	# 48-60k : BASIC4 ROMS (12k $b000-$dfff)
+	cat kernal4					>> spiimg	# 60-64k : BASIC4 kernel (4k)
+	# editor ROMs
+	cat edit40gx.bin  				>> spiimg	# sjgray ext 40 column editor w/ wedge by for(;;)
+	cat edit40gxc.bin	 			>> spiimg	# sjgray ext 40 column editor for C64 kbd (experimental)
+	cat edit80gx.bin				>> spiimg	# sjgray ext 80 column editor w/ wedge by for(;;)
+	cat edit80gxc.bin	 			>> spiimg	# sjgray ext 80 column editor for C64 kbd (experimental)
+	cat edit40g zero 				>> spiimg	# original BASIC 4 editor ROM graph keybd
+	cat edit40gc.bin zero	 			>> spiimg	# sjgray base 40 column editor for C64 kbd (experimental)
+	cat edit80g zero				>> spiimg	# (original) BASIC 4 80 column editor ROM (graph keybd)
+	cat edit80gc.bin zero	 			>> spiimg	# sjgray base 80 column editor for C64 kbd (experimental)
+	# alternate BASIC 1 character ROM (as 16 bytes/char)
+	cat chargen_pet1_16				>> spiimg	# 96-104k: BASIC 1 character set
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1
 
 chargen_pet16: charPet2Invers char8to16 chargen_pet
 	./charPet2Invers < chargen_pet | ./char8to16 > chargen_pet16
+
+chargen_pet1_16: charPet2Invers char8to16 chargen_pet1
+	./charPet2Invers < chargen_pet1 | ./char8to16 > chargen_pet1_16
 
 charPet2Invers: charPet2Invers.c
 	gcc -o charPet2Invers charPet2Invers.c
@@ -51,6 +65,26 @@ ARCHIVE=http://www.zimmers.net/anonftp/pub/cbm
 chargen_pet:
 	curl -o chargen_pet $(ARCHIVE)/firmware/computers/pet/characters-2.901447-10.bin
 
+chargen_pet1:
+	curl -o chargen_pet1 $(ARCHIVE)/firmware/computers/pet/characters-1.901447-08.bin
+
+edit1:
+	curl -o edit1 $(ARCHIVE)/firmware/computers/pet/rom-1-e000.901447-05.bin
+
+kernal1:
+	curl -o kernal1_f0 $(ARCHIVE)/firmware/computers/pet/rom-1-f000.901447-06.bin
+	curl -o kernal1_f8 $(ARCHIVE)/firmware/computers/pet/rom-1-f800.901447-07.bin
+	cat kernal1_f0 kernal1_f8 > kernal1
+	rm kernal1_f0 kernal1_f8 
+
+basic1:
+	curl -o basic1_c0 $(ARCHIVE)/firmware/computers/pet/rom-1-c000.901447-01.bin
+	curl -o basic1_c8 $(ARCHIVE)/firmware/computers/pet/rom-1-c800.901447-02.bin
+	curl -o basic1_d0 $(ARCHIVE)/firmware/computers/pet/rom-1-d000.901447-03.bin
+	curl -o basic1_d8 $(ARCHIVE)/firmware/computers/pet/rom-1-d800.901447-04.bin
+	cat basic1_c0 basic1_c8 basic1_d0 basic1_d8 > basic1
+	rm basic1_c0 basic1_c8 basic1_d0 basic1_d8 
+
 edit2g:
 	curl -o edit2g $(ARCHIVE)/firmware/computers/pet/edit-2-n.901447-24.bin
 
@@ -79,17 +113,27 @@ edit40g:
 edit80g:
 	curl -o edit80g $(ARCHIVE)/firmware/computers/pet/edit-4-80-n-50Hz.4016_to_8016.bin
 
-# PET Test Prog
+${EDITROMS}: %.bin: %.asm
+	test -e cbm-edit-rom || git clone https://github.com/sjgray/cbm-edit-rom.git
+	cp $< cbm-edit-rom/edit.asm
+	cd cbm-edit-rom && acme -r editrom.txt editrom.asm
+	cp cbm-edit-rom/editrom.bin $@
 
-readflash: readflash.lst
-	petcat -w40 -o readflash readflash.lst
+# load other PET Editor ROM and reboot
 
+loadrom: loadrom.lst
+	petcat -w40 -o $@ $<
 
+loadrom.bin: loadrom.a65
+	xa -o $@ $<
+ 
 # Clean
 
 clean:
 	rm -f romtest01 romtest01a romtest02 romtest02a zero chargen_pet16 char8to16 charPet2Invers
-	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g 
+	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g basic1 edit1 kernal1 chargen_pet1 chargen_pet1_16
 	rm -f iplldr
 
-	
+rebuildclean:
+	rm -f $(EDITROMS)
+

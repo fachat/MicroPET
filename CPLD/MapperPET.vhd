@@ -45,17 +45,27 @@ entity Mapper is
 	   
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
-           RA : out  STD_LOGIC_VECTOR (18 downto 8);
+	   -- mapped address lines
+           RA : out std_logic_vector (18 downto 8);	-- mapped FRAM address
+	   VA : out std_logic_vector (12 downto 11);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
-	   ramsel: out std_logic;
+	   vramsel: out std_logic;
+	   framsel: out std_logic;
 	   
+	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
+	   vidblock: in std_logic_vector(1 downto 0);
    	   wp_rom9: in std_logic;
    	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 
+	   -- force bank0 (used in emulation mode)
+	   forceb0: in std_logic;
+	   -- is screen in bank0?
+	   screenb0: in std_logic;
+	   
 	   dbgout: out std_logic
 	);
 end Mapper;
@@ -78,8 +88,9 @@ architecture Behavioral of Mapper is
 	signal screen: std_logic;
 	signal iopeek: std_logic;
 	signal scrpeek: std_logic;
-
+	signal boota19: std_logic;
 	signal avalid: std_logic;
+	signal screenwin: std_logic;
 	
 	signal bank: std_logic_vector(7 downto 0);
 	
@@ -96,9 +107,10 @@ begin
 
 	
 	avalid <= vda or vpa;
-	
-	
-	-----------------------------------
+		
+	-----------------------------------------------------------------------
+	-- CPU address space analysis
+	--
 
 	-- note: simply latching D at rising phi2 does not work,
 	-- as in the logical part after the latch, the changing D already
@@ -110,7 +122,11 @@ begin
 		if (reset ='1') then
 			bankl <= (others => '0');
 		elsif (rising_edge(qclk) and phi2='0') then
-			bankl <= D;
+			if (forceb0 = '1') then
+				bankl <= (others => '0');
+			else
+				bankl <= D;
+			end if;
 		end if;
 	end process;
 	
@@ -126,7 +142,6 @@ begin
 	-- of ROM area in the upper half of bank 0
 	-- Is evaluated in bank 0 only, so low64k can be ignored here
 	petrom <= '1' when A(15) = '1' and			-- upper half
-			--(A(14) = '1' or (A(13) ='1' and A(12) ='1'))	-- B-F (leaves 9/A as RAM) 
 			A(14) = '1' -- upper 16k
 			else '0';
 			
@@ -176,8 +191,9 @@ begin
 				else
 			'0';
 			 
-	-----------------------------------
-	-- addr output
+	-----------------------------------------------------------------------
+	-- physical address space generation
+	--
 	
 	-- banks 2-15
 	RA(18 downto 17) <= 
@@ -199,15 +215,35 @@ begin
 			'1' when c8296ram = '0' else	-- upper half of bank0, no 8296 mapping
 			cfg_mp(3) when A(14) = '1' else	-- 8296 map block $c000-$ffff -> $1c000-1ffff / 14000-17fff
 			cfg_mp(2);			-- 8296 map block $8000-$bfff -> $18000-1bfff / 10000-13fff
-	
-	-- the nice thing is that all mapping happens at A15/A16
-	RA(14 downto 12) <= A(14 downto 12);
-	RA(11 downto 8) <= A(11 downto 8);
 
-	ramsel <= '0' when avalid='0' else
-			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
+	-- map 1:1
+	RA(14 downto 8) <= A(14 downto 8);
+	
+	VA(11) <= A(11) when screenwin = '0' else
+				A(11) xor vidblock(0);
+	VA(12) <= A(12) when screenwin = '0' else
+				A(12) xor vidblock(1);
+				
+	boota19 <= bank(3) xor boot;
+	
+	
+	-- VRAM is second 512k of CPU, plus 4k read/write-window on $008000 ($088000 in VRAM) if screenb0 is set
+	screenwin <= '1' when low64k = '1'
+				and screen = '1'
+				and screenb0 = '1'
+				-- either 8296 off, or screen peek through
+				and (cfg_mp(7) = '0' or cfg_mp(5) = '1')
+			else '0';
+				
+	vramsel <= '0' when avalid = '0' else
+			'1' when screenwin = '1' else
+			boota19;			-- second 512k (or 1st 512k on boot)
+
+	framsel <= '0' when avalid='0' else
+			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
+			'0' when screenwin = '1' else	-- not in screen window
 			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
 			'0' when petio = '1' else	-- not in I/O space
@@ -223,7 +259,7 @@ begin
 			'1' when low64k ='1' 
 				and A(15 downto 8) = x"FF" else 
 			'0';
-				
+
 	-----------------------------------
 	-- cfg
 	

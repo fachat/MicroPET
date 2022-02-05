@@ -9,6 +9,7 @@
  1420 gosub 8000
  1440 gosub 9900:rem wait for key
  1490 rem
+ 1990 poke 59395,0:rem 1mhz
  1999 end
  8000 rem ###########################
  8005 print"cpu speed test:":print
@@ -20,7 +21,8 @@
  8320 gosub 9000
  8330 sp=3:il=0:rem 8mhz
  8340 gosub 9000
- 8343 gosub 9900:gosub 13900
+ 8342 gosub 9900:gosub 13900:rem new screen
+ 8343 print"Fast RAM tests:"
  8344 sp=2:il=0:rem 4mhz
  8345 gosub 9000
  8346 sp=2:il=1:rem 4mhz / interlace
@@ -33,6 +35,22 @@
  8440 gosub 9000
  8450 sp=3:il=2:rem full speed / screen off
  8440 gosub 9000
+ 8500 rem VRAM tests
+ 8510 gosub 14000:rem read in test routine in vram
+ 8542 gosub 9900:gosub 13900:rem new screen
+ 8543 print"Video RAM tests:"
+ 8544 sp=2:il=0:rem 4mhz
+ 8545 gosub 9000
+ 8546 sp=2:il=1:rem 4mhz / interlace
+ 8547 gosub 9000
+ 8550 sp=2:il=2:rem 4mhz / screen off
+ 8560 gosub 9000
+ 8600 sp=3:il=0:rem full speed
+ 8620 gosub 9000
+ 8630 sp=3:il=1:rem full speed / interlace
+ 8640 gosub 9000
+ 8650 sp=3:il=2:rem full speed / screen off
+ 8640 gosub 9000
  8910 return
  9000 rem ############################
  9010 rem common test sequence
@@ -54,8 +72,8 @@
  10100 rem #### apply config
  10120 poke 59395, sp:rem config
  10122 on il+1 goto 10130, 10132, 10134
- 10130 poke va,vr:poke ca,8:poke ca+1,0:goto 10140
- 10132 poke va,vr:poke ca,8:poke ca+1,1:goto 10140
+ 10130 poke va,vr:goto 10140
+ 10132 poke va,vr+16:goto 10140
  10134 poke va,vr+128:poke ca,8:poke ca+1,0:goto 10140
  10140 gosub 15030
  10220 rem done
@@ -114,13 +132,13 @@
  13240 if peek(32768+40*25)=32 then v=80
  13400 if v=80 then goto 13600:rem 80 cols
  13500 rem 40 cols ####################
- 13510 co=4: rem base cols
+ 13510 co=3: rem base cols
  13520 cm=35: rem max cols
  13525 vr=0:poke va,vr
  13530 sc$=chr$(13): rem separator
  13550 goto13700
  13600 rem 80 cols ####################
- 13610 co=4: rem base cols
+ 13610 co=3: rem base cols
  13620 cm=35: rem max cols
  13625 vr=2:poke va,vr
  13630 sc$=", ": rem separator
@@ -158,12 +176,30 @@
  15100 rem ####
  15110 bc=1:rem fake
  15115 gosub 15000
- 15120 bc=16000: rem 60hz video
+ 15120 bc=16807: rem 59.5hz video
  15130 if cc < 20000 then 15150
  15140 bc = 20025: rem base cycles vsync 50Hz@1mhz
- 15150 bl = 1285 * 10: rem base cycles cpu loop @1mhz
+ 15150 bl = 8 + 20 * (1279 + 5) - 1: rem base cycles cpu loop
  15160 gosub 15000
- 15170 print"System running at " mc " MHz (" cc " sys cycles / screen)"
+ 15161 print"We are using VGA with 640x480 at 60Hz"
+ 15162 print"With 25MHz instead of 25.175 pixel clk"
+ 15163 print"So we end up with 59.5Hz screen refresh"
+ 15164 print"and 16807 nominal cyc/screen at 1MHz"
+ 15165 print"CPU is 1/2 of pixel clock, 12.5MHz"
+ 15166 print"Throttling to 1MHz uses 1/12 of that."
+ 15167 print"I.e. we run at 1.04 MHz and we expect"
+ 15168 print"17507 cycles/screen"
+ 15169 print
+ 15170 print"Note that delays during VRAM tests"
+ 15171 print"come from waitstates caused by fetches"
+ 15172 print"of video data. CPU fetches are masked"
+ 15173 print"by VDA/VPA, so mainly wait states are"
+ 15174 print"injected where the CPU has consecutive"
+ 15175 print"memory accesses. So speed reduction"
+ 15176 print"is way less than the 50% expected"
+ 15177 print"from pure timing."
+ 15178 print
+ 15179 print"System running at " mc " MHz (" cc " sys cycles / screen)"
  15180 print"CPU running at " ml " MHz (" cl " sys cycles / cpu loop)"
  15190 return
  60000 rem #########################

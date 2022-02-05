@@ -42,7 +42,7 @@ entity SPI is
 	   serin: in std_logic;
 	   serout: out std_logic;
 	   serclk: out std_logic;
-	   sersel: out std_logic_vector(3 downto 0);	   
+	   sersel: out std_logic_vector(2 downto 0);	   -- 8 combinations (0= none)
 	   spiclk : in std_logic;
 	   
 	   ipl: in std_logic;
@@ -54,7 +54,7 @@ architecture Behavioral of SPI is
 
 	signal sr: std_logic_vector(7 downto 0);	-- rx/tx shift register
 	signal txd: std_logic_vector(7 downto 0);	-- tx data register
-	signal sel: std_logic_vector(3 downto 0);	
+	signal sel: std_logic_vector(2 downto 0);	
 	signal stat: std_logic_vector(3 downto 0);	-- phase counter
 	
 	signal cpol: std_logic;				-- clock polarity
@@ -68,6 +68,9 @@ architecture Behavioral of SPI is
 	signal ack_rxtx: std_logic;
 	signal serin_d: std_logic;
 	
+	signal spiclk_int: std_logic;
+	signal spiclk_half: std_logic;
+	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
 		if L then
@@ -79,6 +82,18 @@ architecture Behavioral of SPI is
 	
 begin
 
+	half_p: process(reset, spiclk, spiclk_half)
+	begin
+		if (reset = '1') then
+			spiclk_half <= '0';
+		elsif (falling_edge(spiclk)) then
+			spiclk_half <= not(spiclk_half);
+		end if;
+	end process;
+	
+	spiclk_int <= spiclk when sel(2) = '0' else
+			spiclk_half;
+		
 	-- read registers
 	read_p: process (rs, rwb, cs, sr, sel, cpol, cpha, run_sr, txd_valid, start_rx, ack_rxtx, ipl, reset)
 	begin
@@ -95,11 +110,12 @@ begin
 		elsif (cs = '1' and rwb = '1') then
 			case rs is
 			when "00" =>
-				DOUT(7) <= run_sr; -- or run_rx;
+				DOUT(7) <= run_sr or txd_valid;
 				DOUT(6) <= txd_valid;
 				DOUT(5) <= cpol;
 				DOUT(4) <= cpha;
-				DOUT(3 downto 0) <= sel(3 downto 0);
+				DOUT(3) <= '0';
+				DOUT(2 downto 0) <= sel(2 downto 0);
 			when "01" =>
 				DOUT <= sr;
 			when "10" =>
@@ -137,7 +153,7 @@ begin
 			when "00" =>
 				cpol <= DIN(5);
 				cpha <= DIN(4);
-				sel <= DIN(3 downto 0);
+				sel <= DIN(2 downto 0);
 			when "01" =>
 				txd <= DIN;
 			when others => 
@@ -148,13 +164,13 @@ begin
 	
 	sersel <= sel;
 	
-	rxtx_p: process(sr, spiclk, serin, ack_rxtx, reset)
+	rxtx_p: process(sr, spiclk_int, serin, ack_rxtx, reset)
 	begin
 		if (reset = '1') then
 			stat <= (others => '0');
 			ack_txd <= '0';
 			run_sr <= '0';
-		elsif (rising_edge(spiclk)) then
+		elsif (rising_edge(spiclk_int)) then
 			-- with rising memclk
 
 			ack_txd <= '0';
@@ -197,9 +213,9 @@ begin
 		end if;
 	end process;
 	
-	ack_p: process(spiclk, stat)
+	ack_p: process(spiclk_int, stat)
 	begin
-		if (falling_edge(spiclk)) then
+		if (falling_edge(spiclk_int)) then
 			run_sr_d <= run_sr; -- or run_rx;
 			if (stat = "1111") then
 				ack_rxtx <= '1';

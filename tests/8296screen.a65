@@ -1,0 +1,154 @@
+;
+; The 8296 can map the upper 32k into some other memory, in two 16k banks.
+; It has a screen peek-through flag, that allows accessing the screen memory
+; even when the 16k bank is mapped away.
+;
+; This file here tests:
+; 1. when the 16k is mapped away, without peek-through, that the screen window is actually mapped away
+; 2. when 16k is mapped away, with screen peek-though, that the screen window is active
+;
+; The result should look like on the screen:
+;
+;   NOT OVERWRITTEN
+;   NO PEEK
+;   PEEK THROUGH
+;   NOT OVERWRITTEN
+;
+
+VCTRL	=$e800
+MCTRL	=$e801
+BANK	=$e802
+SPEED	=$e803
+R8296	=$fff0
+
+	.word $0401
+	*=$0401
+
+	.word link
+	.word 10
+	.byt $9e, "1040", 0
+link	.word 0
+
+	.dsb 1040-*, 0
+
+	; upper/lower case mode
+	lda #14
+	jsr $ffd2
+
+	sei
+
+	; write protect ROM, enable 8296 mode
+	lda #%11111000
+	sta MCTRL
+
+	; default mapping
+	lda #0
+	sta R8296
+	
+	;------------------------------------------------------
+	; check if no-peek-through really works
+
+	; prepare screen memory to see if it gets overwritten
+	.(
+	ldx #0
+loop	lda MAGIC0,x
+	sta $8000,x
+	inx
+	cpx #M0LEN
+	bcc loop
+	.)
+
+	; map the upper 32k, no peek-through, no write prot
+	lda #%10000000
+	sta R8296
+
+	; write test data to $8000
+	; this should not appear on the screen
+	.(
+	ldy #0
+loop	lda MAGIC1,y
+	sta $8000,y
+	iny
+	cpy #M1LEN
+	bcc loop
+	.)
+
+	; default mapping so we can write to screen
+	lda #0
+	sta R8296
+	
+	; check mapped data, write back to screen
+	.(
+	ldx #0
+loop	lda $010000,x
+	sta $8000+40,x
+	inx
+	cpx #M1LEN
+	bcc loop
+	.)
+
+	;------------------------------------------------------
+	; check if peek-through works
+
+	; map the upper 32k, with peek-through, no write prot
+	lda #%10100000
+	sta R8296
+
+	; prep bank1 with canary value to see if it's overwritten
+	.(
+	ldx #0
+loop	lda MAGIC0,x
+	sta $010000+80,x
+	inx
+	cpx #M0LEN
+	bcc loop
+	.)
+
+	; write test data to $8000
+	; this should appear on the screen
+	.(
+	ldy #0
+loop	lda MAGIC2,y
+	sta $8000+80,y
+	iny
+	cpy #M2LEN
+	bcc loop
+	.)
+
+	; default mapping so we can write to screen
+	lda #0
+	sta R8296
+
+	; check bank1 canary
+	.(
+	ldx #0
+loop	lda $010000+80,x
+	sta $8000+120,x
+	inx
+	cpx #M0LEN
+	bcc loop
+	.)
+
+
+	;------------------------------------------------------
+	; disable mappings
+	lda #0
+	sta R8296
+
+	; disable 8296
+	lda #%11110000
+	sta MCTRL
+	
+	cli
+	rts
+
+MAGIC0	.asc "NOT OVERWRITTEN"
+M0LEN	=*-MAGIC0
+
+MAGIC1	.asc "NO PEEK"
+M1LEN	=*-MAGIC1
+
+MAGIC2	.asc "PEEK THROUGH"
+M2LEN	=*-MAGIC2
+
+

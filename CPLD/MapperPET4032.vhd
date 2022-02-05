@@ -48,14 +48,19 @@ entity Mapper is
            RA : out  STD_LOGIC_VECTOR (18 downto 8);
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
-	   ramsel: out std_logic;
+	   vramsel: out std_logic;
+	   framsel: out std_logic;
 	   
+	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
    	   wp_rom9: in std_logic;
    	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
 	   wp_romPET: in std_logic;
 
+	   forceb0: in std_logic;
+	   screenb0: in std_logic;
+	   
 	   dbgout: out std_logic
 	);
 end Mapper;
@@ -107,7 +112,11 @@ begin
 		if (reset ='1') then
 			bankl <= (others => '0');
 		elsif (rising_edge(qclk) and phi2='0') then
-			bankl <= D;
+			if (forceb0= '1') then
+				bankl <= (others => '0');
+			else
+				bankl <= D;
+			end if;
 		end if;
 	end process;
 	
@@ -177,13 +186,15 @@ begin
 			
 	RA(9 downto 8) <= A(9 downto 8);
 	
-	ramsel <= '0' when avalid='0' else
+	vramsel <= '0' when avalid='0' else
 			'0' when bank(3) = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
 			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
 			'1' when A(15) = '0' else	-- lower half bank0
 			'0' when wprot = '1' else	-- write protect - upper half of bank0
 			'0' when petio = '1' else	-- not in I/O space
 			'1';
+	
+	framsel <= '0';
 	
 	iosel <= '0' when avalid='0' else 
 			'0' when low64k = '0' else

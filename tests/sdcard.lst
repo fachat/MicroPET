@@ -1,0 +1,146 @@
+
+ 100 b=59400: rem base address of spi interface
+ 110 d=3: rem device no, i.e. select mask for spi
+ 120 poke b,0: rem init select (deselect)
+
+ 1000 rem ******** main prg
+ 1100 gosub 30000:rem init
+ 1110 print "sd/mmc card version:";v
+ 
+ 2000 rem **** read block 0
+ 2010 a0=0:a1=0:a2=0:a3=0:gosub 31000
+
+ 9999 end
+
+ 30000 rem ******** init SD card
+ 30100 rem **** 80 (74+) dummy cycles
+ 30101 poke b,0
+ 30102 fori=1to10:pokeb+1,255:next 
+ 30105 a1=0:a2=0:a3=0:a4=0
+ 30106 for i=0 to 10
+ 30108 rem send cmd0 (reset)
+ 30110 c=0:cr=74:gosub 39000:gosub 39100
+ 30120 if r > 1 then next
+ 30130 if r > 1 then print"error":poke b,0:end
+
+ 30200 rem **** send cmd8 (check voltage range)
+ 30210 c=8:a3=0:a2=0:a1=1:a0=170:cr=67
+ 30220 gosub 39000:gosub 39700
+ 30225 v=0:rem mmc
+ 30230 if r > 1 then 30600:rem check sd ver1 or mmc
+ 30240 print "potential sd ver 2"
+ 30270 if r3<>0 or r2<>0 or r1<>1 or r0<>170 then print"mismatch":poke b,0:end
+ 30280 v=2:rem sd ver2
+
+ 30300 rem **** send acmd41 (v2)
+ 30305 rem x3=0, xr=114 if sdxc cards are not supported
+ 30305 rem x3=64, xr=59 if sdxc cards are supported
+ 30307 for i=1 to 10
+ 30310 cx=41:x3=64:x2=0:x1=0:x0=0:xr=59
+ 30320 gosub 39200
+ 30330 gosub 39100
+ 30340 if r = 1 then next:rem repeat on idle
+ 30350 if r and 127 then print "acmd41 err":poke b,0:end
+
+ 30400 rem **** send cmd58
+ 30410 c=58:a0=0:a1=0:a2=0:a3=0:cr=127
+ 30420 gosub 39000:gosub 39700
+ 30430 if r <> 0 then print "error";r:poke b,0:end
+ 30450 bb = r3 and 64:if bb then print "using block addr":goto 30900
+ 30460 goto 30400
+
+ 30600 rem **** send acmd41 (v1)
+ 30605 for i=1 to 10
+ 30610 cx=41:x3=0:x2=0:x1=0:x0=0:xr=114
+ 30620 gosub 39200
+ 30630 gosub 39100
+ 30640 if r <> 0 then next:rem repeat on idle
+ 30650 if r = 0 then v=1:goto 30900:rem sd ver 1
+ 30660 print "acmd41 err, check mmc":goto 30700
+
+ 30700 rem **** send cmd1 - check mmc
+ 30710 c=1:a0=0:a1=0:a2=0:a3=0:cr=127
+ 30720 gosub 39000:gosub 39100
+ 30730 if r = 1 then 30710
+ 30730 if r <> 0 then print "error":poke b,0:end
+ 30740 goto 30900
+
+ 30800 rem **** send cmd16 - force 512 byte block size
+ 30810 c=1:a0=0:a1=2:a2=0:a3=0:cr=127
+ 30820 gosub 39000:gosub 39100
+ 30830 if r and 126 then print "error":poke b,0:end
+
+ 30900 poke b,0:return
+
+ 31000 rem **** read a block
+ 31100 c=17:gosub 39000
+ 31104 x=d:rem prevent switching off select on response
+ 31110 gosub 39100
+ 31120 if r <> 0 then print "read error":poke b,0:end
+ 31130 rem wait data token
+ 31140 poke b+1,255:r=peek(b+2)
+ 31150 if r=255 then 31140
+ 31160 if r <> 254 then print "error return";r:poke b,0:end
+ 31170 for l=0 to 63
+ 31180 a=l*8:gosub 40100:print "  ";:for ll=0 to 7
+ 31190 poke b+1,255:v=peek(b+2):gosub 40000:print" ";
+ 31200 next ll:print:next l
+ 31210 poke b+1,255:c1=peek(b+1):c0=peek(b+2)
+ 31220 print"checksum:";:a=c1*256+c0:gosub40100
+ 31300 return
+
+ 39000 rem **** send command (leave cs on)
+ 39005 print "send c=";c
+ 39010 poke b,d
+ 39020 poke b+1,c+64
+ 39030 poke b+1,a3
+ 39040 poke b+1,a2
+ 39050 poke b+1,a1
+ 39060 poke b+1,a0
+ 39070 poke b+1,cr*2+1
+ 39080 x=0:rem prep switch off after response
+ 39090 return
+ 
+ 39100 rem **** wait for response r1
+ 39110 poke b+1,255
+ 39120 r=peek(b+2)
+ 39130 if r and 128 then 39110
+ 39135 print "r1=";r
+ 39137 poke b,x:rem switch off
+ 39138 if x=0 then poke b+1,255:rem dummy
+ 39140 return
+
+ 39200 rem **** send acmd
+ 39210 c=55:a0=0:a1=0:a2=0:a3=0:cr=50
+ 39220 gosub 39000:rem send cmd55
+ 39221 gosub 39100
+ 39225 if r = 5 then return
+ 39230 c=cx:a0=x0:a1=x1:a2=x2:a3=x3:cr=xr
+ 39240 goto 39000:rem send acmd
+
+ 39700 rem **** wait for response r7
+ 39710 poke b+1,255
+ 39720 r=peek(b+2)
+ 39730 if r and 128 then 39710
+ 39735 print "r7=";r
+ 39740 poke b+1,255:r3=peek(b+2)
+ 39741 poke b+1,255:r2=peek(b+2)
+ 39742 poke b+1,255:r1=peek(b+2)
+ 39743 poke b+1,255:r0=peek(b+2)
+ 39750 print"r0=";r0;" r1=";r1;" r2=";r2;" r3=";r3
+ 39755 poke b,x
+ 39756 if x=0 then poke b+1,255:rem dummy
+ 39760 return
+
+ 40000 rem hexout byte
+ 40010 bl=v and 15:n=int(v/16) and 15
+ 40020 gosub 40040
+ 40030 n=bl
+ 40040 if n<10 then print chr$(48+n);:return
+ 40050 print chr$(55+n);:return
+
+ 40100 rem hexout addr
+ 40110 v=int(a/256) and 255:al=a-256*v
+ 40120 gosub 40000
+ 40130 v=al
+ 40140 goto 40000
