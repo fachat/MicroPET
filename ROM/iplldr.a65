@@ -297,6 +297,12 @@ basic4	.(
 	ldy #$1000
 	jsr flash2direct2_xl
 
+	; check BASIC4 patch
+	pla
+	pha
+	bmi b4_orig
+	jsr patch_rom4_xl
+b4_orig
 	; check 80 column bit
 	pla
 	pha
@@ -678,6 +684,45 @@ PATCH_5	.byt $ae, $0c, $02, $70, $46, $20, $87, $f1
 PATCH_6	.byt $20, $2c, $f1, $4c, $7e, $f1 
 
 MARK	.asc "BASIC1 PATCH FOR IEEE488",0
+	.)
+
+
+PATCH4	=$fe20
+
+patch_rom4_xl .(
+
+	; patch target area start (max 1 page due to #>PATCH4 below)
+	ldx #PATCH4
+
+	; from http://www.6502.org/users/andre/cbmhw/ryofat40/index.html
+	lda #$20
+	sta $f0d8
+	; jsr to first patch
+	txa
+	sta $f0d9
+	lda #>PATCH4
+	sta $f0da
+
+	ldy #0
+pl0	lda PATCH4_0,y
+	sta 0,x
+	inx
+	iny
+	cpy #11
+	bne pl0
+
+	rts
+
+PATCH4_0 .(
+	lda #4
+l1	sec
+	sbc #1
+	bne l1
+	lda $e840
+	rts
+	.)
+
+
 	.)
 
 	.dsb RUNADDR+2048-*,$ff

@@ -50,7 +50,6 @@ entity Video is
 	   is_double: in std_logic;
 	   is_nowrap: in std_logic;	-- (ignored)
 	   interlace: in std_logic;
-	   statusline: in std_logic;
 	   movesync:  in std_logic;
 	   
 	   crtc_sel : in std_logic;
@@ -255,18 +254,14 @@ begin
 			-- last visible slot (visible from 0 to 80,
 			-- but during slot 0 SR is empty, and only fetches take place)
 			if (slot_cnt = slots_per_line) then
+				h_enable <= '0';
 				last_vis_slot_of_line <= '1';
+			elsif (slot_cnt = 0) then
+				h_enable <= '1';
 			else 
 				last_vis_slot_of_line <= '0';
 			end if;
 			
-			-- enable
-			-- note:  falling edge of enable may be used to count lines
-			if (last_vis_slot_of_line = '1') then
-				h_enable <= '0';
-			elsif (slot_cnt = 0) then
-				h_enable <= '1';
-			end if;
 		end if;
 	end process;
 

@@ -7,7 +7,9 @@ The current version is 2.0B.
 
 ![Picture of a MicroPET](images/cover.jpg)
 
-Some videos on the build process can be found here [YT 8-bit times](https://youtube.com/playlist?list=PLi1dzy7kw1iybjcUccgjCV4fhNH4IPWSx)
+Here is the [Overview video](https://youtu.be/COlfqcaY7rI)
+
+Some more videos on the build process can be found here [YT 8-bit times](https://youtube.com/playlist?list=PLi1dzy7kw1iybjcUccgjCV4fhNH4IPWSx)
 
 ## Features
 

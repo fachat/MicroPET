@@ -1,5 +1,5 @@
 
-# Board
+# Board V2.1A
 
 The board is a two-layer Eurocard, i.e. 160mm x 100mm.
 
@@ -49,6 +49,12 @@ The main chips are:
 - div. resistors/caps to generate 3.3V output
 
 More details can be found in the [Eagle parts list](micropet_v2.parts).
+
+## Changelog
+
+### V2.1A
+
+In this version I incorporated the fixes I had to apply to the first prototype board. Also, I changed the IEEE488 circuit such that it can now really work as a disk drive for another PET. This brings it in line with the CSA PETIO 1.2A/1.3A boards that have this functionaly fixed.
 
 ## Erratum
 

@@ -181,13 +181,10 @@ begin
 				else 
 			'0' when cfg_mp(7) = '1' 		-- 8296 RAM but no wp
 				else
-			'1' when petrom = '1' and wp_romPET = '1'
-				else
-			'1' when petrom9 = '1' and wp_rom9 = '1'
-				else
-			'1' when petromA = '1' and wp_romA = '1'
-				else
-			'1' when petromB = '1' and wp_romB = '1'
+			'1' when (petrom = '1' and wp_romPET = '1')
+				or (petrom9 = '1' and wp_rom9 = '1')
+				or (petromA = '1' and wp_romA = '1')
+				or (petromB = '1' and wp_romB = '1')
 				else
 			'0';
 			 
@@ -241,18 +238,18 @@ begin
 
 	framsel <= '0' when avalid='0' else
 			'0' when boota19 = '1' else	-- not in upper half of 1M address space is ROM (4-7 are ignored, only 1M addr space)
-			'1' when low64k = '0' else	-- 64k-512k is RAM, i.e. all above 64k besides ROM
-			'1' when A(15) = '0' else	-- lower half bank0
-			'0' when screenwin = '1' else	-- not in screen window
-			'0' when wprot = '1' else	-- 8296 write protect - upper half of bank0
+			'1' when low64k = '0' 		-- 64k-512k is RAM, i.e. all above 64k besides ROM
+				or A(15) = '0' else	-- lower half bank0
+			'0' when screenwin = '1' 	-- not in screen window
+				or wprot = '1' else	-- 8296 write protect - upper half of bank0
 			'1' when c8296ram = '1' else	-- upper half mapped (except peek through)
 			'0' when petio = '1' else	-- not in I/O space
 			'1';
 	
-	iosel <= '0' when avalid='0' else 
-			'0' when low64k = '0' else
-			'0' when c8296ram = '1' else	-- no peekthrough in 8296 mode
-			'1' when petio ='1' else 
+	iosel <= '1' when avalid='1'  
+				and low64k = '1' 
+				and c8296ram = '0' 	-- no peekthrough in 8296 mode
+				and petio ='1' else 
 			'0';
 			
 	ffsel <= '0' when avalid='0' else
