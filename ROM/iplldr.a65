@@ -162,6 +162,17 @@ jmpboot
 	sta SPEED	; $e803 - 1MHz
 
 	; -----------------------
+	; switch Ethernet - if exists - to low power mode
+	lda #4			; ENC28J60 ethernet module
+	sta SPICTRL
+	lda #%01011110		; write control register ECON2
+	sta SPIDATA
+	lda #%00101000		; set PWRSV and VRPS
+	sta SPIDATA
+	lda #0
+	sta SPICTRL
+
+	; -----------------------
 	; copy over charrom to RAM
 	; $2000-$3fff in flash img
 	.(
