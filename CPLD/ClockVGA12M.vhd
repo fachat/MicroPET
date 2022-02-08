@@ -104,9 +104,9 @@ begin
 			--memclk <= memclk_int;
 			
 			
-			dotclk <= clk_cnt (0);
-			dot2clk <= clk_cnt (1);
-			slotclk <= clk_cnt (3);
+			dotclk <= clk_cnt (0);		-- 12.5 MHz
+			dot2clk <= clk_cnt (1);		-- 6.25 MHz
+			slotclk <= clk_cnt (3);		-- 1.5625 MHz
 		end if;
 	end process;
 

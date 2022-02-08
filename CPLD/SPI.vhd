@@ -44,6 +44,7 @@ entity SPI is
 	   serclk: out std_logic;
 	   sersel: out std_logic_vector(2 downto 0);	   -- 8 combinations (0= none)
 	   spiclk : in std_logic;
+	   spislowclk : in std_logic;
 	   
 	   ipl: in std_logic;
 	   reset : in std_logic
@@ -69,7 +70,6 @@ architecture Behavioral of SPI is
 	signal serin_d: std_logic;
 	
 	signal spiclk_int: std_logic;
-	signal spiclk_half: std_logic;
 	
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
@@ -81,18 +81,9 @@ architecture Behavioral of SPI is
 	end function To_Std_Logic;
 	
 begin
-
-	half_p: process(reset, spiclk, spiclk_half)
-	begin
-		if (reset = '1') then
-			spiclk_half <= '0';
-		elsif (falling_edge(spiclk)) then
-			spiclk_half <= not(spiclk_half);
-		end if;
-	end process;
 	
-	spiclk_int <= spiclk when sel(2) = '0' else
-			spiclk_half;
+	spiclk_int <= spiclk when sel(2) = '0' or sel(0) = '0' else
+			spislowclk;
 		
 	-- read registers
 	read_p: process (rs, rwb, cs, sr, sel, cpol, cpha, run_sr, txd_valid, start_rx, ack_rxtx, ipl, reset)
