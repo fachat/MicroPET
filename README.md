@@ -82,7 +82,7 @@ as described in the next section.
 Here are four subdirectories:
 
 - [Board](Board/) that contains the board schematics and layout
-- [CPLD](CPLD/) contains the VHDL code to program the CPLD logic chip used, and describes the configuration options
+- [CPLD](CPLD/) contains the VHDL code to program the CPLD logic chip used, and describes the configuration options - including the [SPI](CPLD/SPI.md) usage
 - [ROM](ROM/) ROM contents to boot
 - [Case](Case/) 3-D printed supports and keyboards to mount board in a C64c case
 
