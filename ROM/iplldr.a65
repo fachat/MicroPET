@@ -78,6 +78,9 @@ bootl	lda $ff00,x
 	; ... and tell the assembler about it
 	.xl
 
+	lda #$10	; for the PET default CRTC base address of $1000
+	sta BANK	; $e802
+
 spiread
 	; -----------------------
 	; copy the boot code to RUNADDR
@@ -158,8 +161,10 @@ jmpboot
 	lda #0
 	sta VCTRL	; $e800 - default to 40 column
 	sta MCTRL	; $e801
-	sta BANK	; $e802
 	sta SPEED	; $e803 - 1MHz
+
+	lda #$10	; for the PET default CRTC base address of $1000
+	sta BANK	; $e802
 
 	; -----------------------
 	; switch Ethernet - if exists - to low power mode
