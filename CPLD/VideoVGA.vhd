@@ -381,15 +381,8 @@ begin
 		elsif (rising_edge(slotclk)) then
 			if (last_vis_slot_of_line = '1') then
 				if (last_line_of_screen = '1') then
-					if(is_hires_int = '1') then
-						-- hires
-						vid_addr_hold(13) <= vpage(5);
-						vid_addr_hold(12) <= vpage(4);
-					else
-						-- character memory
-						vid_addr_hold(13) <= '0';
-						vid_addr_hold(12) <= not(vpage(4));
-					end if;
+					vid_addr_hold(13) <= vpage(5);
+					vid_addr_hold(12) <= vpage(4);
 					vid_addr_hold(11 downto 8) <= vpage(3 downto 0);
 					vid_addr_hold(7 downto 0) <= vpagelo;
 				else
@@ -433,9 +426,13 @@ begin
 	a_out(12) 	<= vid_addr(12) 	when mem_addr ='1' else
 				is_graph;
 	a_out(13) 	<= vid_addr(13) 	when mem_addr ='1' else
-				vpage(5);
-	a_out(15 downto 14) <= vpage(7 downto 6) when is_hires_int = '1' or pxl_fetch = '1' else
-				"10";		-- $8000 for PET character data
+				vpage(6);	-- charrom
+	a_out(14) 	<= vpage(6) when is_hires_int = '1' else	-- hires
+				vpage(7) when pxl_fetch = '1' else	-- charrom
+				'0';		-- $8000 for PET character data
+	a_out(15) 	<= vpage(7) when is_hires_int = '1' else	-- hires
+				'0' when pxl_fetch = '1' else		-- charrom
+				'1';		-- $8000 for PET character data
 
 	A <= a_out;
 

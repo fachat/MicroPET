@@ -146,7 +146,7 @@ architecture Behavioral of Top is
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
 	signal ma_out: std_logic_vector(18 downto 8);
-	signal ma_vout: std_logic_vector(12 downto 11);
+	signal ma_vout: std_logic_vector(13 downto 12);
 	signal m_framsel_out: std_logic;
 	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
@@ -257,7 +257,7 @@ architecture Behavioral of Top is
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
            RA : out std_logic_vector (18 downto 8);	-- mapped CPU address (FRAM)
-	   VA : out std_logic_vector (12 downto 11);	-- separate VRAM address for screen win
+	   VA : out std_logic_vector (13 downto 12);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -679,7 +679,10 @@ begin
 			wp_romPET <= '0';
 			is8296 <= '0';
 			lowbank <= (others => '0');
-			vidblock <= (others => '0');
+			-- standard PET CRTC base address is at CRTC's $1000
+			-- instead of $0000, translating to $9000 in VRAM
+			-- So, we need to select first map on reset
+			vidblock <= (others => '0');	--"01";	
 			boot <= '1';
 			lockb0 <= '0';
 			movesync <= '0';
@@ -717,15 +720,15 @@ begin
 	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
 				va_out(7 downto 0);
-	VA(14 downto 13) <= 	ipl_addr(14 downto 13) 	when ipl = '1'		else 	-- IPL
-				ma_out(14 downto 13) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(14 downto 13);					-- Video
-	VA(12 downto 11) <= 	ipl_addr(12 downto 11) 	when ipl = '1'		else 	-- IPL
-				ma_vout(12 downto 11) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(12 downto 11);					-- Video
-	VA(10 downto 8) <= 	ipl_addr(10 downto 8) 	when ipl = '1'		else 	-- IPL
-				ma_out(10 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(10 downto 8);					-- Video
+	VA(14 downto 14) <= 	ipl_addr(14 downto 14) 	when ipl = '1'		else 	-- IPL
+				ma_out(14 downto 14) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(14 downto 14);					-- Video
+	VA(13 downto 12) <= 	ipl_addr(13 downto 12) 	when ipl = '1'		else 	-- IPL
+				ma_vout(13 downto 12) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(13 downto 12);					-- Video
+	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
+				ma_out(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(11 downto 8);					-- Video
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
 				va_out(15);						-- Video

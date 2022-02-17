@@ -47,7 +47,7 @@ entity Mapper is
 	   
 	   -- mapped address lines
            RA : out std_logic_vector (18 downto 8);	-- mapped FRAM address
-	   VA : out std_logic_vector (12 downto 11);	-- separate VRAM address for screen win
+	   VA : out std_logic_vector (13 downto 12);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -216,10 +216,10 @@ begin
 	-- map 1:1
 	RA(14 downto 8) <= A(14 downto 8);
 	
-	VA(11) <= A(11) when screenwin = '0' else
-				A(11) xor vidblock(0);
+	VA(13) <= A(13) when screenwin = '0' else
+				vidblock(1);
 	VA(12) <= A(12) when screenwin = '0' else
-				A(12) xor vidblock(1);
+				vidblock(0);
 				
 	boota19 <= bank(3) xor boot;
 	
