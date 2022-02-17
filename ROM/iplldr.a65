@@ -724,7 +724,7 @@ pl0	lda PATCH4_0,y
 	sta 0,x
 	inx
 	iny
-	cpy #11
+	cpy #12
 	bne pl0
 
 	rts
@@ -736,6 +736,7 @@ l1	sec
 	bne l1
 	lda $e840
 	rts
+	.byt $c2	; checksum fix
 	.)
 
 
