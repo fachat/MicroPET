@@ -59,24 +59,24 @@ loop	sta sp,y	; not used flag
 	cpy #4
 	bne loop
 
-	lda #0
+	lda #0+16
 	sta bankreg+0
 	lda #$10
 	sta crtc12+0
 
-	lda #2+16
+	lda #2+32
 	sta bankreg+1
-	lda #$18
+	lda #$20
 	sta crtc12+1
 
-	lda #3+32
+	lda #3+48
 	sta bankreg+2
-	lda #$00
+	lda #$30
 	sta crtc12+2
 
-	lda #4+48
+	lda #4+0
 	sta bankreg+3
-	lda #$08
+	lda #$00
 	sta crtc12+3
 
 	; make kernel writable for a moment

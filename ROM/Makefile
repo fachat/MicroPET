@@ -2,6 +2,7 @@
 all: spiimg loadrom.bin loadrom
 
 EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin edit40gxc.bin edit80gxc.bin 
+TOOLS=romcheck
 
 spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax
 	# ROM images
@@ -104,8 +105,10 @@ basic4:
 	cat basic4b basic4c basic4d > basic4
 	rm basic4b basic4c basic4d
 
-kernal4:
-	curl -o kernal4 $(ARCHIVE)/firmware/computers/pet/kernal-4.901465-22.bin
+kernal4: romcheck
+	curl -o kernal4-tmp $(ARCHIVE)/firmware/computers/pet/kernal-4.901465-22.bin
+	./romcheck -s 0xf0 -i 0xdff -o kernal4 kernal4-tmp
+	rm kernal4-tmp
 
 edit40g:
 	curl -o edit40g $(ARCHIVE)/firmware/computers/pet/edit-4-40-n-50Hz.901498-01.bin
@@ -126,6 +129,9 @@ loadrom: loadrom.lst
 
 loadrom.bin: loadrom.a65
 	xa -o $@ $<
+
+${TOOLS}: % : %.c
+	cc -Wall -pedantic -o $@ $<
  
 # Clean
 
