@@ -122,6 +122,7 @@ architecture Behavioral of Top is
 	-- clock
 	signal dotclk: std_logic;
 	signal dot2clk: std_logic;
+	signal dot4clk: std_logic;
 	signal slotclk: std_logic;
 	signal pxl_window: std_logic;
 	signal chr_window: std_logic;
@@ -232,8 +233,9 @@ architecture Behavioral of Top is
 	   clk2m	: out std_logic;	-- trigger CPU access @ 2MHz
 	   clk4m	: out std_logic;	-- trigger CPU access @ 4MHz
 	   
-	   dotclk	: out std_logic;	-- pixel clock for video
-	   dot2clk	: out std_logic;	-- half the pixel clock
+	   dotclk	: out std_logic;	-- pixel clock for video (12.5 MHz)
+	   dot2clk	: out std_logic;	-- half the pixel clock (6.25 MHz)
+	   dot4clk	: out std_logic;	-- 1/4 the pixel clock (3.125 MHz)
 	   slotclk	: out std_logic;	-- 1 slot = 8 pixel; 1 slot = 2 memory accesses, one for char, one for pixel data (at end of slot)
 	   chr_window	: out std_logic;	-- 1 during character fetch window
 	   pxl_window	: out std_logic;	-- 1 during pixel fetch window (end of slot)
@@ -368,6 +370,7 @@ begin
 	   clk4m,
 	   dotclk,
 	   dot2clk,
+	   dot4clk,
 	   slotclk,
 	   chr_window,
 	   pxl_window,
@@ -608,7 +611,7 @@ begin
 	   spi_clkx,
 	   spi_sel,
 	   memclk,
-	   dot2clk,
+	   dot4clk,
 	   
 	   ipl_state,
 	   reset
