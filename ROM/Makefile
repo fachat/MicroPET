@@ -4,7 +4,7 @@ all: spiimg loadrom.bin loadrom
 EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin edit40gxc.bin edit80gxc.bin 
 TOOLS=romcheck
 
-spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax
+spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80gxs.bin edit80gs.bin
 	# ROM images
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
 	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
@@ -20,11 +20,11 @@ spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pe
 	# editor ROMs
 	cat edit40gx.bin  				>> spiimg	# sjgray ext 40 column editor w/ wedge by for(;;)
 	cat edit40gxc.bin	 			>> spiimg	# sjgray ext 40 column editor for C64 kbd (experimental)
-	cat edit80gx.bin				>> spiimg	# sjgray ext 80 column editor w/ wedge by for(;;)
+	cat edit80gxs.bin				>> spiimg	# sjgray ext 80 column editor w/ wedge by for(;;)
 	cat edit80gxc.bin	 			>> spiimg	# sjgray ext 80 column editor for C64 kbd (experimental)
 	cat edit40g zero 				>> spiimg	# original BASIC 4 editor ROM graph keybd
 	cat edit40gc.bin zero	 			>> spiimg	# sjgray base 40 column editor for C64 kbd (experimental)
-	cat edit80g zero				>> spiimg	# (original) BASIC 4 80 column editor ROM (graph keybd)
+	cat edit80gs.bin zero				>> spiimg	# (original) BASIC 4 80 column editor ROM (graph keybd)
 	cat edit80gc.bin zero	 			>> spiimg	# sjgray base 80 column editor for C64 kbd (experimental)
 	# alternate BASIC 1 character ROM (as 16 bytes/char)
 	cat chargen_pet1_16				>> spiimg	# 96-104k: BASIC 1 character set
@@ -105,10 +105,11 @@ basic4:
 	cat basic4b basic4c basic4d > basic4
 	rm basic4b basic4c basic4d
 
-kernal4: romcheck
-	curl -o kernal4-tmp $(ARCHIVE)/firmware/computers/pet/kernal-4.901465-22.bin
-	./romcheck -s 0xf0 -i 0xdff -o kernal4 kernal4-tmp
-	rm kernal4-tmp
+kernal4t: 
+	curl -o kernal4t $(ARCHIVE)/firmware/computers/pet/kernal-4.901465-22.bin
+
+kernal4: kernal4t romcheck
+	./romcheck -s 0xf0 -i 0xdff -o kernal4 kernal4t
 
 edit40g:
 	curl -o edit40g $(ARCHIVE)/firmware/computers/pet/edit-4-40-n-50Hz.901498-01.bin
@@ -121,6 +122,13 @@ ${EDITROMS}: %.bin: %.asm
 	cp $< cbm-edit-rom/edit.asm
 	cd cbm-edit-rom && acme -r editrom.txt editrom.asm
 	cp cbm-edit-rom/editrom.bin $@
+
+edit80gxs.bin: edit80gx.bin romcheck
+	./romcheck -s 0xe0 -l 0x800 -i 0x7ff -o $@ $<
+
+edit80gs.bin: edit80g romcheck
+	./romcheck -s 0xe0 -l 0x800 -i 0x7ff -o $@ $<
+	
 
 # load other PET Editor ROM and reboot
 
@@ -138,7 +146,8 @@ ${TOOLS}: % : %.c
 clean:
 	rm -f romtest01 romtest01a romtest02 romtest02a zero chargen_pet16 char8to16 charPet2Invers
 	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g basic1 edit1 kernal1 chargen_pet1 chargen_pet1_16
-	rm -f iplldr
+	rm -f iplldr edit80gs.bin edit80gxs.bin kernal4t
+	rm -f romcheck loadrom loadrom.bin
 
 rebuildclean:
 	rm -f $(EDITROMS)
