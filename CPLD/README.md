@@ -107,9 +107,17 @@ the screen. It just isn't properly centered anymore.
 #### $e802 (59394) Bank Control
 
 - Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
-- Bit 4-5: number of 4k character video memory block the $8xxx window points to; possible 
+- Bit 4: when set, swap the 2 2k areas at $8000 and $8800
+- Bit 5-6: number of 4k character video memory block the $8xxx window points to; possible 
 addresses in VRAM bank 0 (CPU bank 8) are $8xxx, $9xxx, $axxx, $bxxx
-- Bit 6-7: unused, must be 0
+- Bit 7: unused, must be 0
+
+Note that the meaning of bits 4-6 has recently changed to be more compatible with the
+upcoming Ultra-PET. Notably, if you use 2k of 4k screens, you can use 
+Bits 4-6 as address bits for where the video memory at $8000-$87ff is mapped in
+the actual video RAM. The difference is in the mapping of the second 2k at $8800-$8fff.
+This second half is not just 2k after the character video memory, but always in the same 
+4k block in video memory as the actual character video memory at $8000. 
 
 #### $e803 (59395) Speed Control
 
