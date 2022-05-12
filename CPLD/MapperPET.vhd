@@ -47,7 +47,7 @@ entity Mapper is
 	   
 	   -- mapped address lines
            RA : out std_logic_vector (18 downto 8);	-- mapped FRAM address
-	   VA : out std_logic_vector (13 downto 12);	-- separate VRAM address for screen win
+	   VA : out std_logic_vector (13 downto 11);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -55,7 +55,7 @@ entity Mapper is
 	   
 	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
-	   vidblock: in std_logic_vector(1 downto 0);
+	   vidblock: in std_logic_vector(2 downto 0);
    	   wp_rom9: in std_logic;
    	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
@@ -217,9 +217,11 @@ begin
 	RA(14 downto 8) <= A(14 downto 8);
 	
 	VA(13) <= A(13) when screenwin = '0' else
-				vidblock(1);
+				vidblock(2);
 	VA(12) <= A(12) when screenwin = '0' else
-				vidblock(0);
+				vidblock(1);
+	VA(11) <= A(11) when screenwin = '0' else
+				A(11) xor vidblock(0);
 				
 	boota19 <= bank(3) xor boot;
 	

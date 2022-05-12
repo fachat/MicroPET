@@ -147,7 +147,7 @@ architecture Behavioral of Top is
 	-- CPU memory mapper
 	signal cfgld_in: std_logic;
 	signal ma_out: std_logic_vector(18 downto 8);
-	signal ma_vout: std_logic_vector(13 downto 12);
+	signal ma_vout: std_logic_vector(13 downto 11);
 	signal m_framsel_out: std_logic;
 	signal m_vramsel_out: std_logic;
 	signal m_ffsel_out: std_logic;
@@ -166,7 +166,7 @@ architecture Behavioral of Top is
 	signal wp_romPET : std_logic;
 	signal is8296 : std_logic;
 	signal lowbank : std_logic_vector(3 downto 0);
-	signal vidblock : std_logic_vector(1 downto 0);
+	signal vidblock : std_logic_vector(2 downto 0);
 	signal lockb0 : std_logic;
 	signal forceb0 : std_logic;
 	signal movesync : std_logic;
@@ -259,7 +259,7 @@ architecture Behavioral of Top is
            cfgld : in  STD_LOGIC;	-- set when loading the cfg
 	   
            RA : out std_logic_vector (18 downto 8);	-- mapped CPU address (FRAM)
-	   VA : out std_logic_vector (13 downto 12);	-- separate VRAM address for screen win
+	   VA : out std_logic_vector (13 downto 11);	-- separate VRAM address for screen win
 	   ffsel: out std_logic;
 	   iosel: out std_logic;
 	   vramsel: out std_logic;
@@ -267,7 +267,7 @@ architecture Behavioral of Top is
 
 	   boot: in std_logic;
 	   lowbank: in std_logic_vector(3 downto 0);
-	   vidblock: in std_logic_vector(1 downto 0);
+	   vidblock: in std_logic_vector(2 downto 0);
 	   wp_rom9: in std_logic;
 	   wp_romA: in std_logic;
 	   wp_romB: in std_logic;
@@ -710,7 +710,7 @@ begin
 				wp_romPET <= D(7);
 			when "10" =>
 				lowbank <= D(3 downto 0);
-				vidblock <= D(5 downto 4);
+				vidblock <= D(6 downto 4);
 			when "11" =>
 				mode(1 downto 0) <= D(1 downto 0); -- speed bits
 			when others =>
@@ -726,12 +726,12 @@ begin
 	VA(14 downto 14) <= 	ipl_addr(14 downto 14) 	when ipl = '1'		else 	-- IPL
 				ma_out(14 downto 14) 	when is_vid_out = '0' 	else 	-- CPU
 				va_out(14 downto 14);					-- Video
-	VA(13 downto 12) <= 	ipl_addr(13 downto 12) 	when ipl = '1'		else 	-- IPL
-				ma_vout(13 downto 12) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(13 downto 12);					-- Video
-	VA(11 downto 8) <= 	ipl_addr(11 downto 8) 	when ipl = '1'		else 	-- IPL
-				ma_out(11 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
-				va_out(11 downto 8);					-- Video
+	VA(13 downto 11) <= 	ipl_addr(13 downto 11) 	when ipl = '1'		else 	-- IPL
+				ma_vout(13 downto 11) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(13 downto 11);					-- Video
+	VA(10 downto 8) <= 	ipl_addr(10 downto 8) 	when ipl = '1'		else 	-- IPL
+				ma_out(10 downto 8) 	when is_vid_out = '0' 	else 	-- CPU
+				va_out(10 downto 8);					-- Video
 	VA(15) <= 		ipl_addr(15)		when ipl = '1'		else	-- IPL
 				ma_out(15) 		when is_vid_out = '0' 	else 	-- CPU
 				va_out(15);						-- Video
