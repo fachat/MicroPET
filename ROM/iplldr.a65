@@ -26,8 +26,7 @@ SPICTRL	=$e808
 SPIDATA	=$e809
 SPIPEEK	=$e80a
 
-RUNADDR	=$8800
-ADRDIFF	=$ff00-$8800
+RUNADDR	=$9000
 
 shift	=$87ff
 char	=$87fe
@@ -40,12 +39,13 @@ R8296   =$fff0
 
 	*=$ff00
 vreset	.(
+#if 0
 	; test loop for hardware debugging. E.g. Trigger on A2
-	;nop
-	;nop
-	;nop
-	;jmp vreset
-
+	nop
+	nop
+	nop
+	jmp vreset
+#else
 	; init the CPU
 	sei
 	cld
@@ -72,14 +72,67 @@ bootl	lda $ff00,x
 	lda #0
 	sta $e801
 
-
+;this jmp this
 	; set X/Y registers to 16 bit ...
 	rep #%00010000
 	; ... and tell the assembler about it
 	.xl
 
-	lda #$10	; for the PET default CRTC base address of $1000
+	lda #$20	; for the PET default CRTC base address of $1000
 	sta BANK	; $e802
+
+
+#if 0
+	; init the CRTC emulation
+	lda #9
+	sta $e880
+	lda #7
+	sta $e881
+	lda #12
+	sta $e880
+	lda #$10
+	sta $e881
+
+	; init control registers
+	lda #0
+	sta VCTRL	; $e800 - default to 40 column
+	sta MCTRL	; $e801
+	sta SPEED	; $e803 - 1MHz
+
+	lda #$00
+	ldx #$0000
+f0	ldy #256
+f1	sta VBANK,x
+	inx
+	cpx #$2000
+	beq fs
+nexty	dey
+	bne f1
+	clc
+	adc #1
+	bne f0
+	; fill screen
+fs	ldx #$9000
+	lda #0
+fs0	sta VBANK,x
+	clc
+	adc #1
+	inx
+	cpx #$9800
+	bne fs0
+	; color
+fc	ldx #$d000
+	lda #$f0
+fc0	sta VBANK,x
+	inx
+	cpx #$d800
+	bne fc0
+	; check loop
+	; this code is running in FRAM, see address translation into VRAM
+	; use write so we can trigger on R/W
+fx	sta $8000
+	jmp fx
+#endif
 
 spiread
 	; -----------------------
@@ -109,7 +162,7 @@ readloop
 	sta SPICTRL	; deselect Flash
 
 	jmp RUNADDR
-
+#endif
 
 vcop
 vbrk
@@ -118,7 +171,7 @@ vnmi
 virq
 	rti
 
-        .dsb $fff4-*,$ff
+        .dsb $fff4-*,$f0
 
         .word vcop
         .word vbrk
@@ -163,7 +216,7 @@ jmpboot
 	sta MCTRL	; $e801
 	sta SPEED	; $e803 - 1MHz
 
-	lda #$10	; for the PET default CRTC base address of $1000
+	lda #$20	; for the PET default CRTC base address of $1000
 	sta BANK	; $e802
 
 	; -----------------------
@@ -195,15 +248,33 @@ copy
 	bne copy
 	.)
 
+#if 0
+	lda #$55
+	ldx #$7ff
+ccc	sta VBANK+$9000,x
+	dex
+	bpl ccc
+	lda #$a0
+	ldx #$7ff
+ccc2	sta VBANK+$d000,x
+	dex
+	bpl ccc2
+
+	lda #$22
+this	sta $8000
+ 	jmp this
+#endif
+
 	jsr clrscreen_xl
 	jsr selecttext_xl
+
 
 	; switches to .xs
 	sep #%00010000
 	.xs
 
-cloop	jsr checkkbd_xs
-	bcc cloop
+chkloop	jsr checkkbd_xs
+	bcc chkloop
 
 	rep #%00010000
 	.xl
@@ -422,11 +493,19 @@ checkkbd_xs .(
 	sta $e812
 	lda #$3c	; Port B, CB2 output hi
 	sta $e813
-	; scan
-	ldx #$50
+
+	; init scan
 	lda $e810
 	and #$F0
-	sta $e810
+
+	; wait for PIA to be there
+wpia	sta $e810	; write trigger for scoping
+	ldy $e812
+	cpy #$ff
+	bne wpia
+
+	; scan
+	ldx #$50
 rloop	ldy #8
 ioloop	lda $e812
 	cmp $e812
@@ -535,8 +614,15 @@ clrscreen_xl .(
 	ldx #1999	; clear full 80 column screen (note $87ff is shift flag)
 	lda #$20
 loop	sta $8000,x
+	;sta VBANK+$9000,x
 	dex
 	bpl loop
+	ldx #1999	; clear full 80 column color screen (note $87ff is shift flag)
+	lda #$a0
+cloop	sta $8800,x
+	;sta VBANK+$d000,x
+	dex
+	bpl cloop
 	rts
 	.)
 

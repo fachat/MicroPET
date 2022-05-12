@@ -1,10 +1,10 @@
 
 all: spiimg loadrom.bin loadrom
 
-EDITROMS=edit80gx.bin edit40gx.bin edit40gc.bin edit80gc.bin edit40gxc.bin edit80gxc.bin 
+EDITROMS=edit40_c64kb.bin edit80_c64kb.bin edit40_grfkb_ext.bin edit80_grfkb_ext.bin edit40_c64kb_ext.bin edit80_c64kb_ext.bin 
 TOOLS=romcheck
 
-spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80gxs.bin edit80gs.bin
+spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80_grfkb_ext_chk.bin edit80_chk.bin
 	# ROM images
 	cat iplldr					> spiimg	# 0-4k   : IPL loader
 	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
@@ -17,15 +17,15 @@ spiimg: zero basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pe
 	# BASIC 4
 	cat basic4 					>> spiimg	# 48-60k : BASIC4 ROMS (12k $b000-$dfff)
 	cat kernal4					>> spiimg	# 60-64k : BASIC4 kernel (4k)
-	# editor ROMs
-	cat edit40gx.bin  				>> spiimg	# sjgray ext 40 column editor w/ wedge by for(;;)
-	cat edit40gxc.bin	 			>> spiimg	# sjgray ext 40 column editor for C64 kbd (experimental)
-	cat edit80gxs.bin				>> spiimg	# sjgray ext 80 column editor w/ wedge by for(;;)
-	cat edit80gxc.bin	 			>> spiimg	# sjgray ext 80 column editor for C64 kbd (experimental)
+	# editor ROMs (each line 4k)
+	cat edit40_grfkb_ext.bin  			>> spiimg	# sjgray ext 40 column editor w/ wedge by for(;;)
+	cat edit40_c64kb_ext.bin	 		>> spiimg	# sjgray ext 40 column editor for C64 kbd (experimental)
+	cat edit80_grfkb_ext_chk.bin			>> spiimg	# sjgray ext 80 column editor w/ wedge by for(;;)
+	cat edit80_c64kb_ext.bin	 		>> spiimg	# sjgray ext 80 column editor for C64 kbd (experimental)
 	cat edit40g zero 				>> spiimg	# original BASIC 4 editor ROM graph keybd
-	cat edit40gc.bin zero	 			>> spiimg	# sjgray base 40 column editor for C64 kbd (experimental)
-	cat edit80gs.bin zero				>> spiimg	# (original) BASIC 4 80 column editor ROM (graph keybd)
-	cat edit80gc.bin zero	 			>> spiimg	# sjgray base 80 column editor for C64 kbd (experimental)
+	cat edit40_c64kb.bin 		 		>> spiimg	# sjgray base 40 column editor for C64 kbd (experimental)
+	cat edit80_chk.bin zero				>> spiimg	# (original) BASIC 4 80 column editor ROM (graph keybd)
+	cat edit80_c64kb.bin 		 		>> spiimg	# sjgray base 80 column editor for C64 kbd (experimental)
 	# alternate BASIC 1 character ROM (as 16 bytes/char)
 	cat chargen_pet1_16				>> spiimg	# 96-104k: BASIC 1 character set
 
@@ -117,16 +117,22 @@ edit40g:
 edit80g:
 	curl -o edit80g $(ARCHIVE)/firmware/computers/pet/edit-4-80-n-50Hz.4016_to_8016.bin
 
-${EDITROMS}: %.bin: %.asm
-	test -e cbm-edit-rom || git clone https://github.com/sjgray/cbm-edit-rom.git
+cbm-edit-rom: 
+	git clone https://github.com/fachat/cbm-edit-rom.git
+	cp cbm-edit-rom/edit.asm cbm-edit-rom/edit.asm.org
+
+${EDITROMS}: %.bin: %.asm cbm-edit-rom
+	rm -f cbm-edit-rom/editrom.bin
+	rm -f cbm-edit-rom/cpetrom.bin
 	cp $< cbm-edit-rom/edit.asm
 	cd cbm-edit-rom && acme -r editrom.txt editrom.asm
+	-test -e cbm-edit-rom/cpetrom.bin && mv cbm-edit-rom/cpetrom.bin cbm-edit-rom/editrom.bin
 	cp cbm-edit-rom/editrom.bin $@
 
-edit80gxs.bin: edit80gx.bin romcheck
+edit80_grfkb_ext_chk.bin: edit80_grfkb_ext.bin romcheck
 	./romcheck -s 0xe0 -l 0x800 -i 0x7ff -o $@ $<
 
-edit80gs.bin: edit80g romcheck
+edit80_chk.bin: edit80g romcheck
 	./romcheck -s 0xe0 -l 0x800 -i 0x7ff -o $@ $<
 	
 
@@ -146,9 +152,10 @@ ${TOOLS}: % : %.c
 clean:
 	rm -f romtest01 romtest01a romtest02 romtest02a zero chargen_pet16 char8to16 charPet2Invers
 	rm -f basic2 edit2g kernal2 chargen_pet basic4 kernal4 edit40g edit80g basic1 edit1 kernal1 chargen_pet1 chargen_pet1_16
-	rm -f iplldr edit80gs.bin edit80gxs.bin kernal4t
+	rm -f iplldr edit80_chk.bin edit80_grfkb_ext_chk.bin kernal4t
 	rm -f romcheck loadrom loadrom.bin
 
 rebuildclean:
 	rm -f $(EDITROMS)
+
 
