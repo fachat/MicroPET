@@ -1,5 +1,5 @@
 
-ASM=low32k map 8296screen virtpet
+ASM=map 8296screen virtpet
 BASIC=readflash rtcc batmem sdcard
 
 all: ${ASM} ${BASIC}
