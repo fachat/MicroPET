@@ -12,6 +12,7 @@ This is an overview on the register set:
 - $e801 (59393)  [Memory map control](#e801-59393-memory-map-control)
 - $e802 (59394)  [Low32k bank / video window map](#e802-59394-low32k-bank)
 - $e803 (59395)  [Speed control](#e803-59395-speed-control)
+- $e805 (59397)  [Video window map](#e805-59397-video-window)
 
 - $fff0 (65520)  [8296 memory control (8296 memory map only)](#8296-control-port)
 
@@ -107,17 +108,9 @@ the screen. It just isn't properly centered anymore.
 #### $e802 (59394) Bank Control
 
 - Bit 0-3: number of 32k bank in 512k RAM, for the lowest 32k of system
-- Bit 4: when set, swap the 2 2k areas at $8000 and $8800
-- Bit 5-6: number of 4k character video memory block the $8xxx window points to; possible 
-addresses in VRAM bank 0 (CPU bank 8) are $8xxx, $9xxx, $axxx, $bxxx
-- Bit 7: unused, must be 0
+- Bit 4-7: unused, must be 0
 
-Note that the meaning of bits 4-6 has recently changed to be more compatible with the
-upcoming Ultra-PET. Notably, if you use 2k of 4k screens, you can use 
-Bits 4-6 as address bits for where the video memory at $8000-$87ff is mapped in
-the actual video RAM. The difference is in the mapping of the second 2k at $8800-$8fff.
-This second half is not just 2k after the character video memory, but always in the same 
-4k block in video memory as the actual character video memory at $8000. 
+Map the lowest 32k in bank 0 to any of 16 32k blocks in the 512k Fast RAM.
 
 #### $e803 (59395) Speed Control
 
@@ -128,6 +121,29 @@ This second half is not just 2k after the character video memory, but always in 
   - 11 = 12.5 MHz with wait states for video access to VRAM
 - Bit 2-7: unused, must be 0
 
+#### $e805 (59397) Video window
+
+- Bit 0: when set, swap the 2 2k areas at $8000 and $8800
+- Bit 1-2: number of 2k character video memory block the $8xxx window points to; possible 
+addresses in VRAM bank 0 (CPU bank 8) are $8xxx, $9xxx, $axxx, $bxxx
+- Bit 3-7: unused, must be 0
+
+If you use 2k of 4k screens, you can use 
+Bits 0-2 as address bits for where the video memory at $8000-$87ff is mapped in
+the actual video RAM. The difference is in the mapping of the second 2k at $8800-$8fff.
+This second half is not just 2k after the character video memory, but always in the same 
+4k block in video memory as the actual character video memory at $8000. Technically,
+bit 0 just inverts address bit A11.
+
+So, for example value of "001" maps:
+
+- $8000-$87ff to $8800-$8fff
+- $8800-$8fff to $8000-$87ff
+
+Where "010" maps:
+
+- $8000-$87ff to $9000-$97ff
+- $8800-$8fff to $9800-$9fff
 
 ### 8296 control port
 

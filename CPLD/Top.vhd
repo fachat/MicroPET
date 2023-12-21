@@ -685,14 +685,14 @@ begin
 			-- standard PET CRTC base address is at CRTC's $1000
 			-- instead of $0000, translating to $9000 in VRAM
 			-- So, we need to select first map on reset
-			vidblock <= (others => '0');	--"01";	
+			vidblock <= "010"; --(others => '0');	--"01";	
 			boot <= '1';
 			lockb0 <= '0';
 			movesync <= '0';
-		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3 downto 2) = "00") then
+		elsif (falling_edge(phi2_int) and sel0='1' and rwb='0' and ca_in(3) = '0') then
 			-- Write to $E80x
-			case (ca_in(1 downto 0)) is
-			when "00" =>
+			case (ca_in(2 downto 0)) is
+			when "000" =>
 				vis_hires_in <= D(0);
 				vis_80_in <= D(1);
 				screenb0 <= not(D(2));
@@ -700,7 +700,7 @@ begin
 				interlace <= D(4);
 				movesync <= D(6);
 				vis_enable <= not(D(7));
-			when "01" =>
+			when "001" =>
 				lockb0 <= D(0);
 				boot <= D(1);
 				is8296 <= D(3);
@@ -708,11 +708,12 @@ begin
 				wp_romA <= D(5);
 				wp_romB <= D(6);
 				wp_romPET <= D(7);
-			when "10" =>
+			when "010" =>
 				lowbank <= D(3 downto 0);
-				vidblock <= D(6 downto 4);
-			when "11" =>
+			when "011" =>
 				mode(1 downto 0) <= D(1 downto 0); -- speed bits
+			when "101" =>
+				vidblock <= D(2 downto 0);
 			when others =>
 				null;
 			end case;
