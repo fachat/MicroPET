@@ -308,7 +308,10 @@ c0	lda cols,y
 
 cols	.byt 2<<4,3<<4,4<<4,8<<4,12<<4
 	
-text	.asc "PRESS KEY FOR BOOT OPTION:              "
+text	.asc "          MICRO-/ULTIMATE-PET           "
+	.asc "            (C) A.FACHAT                "
+	.asc "                                        "
+	.asc "PRESS KEY FOR BOOT OPTION:              "
 	.asc "                                        "
 	.asc "* BASIC ", "1"+$80, " (NO C64 KBD)                  "
 	.asc "* BASIC ", "2"+$80, " (40 COLUMNS, NO C64 KBD)      "
