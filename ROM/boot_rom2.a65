@@ -1,0 +1,18 @@
+
+	
+	;------------------------
+	; upgrade ROMs with BASIC2
+setup_basic2_xl	.(
+	; copy over PET ROM into low RAM
+	; $4000-$7fff in bootimg to $c000-$ffff in RAM
+
+	lda #$80
+	ldx #$c000
+	ldy #$4000
+	jsr flash2direct_xl
+
+	lda #%10000000	; write protect $c000-$ffff
+	jmp end
+	.)
+
+

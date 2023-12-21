@@ -1,0 +1,177 @@
+
+setup_basic1_xl	.(
+	; save patch bit (ac.7)
+	pla
+
+	; -----------------------
+	; copy over BASIC 1 charrom to RAM
+	; $14000-$15fff in flash img
+	
+	lda #$80
+	ldx #$c000
+	ldy #$2000
+	jsr flash2direct2_xl
+
+	; now copy from bank 0 to target location
+	ldx #0
+copy
+	lda $c000,x	; location in test ROM bank
+	sta VBANK,x	; location in RAM - uppermost RAM bank
+	inx
+	cpx #$2000
+	bne copy
+
+	;------------------------
+	; BASIC 1
+	lda #$40	; source page in Flash
+	ldx #$c000	; target addr
+	ldy #$4000	; len
+	jsr flash2direct_xl
+	
+	pla
+	bmi b1_orig	; check BASIC1 patch
+
+	; apply BASIC1 patch like in VICE
+	jsr patch_rom1_xl
+b1_orig
+	lda #%10000000	; write protect $c000-$ffff
+	jmp end
+	
+
+PATCH	=$ef00
+
+patch_rom1_xl 
+
+	; transferred over from VICE
+	lda #$ea	; NOP
+	sta $f471
+	sta $f472
+	sta $f180
+	sta $f181
+	lda #$f8
+	sta $f3ef
+	lda #$f7
+	sta $f3f3
+
+	; patch area start
+	ldx #PATCH
+
+	; jmp to first patch
+	txa
+	sta $f370
+	lda #>PATCH
+	sta $f371
+
+	ldy #0
+pl0	lda PATCH_0,y
+	sta 0,x
+	inx
+	iny
+	cpy #5
+	bne pl0
+
+	; jump to second patch
+	txa
+	sta $f379
+	lda #>PATCH
+	sta $f37a
+
+	ldy #0
+pl1	lda PATCH_1,y
+	sta 0,x
+	inx
+	iny
+	cpy #19
+	bne pl1
+
+	; JSR to third patch
+	lda #$20
+	sta $f3cc
+	txa
+	sta $f3cd
+	lda #>PATCH
+	sta $f3ce
+
+	ldy #0
+pl2	lda PATCH_2,y
+	sta 0,x
+	inx
+	iny
+	cpy #10
+	bne pl2
+
+	; jmp to fourth patch
+	txa
+	sta $f6c1
+	lda #>PATCH
+	sta $f6c2
+	
+	ldy #0
+pl3	lda PATCH_3,y
+	sta 0,x
+	inx
+	iny
+	cpy #5
+	bne pl3
+
+	; jump to fifth patch
+	txa
+	sta $f6c7
+	lda #>PATCH
+	sta $f6c8
+	
+	ldy #0
+pl4	lda PATCH_4,y
+	sta 0,x
+	inx
+	iny
+	cpy #18
+	bne pl4
+
+	; insert sixth patch
+	ldy #0
+pl5	lda PATCH_5,y
+	sta $f381,y
+	iny
+	cpy #8
+	bne pl5
+
+	; jump to seventh patch
+	txa
+	sta $f6f4
+	lda #>PATCH
+	sta $f6f5
+
+	ldy #0
+pl6	lda PATCH_6,y
+	sta 0,x
+	inx
+	iny
+	cpy #6
+	bne pl6
+
+	; insert marker
+	ldy #0
+	tya		; fill B with zero, so cmp work?
+plm	lda MARK,y
+	sta 0,x
+	inx
+	iny
+	cmp #0
+	bne plm
+
+	rts
+
+PATCH_0	.byt $a9, $60, $85, $f0, $60 
+PATCH_1 .byt $20, $b6, $f0, $a5, $f0, $20, $5b, $f1, $20, $87, $f1, $85, $f7, $20, $87, $f1, $85, $f8, $60 
+PATCH_2 .byt $20, $7a, $f1, $20, $e6, $f6, $ad, $0b, $02, $60
+PATCH_3	.byt $a9, $61, $85, $f0, $60 
+PATCH_4	.byt $20, $ba, $f0, $a5, $f0, $20, $2c, $f1, $a5, $f7, $20, $67, $f1, $a5, $f8, $4c, $67, $f1 
+PATCH_5	.byt $ae, $0c, $02, $70, $46, $20, $87, $f1
+PATCH_6	.byt $20, $2c, $f1, $4c, $7e, $f1 
+
+MARK	.asc "BASIC1 PATCH FOR IEEE488",0
+	.)
+
+
+

@@ -1,0 +1,330 @@
+
+&do_menu_xl .(
+	;jsr clrscreen_xl
+	lda #BOOTCOL
+	jsr setcol_xl
+	jsr selecttext_xl
+
+	; switches to .xs
+	sep #%00010000
+	.xs
+
+	lda #0
+	sta opt
+
+chkloop	lda opt
+	beq chkloop
+
+	rep #%00010000
+	.xl
+
+	pha
+	jsr clrscreen_xl
+	pla
+	rts
+	.)
+
+	; ----------------------------
+	; AC has ascii char from USB keyboard
+key_usb	.(
+	;inc $8020
+
+	jsr conv_usb2opt
+	bcc nouopt
+	sta opt
+nouopt	rts
+	.)
+
+	; AC has 
+key_pet	.(
+	;inc $8021
+
+	jsr conv_pet2opt
+	bcc nopopt
+	sta opt
+nopopt 	rts
+	.)
+
+	; ----------------------------
+	; check keyboard for input
+	; returns
+	; c=0	- no key pressed
+	; c=1	- key pressed
+	;	xr=number of key
+	;	ac=shift flag
+	.xs
+
+checkkbd_xs .(
+	lda #0
+	sta char
+	sta shift
+	; init
+	lda #$38	; DDR, CA2 output hi
+	sta PIA1+PIA_CRA; $e811
+	lda #$0f	; set keybd row select to output
+	sta PIA1+PIA_PA	; $e810
+	lda #$3c	; Port A, CA2 output hi
+	sta PIA1+PIA_CRA; $e811
+	lda #$38	; DDR, CB2 output hi
+	sta PIA1+PIA_CRB; $e813
+	lda #0		; all bits input PB
+	sta PIA1+PIA_PB	; $e812
+#if VICCY_IRQ
+	lda #$3c	; Port B, CB2 output hi
+#else
+	lda #$3d	; Port B, CB2 output hi
+#endif
+	sta PIA1+PIA_CRB; $e813
+
+	; init scan
+	lda $e810
+	and #$F0
+
+	; wait for PIA to be there
+wpia	sta $e810	; write trigger for scoping
+	ldy $e812
+	cpy #$ff
+	bne wpia
+
+	; scan
+	ldx #$50
+rloop	ldy #8
+ioloop	lda $e812
+	cmp $e812
+	bne ioloop
+bloop	lsr
+	bcc gotone
+nextr	dex
+	beq done
+	dey
+	bne bloop
+	inc $e810
+	bra rloop	; always
+
+done	ldx char
+	clc
+	beq ret		
+	lda shift
+	sec		; got one
+ret	rts
+
+gotone	; x has number of key
+	; save AC
+
+	; PET-N
+	cpx #16		; left shift (8/0)
+	beq gotshift
+	cpx #11		; right shift (8/5) (works, but not on a C64 keybd)
+	beq gotshift
+	; C64
+	cpx #55		; 3/1 = "R" = Left shift on C64 kbd
+	beq gotshift
+
+	stx char
+	bra nextr
+gotshift
+	ror shift	; implicit sec after branch from cpx/beq
+	bra nextr
+	.)
+
+	;---------------------------------------
+	; convert checkkbd output to option byte
+	; in: a/x from checkkbd
+	; out:
+	;	c=0: no option identified
+	;	c=1: option in AC
+	;
+conv_pet2opt .(
+	pha		; save shift flag	
+
+	; PET N-type keyboard
+	; key number is (9-row)*8+(7-col)+1 where row/col are from www.6502.org/users/andre/petindex/keymap/petgraph.png
+	cpx #41		; 4/7 = "6"	; 8296 not working
+	beq is8296
+	cpx #18		; 7/6 = "2"
+	beq is2
+	cpx #42		; 4/6 = "4"
+	beq is4
+	cpx #50		; 3/6 = "8"
+	beq is8
+	cpx #26		; 6/6 = "1"
+	beq is1
+
+	; C64 keyboard
+
+	; derived from https://www.keymmodore.com/the-matrix/
+;	cpx #42		; 4/6 = "4" = Right shift on C64 - clash with N-type "4"
+;	beq gotshift
+;	cpx #22		; 7/2 = "N" = "6" on C64 kbd - 8296 not working
+;	beq is8296c64
+;	cpx #24		; 7/0 = "X" = "2" on C64 kbd - no C64 kbd option
+;	beq is2c64
+	cpx #23		; 7/1 = "V" = "4" on C64 kbd
+	beq is4c64
+	cpx #21		; 7/3 = "," = "8" on C64 kbd
+	beq is8c64
+;	cpx #80		; 0/0 = "!" = "1" on C64 kbd - no C64 kbd option
+;	beq is1c64
+bloopx
+	pla		; get shift from stack and ignore
+	clc	
+	rts
+
+	; result is
+	; bit 7   - 1=80 cols
+	; bit 6   - 1=C64
+	; bit 5   - 1=8296 ext.
+	; bit 4   - USB kbd support (only BASIC4, only w/ option from USB)
+	; bit 2/1 - model (01=basic1, 10=basic2, 11=basic4) 
+	; will be shifted right (/2) with ext/base bit in C
+	; must not be all zero (this will be ignored)
+is8296	ldx #128+32+6
+	.byt $2c
+is8	ldx #128+6
+	.byt $2c
+is4	ldx #6
+	.byt $2c
+is2	ldx #4
+	.byt $2c
+is1	ldx #2
+	.byt $2c
+;is8296c64 ldx #128+64+32+6
+;	.byt $2c
+is8c64	ldx #128+64+6
+	.byt $2c
+is4c64	ldx #64+6
+;	.byt $2c
+;is2c64	ldx #64+4
+;	.byt $2c
+;is1c64	ldx #64+2
+
+	pla	; restore shift flag
+	rol
+	txa	; restore option byte
+	ror	; shift in shift flag
+	sec
+	rts
+	.)
+
+	; ----------------------------
+	; In: AC has key in ASCII
+	;
+	; out: 	c=0:	no option
+	;	c=1:	result is in AC:
+	; bit 7	  - if set, unpatched
+	; bit 6   - 1=80 cols
+	; bit 5   - 1=C64
+	; bit 4   - 1=8296 ext.
+	; bit 3   - USB kbd support (only BASIC4, only w/ option from USB)
+	; bit 1/0 - model (01=basic1, 10=basic2, 11=basic4) 
+	;
+&conv_usb2opt .(
+	ldx #opts-chars-1
+l0	cmp chars,x
+	beq found	; implicit sec
+	dex
+	bpl l0
+	rts
+found	lda opts,x
+	rts
+	
+
+chars	.byt "486$*^"
+opts	.byt %00001011		; patched 40 col
+	.byt %01001011		; patched 80 col
+	.byt %01011011		; patched 8296
+	.byt %10001011		; unpatched 40 col
+	.byt %11001011		; unpatched 80 col
+	.byt %11011011		; unpatched 8296
+	.)
+
+	; ----------------------------
+	; screen routines
+	.(
+
+	; back in 16bit land
+	.xl
+
+&clrscreen_xl .(
+	ldx #1999	; clear full 80 column screen (note $87ff is shift flag)
+	lda #$20
+loop	sta $8000,x
+	;sta VBANK+$9000,x
+	dex
+	bpl loop
+
+	rts
+	.)
+
+&setcol_xl .(
+	ldx #1999	; clear full 80 column color screen (note $87ff is shift flag)
+cloop	sta $8800,x
+	;sta VBANK+$d000,x
+	dex
+	bpl cloop
+	rts
+	.)
+
+&selecttext_xl .(
+	ldx #0
+outl	lda text,x
+	beq endt
+	and #$bf	; to PET Screencode
+	sta $8000+2*40,x
+	inx
+	bne outl
+endt	
+	; signature color bar 
+	; 5 colours, each 8 chars long
+	; red = 2
+	; light red = 3
+	; blue = 4
+	; green = 8
+	; yellow = 12
+	ldy #0
+	ldx #0
+	sec
+c0	lda cols,y
+	sta $8800+0*40,x
+	sta $8800+24*40,x
+	inx
+	txa
+	and #%00000111
+	bne c0
+	iny
+	cpy #5
+	bcc c0
+
+	;sta VBANK+$d000+15*40,x
+;	pha
+;	lda #105	; filled triangle
+;	sta $8000+15*40,x
+;	pla
+;	clc
+;	adc #$11
+;	dex
+;	bpl cl
+	rts
+
+cols	.byt 2<<4,3<<4,4<<4,8<<4,12<<4
+	
+text	.asc "PRESS KEY FOR BOOT OPTION:              "
+	.asc "                                        "
+	.asc "* BASIC ", "1"+$80, " (NO C64 KBD)                  "
+	.asc "* BASIC ", "2"+$80, " (40 COLUMNS, NO C64 KBD)      "
+	.asc "* BASIC 4, ", "4"+$80, "0 COLUMNS                   "
+	.asc "* BASIC 4, ", "8"+$80, "0 COLUMNS                   "
+	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)            "
+        .asc "                                        "
+	.asc "EXTENDED/PATCHED ROMS                   "
+	.asc "USE LEFT-SHIFT FOR ORIG ROM             "
+	.asc "                                        "
+	.asc "EXPERIMENTAL USB KBD SUPPORT ON BASIC4  "
+	.asc "IF YOU SELECT OPTION WITH USB KEYBOARD"
+	.asc 0
+
+	.)
+
+	.)
+
+

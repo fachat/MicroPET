@@ -7,7 +7,8 @@
 ; Note that this relies on the Flash ROM containing the
 ; PET ROM images to copy from in this order:
 ;
-; $00000  IPL code
+; $00000  IPL code (256 byte) - this code
+; $00800  Boot code (2k)
 ; $01000  @MON (4k copied to $a000)
 ; $02000  charrom (8k)
 ; $04000  BASIC2 + EDIT2 + KERNEL2 (16k)
@@ -20,22 +21,32 @@
 ; $12000  EDIT4 (bare, C64 kbd)
 ; $13000  EDIT8 (bare, C64 kbd)
 
-VBANK	=$080000
+;VBANK	=$080000
 
 SPICTRL	=$e808
 SPIDATA	=$e809
 SPIPEEK	=$e80a
 
+;VIA	=$e840
+;VIA_PCR	=12
+
+;CRTC	=$e880
+
 RUNADDR	=$9000
 
-shift	=$87ff
-char	=$87fe
+;shift	=$87ff
+;char	=$87fe
 
-VCTRL   =$e800
-MCTRL   =$e801
+;VCTRL   =$e800
+;MCTRL   =$e801
 BANK    =$e802
-SPEED   =$e803
-R8296   =$fff0
+;SPEED   =$e803
+;R8296   =$fff0
+
+;BOOTCOL	=$15	; dark grey background, light green text
+;BOOTCOL	=$1f	; dark grey background, white text
+;BOOTCOL	=$50	; black text on light green background
+;BOOTCOL	=$05	; black background with light green text
 
 	*=$ff00
 vreset	.(
@@ -62,6 +73,10 @@ vreset	.(
 	.as
 	.xs
 
+	; prime high byte of AC with zero
+	lda #0
+	xba
+
 	; copy over boot code to fast RAM (2nd 512k)
 	ldx #0
 bootl	lda $ff00,x
@@ -72,7 +87,6 @@ bootl	lda $ff00,x
 	lda #0
 	sta $e801
 
-;this jmp this
 	; set X/Y registers to 16 bit ...
 	rep #%00010000
 	; ... and tell the assembler about it
@@ -80,59 +94,6 @@ bootl	lda $ff00,x
 
 	lda #$20	; for the PET default CRTC base address of $1000
 	sta BANK	; $e802
-
-
-#if 0
-	; init the CRTC emulation
-	lda #9
-	sta $e880
-	lda #7
-	sta $e881
-	lda #12
-	sta $e880
-	lda #$10
-	sta $e881
-
-	; init control registers
-	lda #0
-	sta VCTRL	; $e800 - default to 40 column
-	sta MCTRL	; $e801
-	sta SPEED	; $e803 - 1MHz
-
-	lda #$00
-	ldx #$0000
-f0	ldy #256
-f1	sta VBANK,x
-	inx
-	cpx #$2000
-	beq fs
-nexty	dey
-	bne f1
-	clc
-	adc #1
-	bne f0
-	; fill screen
-fs	ldx #$9000
-	lda #0
-fs0	sta VBANK,x
-	clc
-	adc #1
-	inx
-	cpx #$9800
-	bne fs0
-	; color
-fc	ldx #$d000
-	lda #$f0
-fc0	sta VBANK,x
-	inx
-	cpx #$d800
-	bne fc0
-	; check loop
-	; this code is running in FRAM, see address translation into VRAM
-	; use write so we can trigger on R/W
-fx	sta $8000
-	jmp fx
-#endif
 
 spiread
 	; -----------------------
@@ -161,6 +122,12 @@ readloop
 	lda #0
 	sta SPICTRL	; deselect Flash
 
+	; set ac and index to single byte ...
+	sep #%00110000
+	; ... and tell the assembler about it
+	.as
+	.xs
+
 	jmp RUNADDR
 #endif
 
@@ -182,652 +149,4 @@ virq
 
 	.)
 
-	; here we have 256 byte
-	; fill up to 2k
-	.dsb 2048-256
-
-	; ------------------------
-	; this is the actual boot code, 
-	; loaded from Flash via SPI to $8800 by above ipl code
-
-	*=RUNADDR
-jmpboot
-	.(
-
-	; code runs in .xl
-	.xl
-
-	; -----------------------
-	; warm reboot init
-
-	; init the CRTC emulation
-	lda #9
-	sta $e880
-	lda #7
-	sta $e881
-	lda #12
-	sta $e880
-	lda #$10
-	sta $e881
-
-	; init control registers
-	lda #0
-	sta VCTRL	; $e800 - default to 40 column
-	sta MCTRL	; $e801
-	sta SPEED	; $e803 - 1MHz
-
-	lda #$20	; for the PET default CRTC base address of $1000
-	sta BANK	; $e802
-
-	; -----------------------
-	; switch Ethernet - if exists - to low power mode
-	lda #4			; ENC28J60 ethernet module
-	sta SPICTRL
-	lda #%01011110		; write control register ECON2
-	sta SPIDATA
-	lda #%00101000		; set PWRSV and VRPS
-	sta SPIDATA
-	lda #0
-	sta SPICTRL
-
-	; -----------------------
-	; copy over charrom to RAM
-	; $2000-$3fff in flash img
-	.(
-	lda #$20
-	ldx #$c000
-	ldy #$2000
-	jsr flash2direct_xl
-	; now copy from bank 0 to target location
-	ldx #0
-copy
-	lda $c000,x	; location in test ROM bank
-	sta VBANK,x	; location in RAM - uppermost RAM bank
-	inx
-	cpx #$2000
-	bne copy
-	.)
-
-#if 0
-	lda #$55
-	ldx #$7ff
-ccc	sta VBANK+$9000,x
-	dex
-	bpl ccc
-	lda #$a0
-	ldx #$7ff
-ccc2	sta VBANK+$d000,x
-	dex
-	bpl ccc2
-
-	lda #$22
-this	sta $8000
- 	jmp this
-#endif
-
-	jsr clrscreen_xl
-	jsr selecttext_xl
-
-
-	; switches to .xs
-	sep #%00010000
-	.xs
-
-chkloop	jsr checkkbd_xs
-	bcc chkloop
-
-	rep #%00010000
-	.xl
-
-	pha
-	jsr clrscreen_xl
-
-	lda #0		
-	xba		; prime high byte of AC with 0
-
-
-
-	;----------------------------------------------------
-	; 1= Basic1, 2=Basic2, 3=Basic4
-	pla
-	pha
-	and #%00000011	; ROM version
-
-	cmp #1
-	bne not_b1	
-
-basic1	.(
-	; -----------------------
-	; copy over BASIC 1 charrom to RAM
-	; $14000-$15fff in flash img
-
-	lda #$80
-	ldx #$c000
-	ldy #$2000
-	jsr flash2direct2_xl
-
-	; now copy from bank 0 to target location
-	ldx #0
-copy
-	lda $c000,x	; location in test ROM bank
-	sta VBANK,x	; location in RAM - uppermost RAM bank
-	inx
-	cpx #$2000
-	bne copy
-
-	;------------------------
-	; BASIC 1
-	lda #$40	; source page in Flash
-	ldx #$c000	; target addr
-	ldy #$4000	; len
-	jsr flash2direct_xl
-	
-	pla
-	bmi b1_orig	; check BASIC1 patch
-
-	; apply BASIC1 patch like in VICE
-	jsr patch_rom1_xl
-b1_orig
-	lda #%10000000	; write protect $c000-$ffff
-	jmp end
-	.)
-	
-	;------------------------
-not_b1	cmp #2
-	bne not_b2
-	
-	;------------------------
-	; upgrade ROMs with BASIC2
-basic2	.(
-	; copy over PET ROM into low RAM
-	; $4000-$7fff in bootimg to $c000-$ffff in RAM
-
-	lda #$80
-	ldx #$c000
-	ldy #$4000
-	jsr flash2direct_xl
-
-	pla		; ignore other flags
-	lda #%10000000	; write protect $c000-$ffff
-	jmp end
-	.)
-
-	;----------------------------------------------------
-not_b2	; only basic 4 left
-	;----------------------------------------------------
-basic4	.(
-	; -----------------------
-	; copy over @MON 
-	lda #$10
-	ldx #$a000
-	ldy #$1000
-	jsr flash2direct_xl
-	
-	; -----------------------
-	; copy over PET BASIC4 $b000-$dfff
-	lda #$c0
-	ldx #$b000
-	ldy #$3000
-	jsr flash2direct_xl
-
-	; copy over PET KERNEL4 $f000-$ffff
-	lda #$f0
-	ldx #$f000
-	ldy #$1000
-	jsr flash2direct_xl
-
-	pla		; bits 7/6/5 have number of editor ROM
-	pha
-	and #%11100000
-	lsr
-	ldx #$e000
-	ldy #$1000
-	jsr flash2direct2_xl
-
-	; check BASIC4 patch
-	pla
-	pha
-	bmi b4_orig
-	jsr patch_rom4_xl
-b4_orig
-	; check 80 column bit
-	pla
-	pha
-	and #%01000000
-	beq col40
-	lda #%00000010
-	sta VCTRL
-col40
-	; check 8296 bit
-	pla
-	and #%00010000
-	beq not_96
-	; 8296
-	lda #%11101000
-	.byt $2c
-not_96	lda #%11100000
-
-	; fallthrough
-	.)
-
-	; -----------------------
-	; switch back to emulation mode
-end
-	sta MCTRL
-	; set X/Y registers to 8 bit ...
-	sep #%00010000
-	; ... and tell the assembler about it
-	.xs
-
-	; switch to native mode
-	sec
-	xce
-
-	jmp ($fffc)	; RESET vector
-
-	; ----------------------------
-	; copy an area from flash to bank 0 RAM
-
-	.xl
-	; AC = page in Flash (8bit)
-	; XR = start in bank 0 (16bit)
-	; YR = number of bytes (16 bit)
-	; flash bank 0
-flash2direct_xl 
-	clc
-	.byt $24
-	; flash bank 1
-flash2direct2_xl
-	sec
-	.(
-	pha
-	lda #1
-	sta SPICTRL	; enable Flash
-	lda #3
-	sta SPIDATA	; READ command
-	lda #0
-	rol		; rotate carry into A16
-	sta SPIDATA	; bits 23-16
-	pla
-	sta SPIDATA	; bits 15-8
-	lda #0
-	sta SPIDATA	; bits 7-0
-
-	lda SPIDATA	; trigger shift in of first byte into SR (value read is still invalid)
-
-readloop
-	lda SPIDATA	; read byte, trigger shift in of next byte
-	cpx #$e800	; skip I/O window
-	bcc ok
-	cpx #$e900
-	bcc nok
-ok	sta 0,x
-nok	inx
-	dey
-	bne readloop
-	
-	lda #0
-	sta SPICTRL	; deselect Flash
-	rts
-	.)
-
-	; ----------------------------
-	; check keyboard for input
-
-	.xs
-
-checkkbd_xs .(
-	lda #0
-	sta char
-	sta shift
-	; init
-	lda #$38	; DDR, CA2 output hi
-	sta $e811
-	lda #$0f	; set keybd row select to output
-	sta $e810
-	lda #$3c	; Port A, CA2 output hi
-	sta $e811
-	lda #$38	; DDR, CB2 output hi
-	sta $e813
-	lda #0		; all bits input PB
-	sta $e812
-	lda #$3c	; Port B, CB2 output hi
-	sta $e813
-
-	; init scan
-	lda $e810
-	and #$F0
-
-	; wait for PIA to be there
-wpia	sta $e810	; write trigger for scoping
-	ldy $e812
-	cpy #$ff
-	bne wpia
-
-	; scan
-	ldx #$50
-rloop	ldy #8
-ioloop	lda $e812
-	cmp $e812
-	bne ioloop
-bloop	lsr
-	bcc gotone
-nextr	dex
-	beq done
-	dey
-	bne bloop
-	inc $e810
-	bra rloop	; always
-
-done	lda char
-	clc
-	beq ret		
-	rol shift
-	ror		; shift in shift flag to bit 7
-	cmp #1
-ret	rts
-
-gotone	; x has number of key
-	; save AC
-	pha
-
-	; PET N-type keyboard
-	; key number is (9-row)*8+(7-col)+1 where row/col are from www.6502.org/users/andre/petindex/keymap/petgraph.png
-	cpx #16		; left shift (8/0)
-	beq gotshift
-;	cpx #11		; right shift (8/5)
-;	beq gotshift
-	cpx #41		; 4/7 = "6"
-	beq is8296
-	cpx #18		; 7/6 = "2"
-	beq is2
-	cpx #42		; 4/6 = "4"
-	beq is4
-	cpx #50		; 3/6 = "8"
-	beq is8
-	cpx #26		; 6/6 = "1"
-	beq is1
-
-	; C64 keyboard
-
-	; derived from https://www.keymmodore.com/the-matrix/
-	cpx #55		; 3/1 = "R" = Left shift on C64 kbd
-	beq gotshift
-;	cpx #42		; 4/6 = "4" = Right shift on C64 - clash with N-type
-;	beq gotshift
-	cpx #22		; 7/2 = "N" = "6" on C64 kbd
-	beq is8296c64
-;	cpx #24		; 7/0 = "X" = "2" on C64 kbd - no C64 kbd option
-;	beq is2c64
-	cpx #23		; 7/1 = "V" = "4" on C64 kbd
-	beq is4c64
-	cpx #21		; 7/3 = "," = "8" on C64 kbd
-	beq is8c64
-;	cpx #80		; 0/0 = "!" = "1" on C64 kbd - no C64 kbd option
-;	beq is1c64
-bloopx
-	pla		; restore AC
-	bra nextr	; always
-
-gotshift		; after cpx/beq, so C=1
-	ror shift
-	bra bloopx
-
-	; result is
-	; bit 7   - 1=80 cols
-	; bit 6   - 1=C64
-	; bit 5   - 1=8296 ext.
-	; bit 2/1 - model (01=basic1, 10=basic2, 11=basic4) 
-	; will be shifted right (/2) with ext/base bit in C
-	; must not be all zero (this will be ignored)
-is8296	lda #128+32+6
-	.byt $2c
-is8	lda #128+6
-	.byt $2c
-is4	lda #6
-	.byt $2c
-is2	lda #4
-	.byt $2c
-is1	lda #2
-	.byt $2c
-is8296c64 lda #128+64+32+6
-	.byt $2c
-is8c64	lda #128+64+6
-	.byt $2c
-is4c64	lda #64+6
-;	.byt $2c
-;is2c64	lda #64+4
-;	.byt $2c
-;is1c64	lda #64+2
-
-	sta char
-	bra bloopx
-	.)
-
-	; ----------------------------
-	; screen routines
-
-	; back in 16bit land
-	.xl
-
-clrscreen_xl .(
-	ldx #1999	; clear full 80 column screen (note $87ff is shift flag)
-	lda #$20
-loop	sta $8000,x
-	;sta VBANK+$9000,x
-	dex
-	bpl loop
-	ldx #1999	; clear full 80 column color screen (note $87ff is shift flag)
-	lda #$a0
-cloop	sta $8800,x
-	;sta VBANK+$d000,x
-	dex
-	bpl cloop
-	rts
-	.)
-
-selecttext_xl .(
-	ldx #0
-outl	lda text,x
-	beq endt
-	and #$bf	; to PET Screencode
-	sta $8000,x
-	inx
-	bne outl
-endt	
-	rts
-	
-text	.asc "                                        "
-	.asc "PRESS KEY FOR BOOT OPTION:              "
-	.asc "                                        "
-	.asc "* BASIC ", "1"+$80, " (NO C64 KBD)                  "
-	.asc "* BASIC ", "2"+$80, " (40 COLUMNS, NO C64 KBD)      "
-	.asc "* BASIC 4, ", "4"+$80, "0 COLUMNS                   "
-	.asc "* BASIC 4, ", "8"+$80, "0 COLUMNS                   "
-	.asc "* BASIC 4, 829", "6"+$80, " (80 COLUMNS)            "
-        .asc "                                        "
-	.asc "EXTENDED/PATCHED ROMS                   "
-	.asc "USE LEFT-SHIFT FOR ORIG ROM"
-	.asc 0
-
-	.)
-
-PATCH	=$ef00
-
-patch_rom1_xl .(
-
-
-	; transferred over from VICE
-	lda #$ea	; NOP
-	sta $f471
-	sta $f472
-	sta $f180
-	sta $f181
-	lda #$f8
-	sta $f3ef
-	lda #$f7
-	sta $f3f3
-
-	; patch area start
-	ldx #PATCH
-
-	; jmp to first patch
-	txa
-	sta $f370
-	lda #>PATCH
-	sta $f371
-
-	ldy #0
-pl0	lda PATCH_0,y
-	sta 0,x
-	inx
-	iny
-	cpy #5
-	bne pl0
-
-	; jump to second patch
-	txa
-	sta $f379
-	lda #>PATCH
-	sta $f37a
-
-	ldy #0
-pl1	lda PATCH_1,y
-	sta 0,x
-	inx
-	iny
-	cpy #19
-	bne pl1
-
-	; JSR to third patch
-	lda #$20
-	sta $f3cc
-	txa
-	sta $f3cd
-	lda #>PATCH
-	sta $f3ce
-
-	ldy #0
-pl2	lda PATCH_2,y
-	sta 0,x
-	inx
-	iny
-	cpy #10
-	bne pl2
-
-	; jmp to fourth patch
-	txa
-	sta $f6c1
-	lda #>PATCH
-	sta $f6c2
-	
-	ldy #0
-pl3	lda PATCH_3,y
-	sta 0,x
-	inx
-	iny
-	cpy #5
-	bne pl3
-
-	; jump to fifth patch
-	txa
-	sta $f6c7
-	lda #>PATCH
-	sta $f6c8
-	
-	ldy #0
-pl4	lda PATCH_4,y
-	sta 0,x
-	inx
-	iny
-	cpy #18
-	bne pl4
-
-	; insert sixth patch
-	ldy #0
-pl5	lda PATCH_5,y
-	sta $f381,y
-	iny
-	cpy #8
-	bne pl5
-
-	; jump to seventh patch
-	txa
-	sta $f6f4
-	lda #>PATCH
-	sta $f6f5
-
-	ldy #0
-pl6	lda PATCH_6,y
-	sta 0,x
-	inx
-	iny
-	cpy #6
-	bne pl6
-
-	; insert marker
-	ldy #0
-	tya		; fill B with zero, so cmp work?
-plm	lda MARK,y
-	sta 0,x
-	inx
-	iny
-	cmp #0
-	bne plm
-
-	rts
-
-PATCH_0	.byt $a9, $60, $85, $f0, $60 
-PATCH_1 .byt $20, $b6, $f0, $a5, $f0, $20, $5b, $f1, $20, $87, $f1, $85, $f7, $20, $87, $f1, $85, $f8, $60 
-PATCH_2 .byt $20, $7a, $f1, $20, $e6, $f6, $ad, $0b, $02, $60
-PATCH_3	.byt $a9, $61, $85, $f0, $60 
-PATCH_4	.byt $20, $ba, $f0, $a5, $f0, $20, $2c, $f1, $a5, $f7, $20, $67, $f1, $a5, $f8, $4c, $67, $f1 
-PATCH_5	.byt $ae, $0c, $02, $70, $46, $20, $87, $f1
-PATCH_6	.byt $20, $2c, $f1, $4c, $7e, $f1 
-
-MARK	.asc "BASIC1 PATCH FOR IEEE488",0
-	.)
-
-
-PATCH4	=$fe20
-
-patch_rom4_xl .(
-
-	; patch target area start (max 1 page due to #>PATCH4 below)
-	ldx #PATCH4
-
-	; from http://www.6502.org/users/andre/cbmhw/ryofat40/index.html
-	lda #$20
-	sta $f0d8
-	; jsr to first patch
-	txa
-	sta $f0d9
-	lda #>PATCH4
-	sta $f0da
-
-	ldy #0
-pl0	lda PATCH4_0,y
-	sta 0,x
-	inx
-	iny
-	cpy #12
-	bne pl0
-
-	rts
-
-PATCH4_0 .(
-	lda #4
-l1	sec
-	sbc #1
-	bne l1
-	lda $e840
-	rts
-	.byt $c2	; checksum fix
-	.)
-
-
-	.)
-
-	.dsb RUNADDR+2048-*,$ff
-	.)
 

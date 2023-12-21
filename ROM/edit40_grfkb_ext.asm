@@ -46,12 +46,12 @@ HERTZ     = 60	; Line Frequency (Clock):	50=Euro,60=N.America
 IRQFIX    = 0   ; Fix Jiffy Clock		0=No, 1=Yes			Still needs investigating.
 FONTSET   = 0  ; Initial Screen Font            0=Text/Lower, 1=Upper/Graphics  Generally: 40xx machines=1, 8xxx machines=0
 
-ESCCODES  = 1	; Add ESC codes? 		0=No, 1=Yes			Enable when using COLOURPET or SS40.
+ESCCODES  = 0	; Add ESC codes? 		0=No, 1=Yes			Enable when using COLOURPET or SS40.
 VIDSWITCH = 0   ; Video Switching               0=No, 1=Yes                    Requires ESC Codes! ESC+0 to ESC+9 to Switch CRTC parameters.
 
 AUTORUN   = 1   ; Set for BANNER and/or WEDGE	0=No, 1=Yes			Enable if you use EITHER banner and/or wedge.
 BYPASS    = 0   ; Check for key to bypass 	0=No, 1=Yes			Hold key on ROW9 to bypass.
-BANNER    = 17  ; Custom Banner (power on msg)  0=No, N=Banner# (1-16,98, or 99)   Valid when AUTORUN=1. Refer to docs or source. 99=custom message
+BANNER    = 5  ; Custom Banner (power on msg)  0=No, N=Banner# (1-16,98, or 99)   Valid when AUTORUN=1. Refer to docs or source. 99=custom message
 WEDGE     = 1	; DOS Wedge			0=No, 1=Yes			Valid when AUTORUN=1.
 WEDGEMSG  = 0	; Show wedge message?		0=No, 1=Yes			Valid when AUTORUN=1 and WEDGE>0.
 DISKBOOT  = 0  ; Boot first file on disk?      0=No, 1=Yes                     Valid when AUTORUN=1.

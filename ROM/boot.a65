@@ -1,0 +1,358 @@
+
+; The first block of this is loaded by the IPL from the SPI Flash chip into the uppermost
+; 256 bytes of RAM in bank zero, where the CPU boots from.
+; This boot block then copies the last 2k of this to $8800 on bank0, and jumps
+; to it to execute it.
+; 
+; Note that this relies on the Flash ROM containing the
+; PET ROM images to copy from in this order:
+;
+; $00000  IPL code (256 byte)
+; $00100  USB BASIC 4 ROM patch code (usbcomp)
+; $00200  - reserved - 
+; $00800  Boot code (2k) - this code
+; $01000  @MON (4k copied to $a000)
+; $02000  charrom (8k)
+; $04000  BASIC1 + EDIT1 + KERNEL1 (16k)
+; $08000  BASIC2 + EDIT2 + KERNEL2 (16k)
+; $0c000  BASIC4 (12k)
+; $0f000  KERNEL4 (12k)
+; $10000  EDIT4 (extended, PET kbd)
+; $11000  EDIT4 (extended, C64 kbd)
+; $12000  EDIT8 (extended, PET kbd)
+; $13000  EDIT8 (extended, C64 kbd)
+; $14000  EDIT4 (orig, PET kbd)
+; $15000  EDIT4 (sjg base, C64 kbd, experimental)
+; $16000  EDIT8 (orig)
+; $17000  EDIT8 (sjg base, C64 kbd, experimental)
+; $18000  charrom for BASIC1 (8k)
+; $1a000  USB code (8k) to be run in bank 7 (usbcode)
+
+#include "viccy.i65"
+
+VBANK	=$080000
+
+SPICTRL	=$e808
+SPIDATA	=$e809
+SPIPEEK	=$e80a
+
+VICCY_IRQ=0		; set to 1 to use rasterline instead of VDRIVE ints during boot
+
+PIA1	=$e810
+PIA2	=$e820
+PIA_PA	=0
+PIA_CRA	=1
+PIA_PB	=2
+PIA_CRB	=3
+
+VIA	=$e840
+VIA_PCR	=12
+VIA_IER	=14
+
+DAC	=$e830
+DAC_CTRL=15
+
+VICCY	=$e880
+
+RUNADDR	=$9000
+
+shift	=$87ff
+char	=$87fe
+opt	=$87fd
+
+VCTRL   =$e800
+MCTRL   =$e801
+BANK    =$e802
+SPEED   =$e803
+BUSWIN	=$e804
+VMAP    =$e805
+
+R8296   =$fff0
+
+VIDBLK	=2		; video block address for BANK
+
+;BOOTCOL	=$15	; dark grey background, light green text
+;BOOTCOL	=$1f	; dark grey background, white text
+;BOOTCOL	=$50	; black text on light green background
+BOOTCOL	=$05	; black background with light green text
+
+BRDCOL	=0	; border colour = black
+
+	; ------------------------
+	; this is the actual boot code, 
+	; loaded from Flash via SPI to $8800 by above ipl code
+
+	.dsb 6*256
+
+	*=RUNADDR
+jmpboot
+	.(
+
+	; code runs in .xs/.as
+	.xs
+	.as
+
+	; -----------------------
+	; warm reboot init
+	sei
+
+	; init control registers
+	lda #0
+	sta VCTRL	; $e800 - default to 40 column
+	sta MCTRL	; $e801
+	sta BANK	; $e802
+	sta SPEED	; $e803 - 1MHz
+	sta BUSWIN	; $e804
+
+	lda #VIDBLK	; for the PET default VICCY base address of $1000
+	sta VMAP
+
+	; init the VICCY emulation (also disables Viccy interrupts)
+	jsr setviccy_xs
+
+	; disable PIA/VIA/DAC interrupt sources
+	lda #0
+	sta PIA1+PIA_CRA
+	sta PIA1+PIA_CRB
+	sta PIA2+PIA_CRA
+	sta PIA2+PIA_CRB
+	lda #127
+	sta VIA+VIA_IER
+
+	lda #0
+	sta DAC+DAC_CTRL
+
+	; uppercase char
+	lda #12
+	sta VIA+VIA_PCR
+
+	; -----------------------
+	; switch Ethernet - if exists - to low power mode
+	lda #4			; ENC28J60 ethernet module
+	sta SPICTRL
+	lda #%01011110		; write control register ECON2
+	sta SPIDATA
+	lda #%00101000		; set PWRSV and VRPS
+	sta SPIDATA
+	lda #0
+	sta SPICTRL
+
+        ; set X/Y registers to 16 bit ... 
+        rep #%00010000 
+        ; ... and tell the assembler about it 
+        .xl
+
+	; -----------------------
+	; copy over charrom to RAM
+	; $2000-$3fff in flash img
+
+	.(
+	lda #$20
+	ldx #$c000
+	ldy #$2000
+	jsr flash2direct_xl
+	; now copy from bank 0 to target location
+	ldx #0
+copy
+	lda $c000,x	; location in test ROM bank
+	sta VBANK,x	; location in RAM - uppermost RAM bank
+	inx
+	cpx #$2000
+	bne copy
+	.)
+
+	;----------------------------------------------------
+
+	jsr clrscreen_xl
+
+	jsr setup_usb_xl
+
+	jsr do_menu_xl
+
+	; save config byte
+	pha
+
+	jsr usb_uninst
+
+	pla
+       ; ----------------------------                                        
+       ; In: AC has key in ASCII                                             
+       ;                                                                     
+       ; out:  c=0:    no option                                             
+       ;       c=1:    result is in AC:                                      
+       ; bit 7   - if set, unpatched                                         
+       ; bit 6   - 1=80 cols                                                 
+       ; bit 5   - 1=C64                                                     
+       ; bit 4   - 1=8296 ext.                                               
+       ; bit 3   - USB kbd support (only BASIC4, only w/ option from USB)    
+       ; bit 1/0 - model (01=basic1, 10=basic2, 11=basic4)                   
+
+	;----------------------------------------------------
+	; 1= Basic1, 2=Basic2, 3=Basic4
+	pha	
+	and #%00000011	; ROM version
+
+	cmp #1
+	bne not_b1	
+
+	jmp setup_basic1_xl
+
+	;------------------------
+not_b1	cmp #2
+	bne not_b2
+
+	jmp setup_basic2_xl
+	
+	;----------------------------------------------------
+not_b2	; only basic 4 left
+	;----------------------------------------------------
+
+	jmp setup_basic4_xl
+
+	; -----------------------
+	; switch back to emulation mode
+end
+	sta MCTRL
+
+	; set screen to green-on-black
+	lda #$05
+	jsr setcol_xl
+
+	; set X/Y registers to 8 bit ...
+	sep #%00010000
+	; ... and tell the assembler about it
+	.xs
+
+	; switch to native mode
+	sec
+	xce
+
+	jmp ($fffc)	; RESET vector
+
+	; ----------------------------
+	; copy an area from flash to bank 0 RAM
+
+	.xl
+	; AC = page in Flash (8bit -> A8-15)
+	; XR = start in bank 0 (16bit)
+	; YR = number of bytes (16 bit)
+	; flash bank 0
+flash2direct_xl 
+	clc		; first 64k in Flash
+	.byt $24
+	; flash bank 1
+flash2direct2_xl
+	sec		; second 64k in Flash
+
+	; C is A16 for address in Flash
+	.(
+	pha
+	lda #1
+	sta SPICTRL	; enable Flash
+	lda #3
+	sta SPIDATA	; READ command
+	lda #0
+	rol		; rotate carry into A16
+	sta SPIDATA	; bits 23-16
+	pla
+	sta SPIDATA	; bits 15-8
+	lda #0
+	sta SPIDATA	; bits 7-0
+
+	lda SPIDATA	; trigger shift in of first byte into SR (value read is still invalid)
+
+readloop
+	lda SPIDATA	; read byte, trigger shift in of next byte
+	cpx #$e800	; skip I/O window
+	bcc ok
+	cpx #$e900
+	bcc nok
+ok	sta 0,x
+nok	inx
+	dey
+	bne readloop
+	
+	lda #0
+	sta SPICTRL	; deselect Flash
+	rts
+	.)
+
+
+	.(
+	; set Viccy registers
+	; note: stored backwards, so alt/compat modes are set
+	; before affected registers are written to
+	.xs
+&setviccy_xs .(
+        ldy #41
+        sty VICCY         ; register number
+l0      lda vdctab,y
+	sty VICCY
+        sta VICCY+1       ; register value w/ auto-inc of register number
+lx      dey
+        bpl l0
+
+	; disable sprites
+	ldx #8
+	ldy #0
+	lda #51
+sl	sta VICCY
+	sty VICCY+1
+	clc
+	adc #4
+	dex
+	bne sl
+        rts
+
+&vdctab .byt 0          ; r0 ignored
+        .byt 40         ; r1 number of chars per line displayed
+        .byt 0,0,0,0    ; r2-5 ignored
+        .byt 25         ; r6 char rows displayed
+        .byt 0          ; r7 ignored
+        .byt 0          ; r8: b7= 80 col mode; b1=interlace, b0=double
+        .byt 7          ; r9: rows per char (-1)
+        .byt 32         ; r10: cursor start (b0-4, b6/5= mode, 00=solid, 01=off, 1x= blink)
+        .byt 7          ; r11: cursor end line
+        .byt >$1000     ; r12: start of vid memory high (upet compat -> $9xxx in video bank)
+        .byt <$1000     ; r13: start of vid memory low (upet compat -> $9xxx in video bank)
+        .byt >$1000     ; r14: cursor pos high
+        .byt <$1000     ; r15: cursor pos low
+        .byt 0,0,0,0    ; r16-r19: ignored
+        .byt >$d000     ; r20: start of attribute memory high
+        .byt <$d000     ; r21: start of attribute memory low
+        .byt 9          ; r22: number of bits displayed of a char (horizontal)
+        .byt 15         ; r23: displayed number of rows per char
+        .byt 0          ; r24: b0-3 scroll down, b4: up/low border ext, b5 blink rate, b6: reverse
+        .byt 0          ; r25: b0-3 scroll right, b4: l/r border ext, b6: attrib enable, b7: bitmap mode
+        .byt BOOTCOL    ; r26: b0-3: bg colour, b4-7: fg colour
+        .byt 0          ; r27: address incr
+        .byt >$0000     ; r28: char set address high
+        .byt 7          ; r29: underline scanline
+        .byt 0,0        ; r30/31: rasterline counter low/high
+        .byt 128+4+16   ; r32: b2: extended (cpet compat), b4: disp en, b7: upet compat
+        .byt $0f        ; r33: b0-3: bg colour 1, b4-7: bg colour 2
+        .byt BRDCOL     ; r34: border colour (b0-3)
+        .byt 0          ; r35: irq control
+        .byt 127        ; r36: irq status (clear all sources)
+        .byt 0          ; r37: v/h sync status (VDC)
+        .byt 13         ; r38: horizontal position (chars)
+        .byt 59         ; r39: vertical position (rasterlines)
+        .byt 0          ; r40: alt match
+        .byt 0          ; r41: alt raster row
+
+	.)
+
+	.)
+
+	; ---------------------------------------------------------
+
+
+#include "boot_menu.a65"
+#include "boot_rom1.a65"
+#include "boot_rom2.a65"
+#include "boot_rom4.a65"
+#include "boot_usb.a65"
+
+	.dsb RUNADDR+2048-*,$ff
+	.)
+

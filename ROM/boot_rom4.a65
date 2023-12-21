@@ -1,0 +1,134 @@
+
+setup_basic4_xl	.(
+
+	; -----------------------
+	; copy over @MON 
+	lda #$10
+	ldx #$a000
+	ldy #$1000
+	jsr flash2direct_xl
+	
+	; -----------------------
+	; copy over PET BASIC4 $b000-$dfff
+	lda #$c0
+	ldx #$b000
+	ldy #$3000
+	jsr flash2direct_xl
+
+	; copy over PET KERNEL4 $f000-$ffff
+	lda #$f0
+	ldx #$f000
+	ldy #$1000
+	jsr flash2direct_xl
+
+	pla		; bits 7/6/5 have number of editor ROM
+			; bit 7: 1=orig, 0=patched
+			; bit 6: 1=80 col, 0=40 col
+			; bit 5: 1=c64, 0=PET-N kbd
+			; 000 = PET-N, 40 col, patched
+			; 001 = C64,   40 col, patched
+			; 010 = PET-N, 80 col, patched
+			; 011 = C64,   80 col, patched
+			; 100 = PET-N, 40 col, orig
+			; 101 = C64,   40 col, orig
+			; 110 = PET-N, 80 col, orig
+			; 111 = C64,   80 col, orig
+	pha
+	and #%11100000
+	lsr
+	ldx #$e000
+	ldy #$1000
+	jsr flash2direct2_xl
+
+	; check USB patch
+	pla
+	pha
+	and #%00001000
+	beq nousb
+
+	; copy over petromcomp to destination at $dfxx
+	lda #$01
+	ldx #$df00
+	ldy #$0100
+	jsr flash2direct_xl
+
+        ; set X/Y registers to 8 bit ...
+        sep #%00010000
+        .xs
+	
+	; install it into the ROM
+	jsr $df03
+
+	rep #%00010000
+	.xl
+
+	; reverse write protect done there
+	lda #0
+	sta $e801
+nousb	
+	; check BASIC4 patch
+	pla
+	pha
+	bmi b4_orig
+	jsr patch_rom4_xl
+b4_orig
+	; check 80 column bit
+	pla
+	pha
+	and #%01000000
+	beq col40
+	lda #%00000010
+	sta VCTRL
+col40
+	; check 8296 bit
+	pla
+	and #%00010000
+	beq not_96
+	; 8296
+	lda #%11101000
+	.byt $2c
+not_96	lda #%11100000
+
+	jmp end
+
+
+PATCH4	=$fe20
+
+patch_rom4_xl .(
+
+	; patch target area start (max 1 page due to #>PATCH4 below)
+	ldx #PATCH4
+
+	; from http://www.6502.org/users/andre/cbmhw/ryofat40/index.html
+	lda #$20
+	sta $f0d8
+	; jsr to first patch
+	txa
+	sta $f0d9
+	lda #>PATCH4
+	sta $f0da
+
+	ldy #0
+pl0	lda PATCH4_0,y
+	sta 0,x
+	inx
+	iny
+	cpy #12
+	bne pl0
+
+	rts
+
+PATCH4_0 .(
+	lda #4
+l1	sec
+	sbc #1
+	bne l1
+	lda $e840
+	rts
+	.byt $c2	; checksum fix
+	.)
+
+	.)
+	.)
+
+

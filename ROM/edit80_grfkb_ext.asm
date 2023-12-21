@@ -48,7 +48,7 @@ VIDSWITCH = 0   ; Video Switching               0=No, 1=Yes			Requires ESC Codes
 
 AUTORUN   = 1   ; Set for BANNER and/or WEDGE	0=No, 1=Yes			Enable if you use EITHER banner,wedge, or disk boot
 BYPASS    = 0   ; Check for key to bypass 	0=No, 1=Yes			Valid when AUTORUN=1. Hold key on ROW9 to bypass.
-BANNER    = 17  ; Custom Banner (power on msg)	0=No, N=Banner# (1-19,98,99)    Valid when AUTORUN=1. Refer to docs or source. 99=custom message
+BANNER    = 5  ; Custom Banner (power on msg)	0=No, N=Banner# (1-19,98,99)    Valid when AUTORUN=1. Refer to docs or source. 99=custom message
 WEDGE     = 1	; DOS Wedge			0=No, 1=Yes			Valid when AUTORUN=1.
 WEDGEMSG  = 0	; Show wedge message?		0=No, 1=Yes			Valid when AUTORUN=1 and WEDGE>0.
 DISKBOOT  = 0	; Boot first file on disk?	0=No, 1=Yes			Valid when AUTORUN=1.
@@ -65,7 +65,7 @@ BACKARROW = 1   ; SHIFT-Backarrow Hack code?	0=NO, 1=Yes, 2=Yes EXT		Enable Shif
 BACKACTION= 0   ; Backarrow Action		0=Text/Graphic, 1=40/80		Which Backarrow Action? NOTE: 40/80 requires ESC Codes!
 
 EXECUDESK = 0	; Add Execudesk Menu?		0=No, 1=Yes, 2=Yes/OPTROM	Note: Requires BOOT to TEXT mode!
-COLOURPET = 0	; ColourPET additions?		0=No, 1=Yes			Requires ESC Codes! ESC+0 to ESC+? to set Colour (unless VIDSWITCH=1).
+COLOURPET = 1	; ColourPET additions?		0=No, 1=Yes			Requires ESC Codes! ESC+0 to ESC+? to set Colour (unless VIDSWITCH=1).
 UPET      = 1   ; Is a Ultra-PET/Micro-PET?     0=No, 1=Yes                     For special Reboot - Andre Fachat's project
 
 COLOURVER = 1	; ColourPET Hardware Version	0=Beta,1=Normal/uPET		0=ColourRAM at $8400, 1=$8800 (use for VICE).

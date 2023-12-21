@@ -1,0 +1,7 @@
+
+start	=*
+
+	.bin 0,0, "usb65/platforms/upet/usbrom"
+
+	.dsb start + $2000 - *, $ff
+

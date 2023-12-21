@@ -1,0 +1,48 @@
+
+	*=$033c
+	
+	sei
+	lda #0
+	sta $e801
+
+	ldx #0
+loop	lda $9000,x
+	sta $e000,x
+	lda $9100,x
+	sta $e100,x
+	lda $9200,x
+	sta $e200,x
+	lda $9300,x
+	sta $e300,x
+	lda $9400,x
+	sta $e400,x
+	lda $9500,x
+	sta $e500,x
+	lda $9600,x
+	sta $e600,x
+	lda $9700,x
+	sta $e700,x
+	; rem spare I/O
+	lda $9900,x
+	sta $e900,x
+	lda $9a00,x
+	sta $ea00,x
+	lda $9b00,x
+	sta $eb00,x
+	lda $9c00,x
+	sta $ec00,x
+	lda $9d00,x
+	sta $ed00,x
+	lda $9e00,x
+	sta $ee00,x
+	lda $9f00,x
+	sta $ef00,x
+	inx
+	bne loop
+
+	; write protect ROM area again
+	lda #$e0
+	sta $e801
+	; reset
+	jmp ($fffc)
+	
