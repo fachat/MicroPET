@@ -163,6 +163,8 @@ copy
 
 	;----------------------------------------------------
 
+	jsr irq_install
+
 	jsr clrscreen_xl
 
 	jsr setup_usb_xl
@@ -173,6 +175,8 @@ copy
 	pha
 
 	jsr usb_uninst
+
+	jsr irq_uninstall
 
 	pla
        ; ----------------------------                                        
@@ -352,6 +356,7 @@ sl	sta VICCY
 #include "boot_rom2.a65"
 #include "boot_rom4.a65"
 #include "boot_usb.a65"
+#include "boot_irq.a65"
 
 	.dsb RUNADDR+2048-*,$ff
 	.)

@@ -1,0 +1,122 @@
+
+
+irq_install .(
+	lda #<-1
+	sta lock
+
+	lda #<newirq
+	sta $ffee	; 65816 native interrupt vector(!)
+	lda #>newirq	; http://6502.org/tutorials/65c816interrupts.html#toc:interrupt_irq
+	sta $ffef
+
+	; once per screen interrupt (60Hz)
+	; 
+	; UltiPet could use VICCY, but uPET does not have this
+	; So, we fall back to using PET VDRIVE input on PIA1 CB1
+#if VICCY_IRQ
+	lda #VCCY_RLINE_L		; rasterline counter
+	sta VICCY+1
+	lda #0
+	sta VICCY+3	; set to zero
+	sta VICCY+3
+	lda #VCCY_IRQ_CTRL
+	sta VICCY
+	lda #1		; rasterline interrupt
+	sta VICCY+1
+#else
+	lda #$3d	; enable VDRIVE interrupt
+	sta PIA1+PIA_CRB
+#endif
+	rts
+	.)
+
+irq_uninstall .(
+	sei
+
+#if VICCY_IRQ
+	lda #VCCY_IRQ_CTRL
+	sta VICCY
+	lda #0
+	sta VICCY+3	; disable rasterline interrupt
+	lda #1
+	sta VICCY+3	; reset rline int status
+#else
+	lda #$3c
+	sta PIA1+PIA_CRB
+#endif
+	rts
+	.)
+
+	; interrupt state saving according to 
+	; http://6502.org/tutorials/65c816interrupts.html#toc:transparent
+newirq	.(
+	;phb
+	;phd
+	rep #%00110000
+	.xl
+	.al
+	pha
+	phy
+	phx
+
+	sep #%00110000
+	.xs
+	.as
+
+#if VICCY_IRQ
+	lda VICCY+2	; save VICCY index register so we can restore it
+	pha
+
+	lda #VCCY_IRQ_STAT
+	sta VICCY
+	lda #127
+	sta VICCY+1	; clear rasterline interrupt
+#else
+	lda PIA1+PIA_PB	; clear VDRIVE interrupt
+#endif
+
+	jsr checkkbd_xs
+	bcc nokey
+	jsr key_pet
+nokey
+
+	lda VCOUNT	; vertical screen interrupt
+	clc
+	adc #1
+	sta VCOUNT
+
+        lda lock        ; check lock so we don't get into poll again on pause
+	bmi nopoll
+
+        dec
+        sta lock	; lock
+        
+        lda #MAP_USB
+        sta MAPREG
+
+        jsr driver_poll
+
+	lda #MAP_BAS
+        sta MAPREG
+        
+        lda lock
+        inc
+        sta lock
+nopoll
+#if VICCY_IRQ
+	pla
+	sta VICCY+2
+#endif
+
+	rep #%00110000
+	.xl
+	.al
+	plx
+	ply
+	pla
+	;pld
+	;plb
+	rti
+	.)
+
+
