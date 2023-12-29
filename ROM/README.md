@@ -23,9 +23,12 @@ Then follow the various ROM images.
 	Boot Image
         
         +----+ $1ffff
+        |    |         SD-Card DOS code
+        |    |         (16k)
         |    |
-         ...           free
-        |    |
+        +----+ $1c000
+        |    |         USB driver code
+        |    |         (8k)
         +----+ $1a000
         |    |         BASIC 1 alternate charrom 
         |    |         (as 16 byte/char)
@@ -62,7 +65,7 @@ Then follow the various ROM images.
 ## Build
 
 To build the ROM, just run "make".
-This build process for bootimg downloads the necessary ROM images from the internet, builds the boot loader, and combines everything into a single boot image.
+This build process for bootimg downloads the necessary ROM images and sub-repos from the internet, builds the boot loader, and combines everything into a single boot image.
 Then burn the resulting file "spiimg" into the lowest bank of the SPI Flash ROM (Address 0)
 
 ## Files
@@ -129,4 +132,164 @@ and disassembler, and versatile search functions).
 
 Note that the scrolling editor is (for now) disabled due to incompatibilities with the modified
 editor ROMs.
+
+## Runtime Memory Map
+
+When the different ROM versions are used, the memory map is installed as follows:
+
+### BASIC 1 & 2
+
+	Video RAM 
+        
+        +----+ $0fffff
+        |    |
+         ...           free
+        |    |
+        +----+ $089000
+        |    |         Video data (mapped to bank 0)
+        +----+ $088000
+        |    |
+         ...           free
+        |    |
+        +----+ $082000
+        |    |         character ROM
+        |    |         (two sets, 8k total, as 16 byte/char)
+        +----+ $080000
+
+	Fast RAM
+
+        +----+ $07ffff
+        |    |  
+         ...           free
+        |    |
+        +----+ $010000
+        |    |         BASIC 1/2 Kernal ROM image
+        |    |
+        +----+ $00F000
+        |    |         BASIC 1/2 Editor 
+        |    |         with I/O window at $E8xx
+        +----+ $00E000
+        |    |         BASIC 1/2 
+        |    |         ROM image ($c000-$ffff)
+         ...          
+        |    |
+        +----+ $00C000
+        |    |
+         ...           free
+        |    |
+        +----+ $009000
+        |    |         Video window (mapped from Video RAM
+        +----+ $008000
+        |    |         32k BASIC RAM
+         ...          
+        |    |        
+        +----+ $000400
+        |    |         system variables
+        +----+ $000200
+        |    |         CPU stack
+        +----+ $000100
+        |    |         zeropage variables
+        +----+ $000000
+
+### BASIC 4
+
+With BASIC 4 there are multiple options that need to be considered:
+
+1. CBM 8x96 memory map emulation
+2. USB and SD-Card support
+
+	Video RAM 
+        
+        +----+ $0fffff
+        |    |
+         ...           free
+        |    |
+        +----+ $089000
+        |    |         Video data (mapped to bank 0)
+        +----+ $088000
+        |    |
+         ...           free
+        |    |
+        +----+ $082000
+        |    |         character ROM
+        |    |         (two sets, 8k total, as 16 byte/char)
+        +----+ $080000
+
+	Fast RAM
+
+        +----+ $07ffff
+        |    |  
+        +----+ $078000
+        |    |         USB- and SD-Card support bank, mapped 
+        |    |         into lower half of bank 0 when active
+        +----+ $070000
+        |    |  
+         ...           free
+        |    |
+        +----+ $020000
+        |    |         8x96 extension memory, can be mapped in two chunks
+        |    |         with 16k each into upper half of bank 0 using $fff0
+        +----+ $010000                                   +----+   +----+  $00FFFF
+        |    |         BASIC 4 Kernal ROM image          |    |   |    |
+        |    |                                           |    |   |    |  Two sets of 16k pages
+        +----+ $00F000                                   |    |   |    |  mapped from bank 1
+        |    |         BASIC 4 Editor - multiple options |    |   |    |
+        |    |         with I/O window at $E8xx          |    |   |    |
+        +----+ $00E000                                   |    |   |    |
+        |    |         BASIC 4                           |====|   |====|  optional peek-through to I/O
+        |    |         ROM image ($b000-$ffff)           |    |   |    |
+         ...                                             +----+   +----+  $00C000
+        |    |                                           |    |   |    |
+        +----+ $00B000                                   |    |   |    |  Two sets of 16k pages
+        |    |         Extended @ASS monitor             |    |   |    |  mapped from bank 1
+        |    |         (start with SYS49060)             |    |   |    |
+        +----+ $00A000                                   |    |   |    |
+        |    |         free                              |    |   |    |
+        +----+ $009000                                   |----|   |----|
+        |    |         Video window (mapped from VRAM)   |    |   |    |  optional peek-through to video
+        +----+ $008000                                   +----+   +----+  $008000
+        |    |         32k BASIC RAM                     |    |
+         ...                                             |    |
+        |    |                                           |    |
+        +----+ $000400                                   |    |  Any of the 16 32k pages
+        |    |         system variables                   ...    in bank 0, mapped
+        +----+ $000200                                   |    |  using Memory bank register $e802
+        |    |         CPU stack                         |    |
+        +----+ $000100                                   |    |
+        |    |         zeropage variables                |    |
+        +----+ $000000                                   +----+   $000000
+
+### USB/SD-Card map
+
+The USB driver and the SD-Card DOS code are run mapping their 32k area into the
+lower half of bank 0. There they can use their own zeropage or even stack if needed.
+
+The boot code copies the files from the SPI image there and, if needed, patches
+the BASIC4/KERNAL4 in place to link the USB/SD-Card support in.
+
+The currently used memory is as follows:
+
+#### USB driver
+
+Zeropage reserved: $02-$10
+Code/Data reserved: $1000-$3000
+
+These values come from the reloc65 (-v) output in the usb65/platform/upet build code when creating the 
+ROM image.
+
+text segment @ $1000 - $24a3,  5283 ($14a3) bytes
+data segment @ $24a3 - $28b2,  1039 ($040f) bytes
+bss  segment @ $28b2 - $2a93,   481 ($01e1) bytes
+zero segment @ $0002 - $0011,    15 ($000f) bytes
+
+#### SD-Card / DOS
+
+Zeropage reserved: $10-$20
+Code/Data reserved: $3000-$8000
+
+These values are configured in the ca65/ld65 linker configuration:
+
+ZPDOS:    start = $0010, size = $000B;
+DOS:      start = $4000, size = $4000, fill=yes, fillval=$AA;
+DOSDAT:   start = $3000, size = $1000; 
 

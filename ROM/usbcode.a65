@@ -1,7 +1,7 @@
 
 start	=*
 
-	.bin 0,0, "usb65/platforms/upet/usbrom"
+	.bin 0,0, "usb65/platforms/upet/petrom"
 
 	.dsb start + $2000 - *, $ff
 

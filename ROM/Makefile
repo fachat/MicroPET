@@ -4,7 +4,7 @@ all: spiimg loadrom.bin loadrom
 EDITROMS=edit40_c64kb.bin edit80_c64kb.bin edit40_grfkb_ext.bin edit80_grfkb_ext.bin edit40_c64kb_ext.bin edit80_c64kb_ext.bin 
 TOOLS=romcheck
 
-spiimg: zero boot basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80_grfkb_ext_chk.bin edit80_chk.bin usbcode usbcomp
+spiimg: zero boot basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80_grfkb_ext_chk.bin edit80_chk.bin usbcode usbcomp dos.bin
 	# ROM images
 	cat iplldr					> spiimg	# 256b   : IPL loader
 	cat usbcomp					>> spiimg	# 256b	 : 
@@ -30,7 +30,10 @@ spiimg: zero boot basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 charg
 	cat edit80_c64kb.bin zero	 		>> spiimg	# sjgray base 80 column editor for C64 kbd (experimental)
 	# alternate BASIC 1 character ROM (as 16 bytes/char)
 	cat chargen_pet1_16				>> spiimg	# BASIC 1 character set (8k)
-	cat usbcode					>> spiimg	# 16k USB code
+	# USB support
+	cat usbcode					>> spiimg	# 8k USB code
+	# SD-Card support
+	cat dos.bin					>> spiimg	# 16k SD-Card DOS
 
 zero: 
 	dd if=/dev/zero of=zero bs=2048 count=1
@@ -65,7 +68,8 @@ romtest01a: romtest01a.a65
 romtest02a: romtest02a.a65
 	xa -w -o romtest02a romtest02a.a65 
 
-# PET ROMs
+##########################################################################	
+# Original PET ROMs
 
 ARCHIVE=http://www.zimmers.net/anonftp/pub/cbm
 
@@ -117,11 +121,15 @@ kernal4t:
 kernal4: kernal4t romcheck
 	./romcheck -s 0xf0 -i 0xdff -o kernal4 kernal4t
 
+
 edit40g:
 	curl -o edit40g $(ARCHIVE)/firmware/computers/pet/edit-4-40-n-50Hz.901498-01.bin
 	
 edit80g:
 	curl -o edit80g $(ARCHIVE)/firmware/computers/pet/edit-4-80-n-50Hz.4016_to_8016.bin
+
+##########################################################################	
+# Steve's modified/re-created editor ROMs
 
 cbm-edit-rom: 
 	git clone https://github.com/fachat/cbm-edit-rom.git
@@ -141,20 +149,35 @@ edit80_grfkb_ext_chk.bin: edit80_grfkb_ext.bin romcheck
 edit80_chk.bin: edit80g romcheck
 	./romcheck -s 0xe0 -l 0x800 -i 0x7ff -o $@ $<
 
+##########################################################################	
+# SD-Card and DOS
+
+cbm-x16dos: 
+	git clone https://github.com/fachat/cbm-x16dos.git
+
+cbm-x16dos/build/UPET/dos.bin: cbm-x16dos
+	(cd $<; make)
+
+dos.bin: cbm-x16dos/build/UPET/dos.bin
+	cp $< $@
+
+##########################################################################	
+# USB driver code
 	
-usb65/platforms/upet/petromcomp usb65/platforms/upet/usbrom: usb65
-	(cd usb65/platforms/upet; make petromcomp usbrom)
+usb65/platforms/upet/petromcomp usb65/platforms/upet/petrom: usb65
+	(cd usb65/platforms/upet; make petromcomp petrom)
 
 usb65:
 	git clone https://github.com/fachat/usb65.git
 	(cd usb65; git checkout upet)
 
-usbcode: usbcode.a65 usb65/platforms/upet/usbrom
+usbcode: usbcode.a65 usb65/platforms/upet/petrom
 	xa -o $@ $<
 
 usbcomp: usbcomp.a65 usb65/platforms/upet/petromcomp
 	xa -o $@ $<
-	
+
+##########################################################################	
 # load other PET Editor ROM and reboot
 
 loadrom: loadrom.lst
