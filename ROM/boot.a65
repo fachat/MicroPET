@@ -8,9 +8,8 @@
 ; PET ROM images to copy from in this order:
 ;
 ; $00000  IPL code (256 byte)
-; $00100  USB BASIC 4 ROM patch code (usbcomp)
-; $00200  - reserved - 
-; $00800  Boot code (2k) - this code
+; $00100  Boot code (2k+6*256) - this code
+; $00F00  USB BASIC 4 ROM patch code (usbcomp)
 ; $01000  @MON (4k copied to $a000)
 ; $02000  charrom (8k)
 ; $04000  BASIC1 + EDIT1 + KERNEL1 (16k)
@@ -27,6 +26,7 @@
 ; $17000  EDIT8 (sjg base, C64 kbd, experimental)
 ; $18000  charrom for BASIC1 (8k)
 ; $1a000  USB code (8k) to be run in bank 7 (usbcode)
+; $1c000  SD-Card DOS (16k) to be run in bank 7
 
 #include "viccy.i65"
 
@@ -80,9 +80,7 @@ BRDCOL	=0	; border colour = black
 
 	; ------------------------
 	; this is the actual boot code, 
-	; loaded from Flash via SPI to $8800 by above ipl code
-
-	.dsb 6*256
+	; loaded from Flash via SPI to $9000 by above ipl code
 
 	*=RUNADDR
 jmpboot
@@ -358,6 +356,10 @@ sl	sta VICCY
 #include "boot_usb.a65"
 #include "boot_irq.a65"
 
-	.dsb RUNADDR+2048-*,$ff
+	; this is 4k-512 byte max
+	; 1st 256 byte is ipl
+	; 2nd 256 byte is USB companion
+
+	.dsb RUNADDR+14*256-*,$ff
 	.)
 

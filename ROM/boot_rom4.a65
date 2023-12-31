@@ -1,6 +1,11 @@
 
 setup_basic4_xl	.(
 
+	; where do we store the extra patch code
+PATCH4		=$fe20		; IEEE fix for faster CPU clocks
+SDC_COMPANION	=$fe30		; SD-Card link
+USB_COMPANION	=$df00		; USB link
+
 	; -----------------------
 	; copy over @MON 
 	lda #$10
@@ -47,9 +52,9 @@ setup_basic4_xl	.(
 	beq nousb
 
 	; copy over petromcomp to destination at $dfxx
-	lda #$01
-	ldx #$df00
-	ldy #$0100
+	lda #$0f		; page in flash
+	ldx #USB_COMPANION	; target in bank 0
+	ldy #$0100		; length
 	jsr flash2direct_xl
 
         ; set X/Y registers to 8 bit ...
@@ -92,21 +97,48 @@ not_96	lda #%11100000
 	jmp end
 
 
-PATCH4	=$fe20
-
 patch_rom4_xl .(
+
+	; -------------------------------
+	; SD Card patch
+
+	; copy over SD-Card code
+	lda #$c0	; page $c0 on 2nd 64k flash bank
+	ldx #$4000	; to $4000
+	ldy #$4000	; copy $4000 bytes
+	jsr flash2direct2_xl
+	
+	ldx #$4000
+l	lda $4000-1,x
+	sta $074000-1,x
+	dex
+	bne l
+
+  	; set X/Y registers to 8 bit ...
+        sep #%00010000
+        .xs
+
+	jsr sdcard_install
+
+	rep #%00010000
+	.xl
+
+	; -------------------------------
+	; IEEE speed patch
 
 	; patch target area start (max 1 page due to #>PATCH4 below)
 	ldx #PATCH4
 
 	; from http://www.6502.org/users/andre/cbmhw/ryofat40/index.html
-	lda #$20
-	sta $f0d8
-	; jsr to first patch
-	txa
-	sta $f0d9
-	lda #>PATCH4
-	sta $f0da
+	lda #$4c
+	cmp $f0d8	; is already patched with JMP (e.g. SDCard)
+	bne nopatch
+
+	ldy $f0d9	; XR/YR is 16 bit, copy over current JMP target to
+	sty jmptarget	; patch JMP target
+
+nopatch	sta $f0d8	; JMP
+	stx $f0d9	; 16 bit address
 
 	ldy #0
 pl0	lda PATCH4_0,y
@@ -118,17 +150,25 @@ pl0	lda PATCH4_0,y
 
 	rts
 
+	; this patch code is in itself all relative,
+	; so not address calculations are needed
 PATCH4_0 .(
 	lda #4
 l1	sec
 	sbc #1
 	bne l1
 	lda $e840
-	rts
-	.byt $c2	; checksum fix
+&jmptarget = *+1
+	jmp $f0db
 	.)
 
-	.)
-	.)
+	.)		; end patch_rom4_xl
+
+	.xs
+
+#include "dosromcomp.a65"
+
+	.xl
+	.)		; end setup_basic4_xl
 
 

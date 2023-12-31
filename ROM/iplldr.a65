@@ -8,7 +8,8 @@
 ; PET ROM images to copy from in this order:
 ;
 ; $00000  IPL code (256 byte) - this code
-; $00800  Boot code (2k)
+; $00100  Boot code (2k+6*256)
+; $00f00  USB support code (256 byte)
 ; $01000  @MON (4k copied to $a000)
 ; $02000  charrom (8k)
 ; $04000  BASIC2 + EDIT2 + KERNEL2 (16k)
@@ -92,9 +93,6 @@ bootl	lda $ff00,x
 	; ... and tell the assembler about it
 	.xl
 
-	lda #$20	; for the PET default CRTC base address of $1000
-	sta BANK	; $e802
-
 spiread
 	; -----------------------
 	; copy the boot code to RUNADDR
@@ -104,9 +102,9 @@ spiread
 	sta SPIDATA	; READ command
 	lda #0
 	sta SPIDATA	; bits 23-16
-	lda #>$0800	
+	lda #>$0100	
 	sta SPIDATA	; bits 15-8
-	lda #<$0800
+	lda #<$0100
 	sta SPIDATA	; bits 7-0
 
 	lda SPIDATA	; trigger shift in of first byte into SR (value read is still invalid)
@@ -116,7 +114,7 @@ readloop
 	lda SPIDATA	; read byte
 	sta RUNADDR,x
 	inx
-	cpx #$0800
+	cpx #$0e00
 	bne readloop
 	
 	lda #0

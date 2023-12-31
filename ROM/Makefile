@@ -7,8 +7,8 @@ TOOLS=romcheck
 spiimg: zero boot basic1 edit1 kernal1 basic2 edit2g kernal2 chargen_pet16 chargen_pet1_16 basic4 kernal4 edit40g edit80g iplldr $(EDITROMS) apmonax edit80_grfkb_ext_chk.bin edit80_chk.bin usbcode usbcomp dos.bin
 	# ROM images
 	cat iplldr					> spiimg	# 256b   : IPL loader
+	cat boot					>> spiimg	# 2k+6*256  : boot code
 	cat usbcomp					>> spiimg	# 256b	 : 
-	cat boot					>> spiimg	# 4k +6*256  : IPL loader
 	cat apmonax					>> spiimg	# 4-8k   : @MON monitor (sys40960)
 	# standard character ROM (converted to 16 byte/char)
 	cat chargen_pet16 				>> spiimg	# 8-16k  : 8k 16bytes/char PET character ROM
@@ -53,7 +53,7 @@ char8to16: char8to16.c
 iplldr: iplldr.a65
 	xa -w -o $@ $<
 
-boot: boot.a65 boot_menu.a65 boot_rom1.a65 boot_rom2.a65 boot_rom4.a65 boot_usb.a65 
+boot: boot.a65 boot_menu.a65 boot_rom1.a65 boot_rom2.a65 boot_rom4.a65 boot_usb.a65 dosromcomp.a65
 	xa -w -XMASM -P $@.lst -o $@ $<
 
 romtest02: romtest02.a65
@@ -160,6 +160,8 @@ cbm-x16dos/build/UPET/dos.bin: cbm-x16dos
 
 dos.bin: cbm-x16dos/build/UPET/dos.bin
 	cp $< $@
+
+dosromcomp.a65: cbm-x16dos
 
 ##########################################################################	
 # USB driver code
