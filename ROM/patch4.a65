@@ -159,7 +159,7 @@ use_jmptable_stop .(
 	sta $f396
 	sty $f397
 
-	sta $f721
+	sta $f722
 	sty $f723
 
 	rts
@@ -348,8 +348,8 @@ SCRATCH	=$db66
 	;------
 
 	; LOAD
-	; FFD% JMP F6DD
-XLOAD	=$f6dd
+	; FFD5 JMP F401
+XLOAD	=$f401
 	lda #<XLOAD-1
 	sta TOKADDR+$26
 	lda #>XLOAD-1
