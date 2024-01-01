@@ -2,7 +2,7 @@
 setup_basic4_xl	.(
 
 	; where do we store the extra patch code
-PATCH4		=$fe20		; IEEE fix for faster CPU clocks
+IEEE_PATCH		=$fe20		; IEEE fix for faster CPU clocks
 SDC_COMPANION	=$fe30		; SD-Card link
 USB_COMPANION	=$df00		; USB link
 
@@ -120,14 +120,16 @@ l	lda $4000-1,x
 
 	jsr sdcard_install
 
+	jsr opt_install
+
 	rep #%00010000
 	.xl
 
 	; -------------------------------
 	; IEEE speed patch
 
-	; patch target area start (max 1 page due to #>PATCH4 below)
-	ldx #PATCH4
+	; patch target area start
+	ldx #IEEE_PATCH
 
 	; from http://www.6502.org/users/andre/cbmhw/ryofat40/index.html
 	lda #$4c
@@ -168,6 +170,9 @@ l1	sec
 
 #include "dosromcomp.a65"
 
+#define	ROM
+#include "patch4.a65"
+#undef ROM
 	.xl
 	.)		; end setup_basic4_xl
 

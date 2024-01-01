@@ -1,0 +1,551 @@
+
+/* 
+ * This patch file patches the BASIC4 and corresponding KERNAL 
+ * with various improvements:
+ *
+ * 1) 	remove the BASIC DOS command jumps from the kernal jump
+ *	table in page $ffxx. They are not otherwise used and
+ *	removing them provides extra space for C64 compatible
+ *	jmp table (see below - TODO)
+ * 2)	Remove a timer fixup assumingly left over from the
+ *	non-CRTC PET, where it seems it was tried to make the
+ *	Jiffy counter get closer to 60Hz. I think...
+ * 3)	Remove the check for BASIC DOS command D drive parameter
+ *	to be only 0 or 1. This allows drives 2 and up.
+ * 4)	Ignore extra characters after the filename in BASIC DOS
+ *	commands. This allows just typing DLOAD in front of
+ *	a line from the directory listing - ignoring the PRG
+ *	output of the DIRECTORY/CATALOG command.
+ *
+ * TODO: shorten code by using long registers
+ */
+
+PATCH1		=$fd60	; extra code
+PATCH1END	=$ff80
+PATCH2		=$ffed	; jmp table 1
+PATCH3		=$ffd5	; jmp table 2
+PATCH4		=$ff81	; jmp table 3
+
+IOBASE		=$e800
+
+#ifndef ROM
+	.word $0401
+	*=$0401
+
+	.word link
+	.word 10
+	.byt $9e, "1040",0
+link	.word 0
+
+	.dsb $0410-*
+#else
+opt_install:
+#endif
+	; clear out the jump table from unrelated BASIC jumps
+	; Note that those are referenced in the BASIC token 
+	; list, so we need to patch in address minus 1
+
+
+	sei
+
+	lda #0		; write-enable all ROMs
+	sta $e801
+
+	; remove the page FF jmp table entries that are only used from
+	; BASIC
+	jsr free_dosjmps
+
+	; remove a timer adjustment seemingly left over from 
+	; BASIC1/2 where the 16640 screen cycle clock was adjusted
+	; to be closer to 60 Hz.
+	; This also frees zeropage location $99/$9a
+	jsr remove_timerfix
+
+	; convenience: remove check for D drive parameters
+	; being 0/1 only.
+	jsr remove_d01_check
+
+	; convenience: ignore extra characters after filename
+	; in disk basic commands
+	jsr ignore_after_filename
+
+	; pass all calls to STOP through FFE1
+	jsr use_jmptable_stop
+
+	; patch in extra code
+	jsr patch_in_code
+
+	; link in check for STOP in IEEE
+	jsr link_ieee_stop
+
+	lda #$f0	; write protect all ROMs
+	sta $e801
+
+	cli	
+	rts
+
+
+	; --------------------------------------------------------------	
+	; link in check for STOP in IEEE
+link_ieee_stop .(
+	ldx #$20	; JSR
+	lda #<lf11e
+	ldy #>lf11e
+	stx $f11e
+	sta $f11f
+	sty $f120
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; patch in extra code
+patch_in_code .(
+	ldy #patch1len
+l1	lda patch1code-1,y
+	sta PATCH1-1,y
+	dey
+	bne l1
+
+	ldy #patch2len
+l2	lda patch2code-1,y
+	sta PATCH2-1,y
+	dey
+	bne l2
+
+	ldy #patch3len
+l3	lda patch3code-1,y
+	sta PATCH3-1,y
+	dey
+	bne l3
+
+	ldy #patch4len
+l4	lda patch4code-1,y
+	sta PATCH4-1,y
+	dey
+	bne l4
+
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; pass all calls to STOP through FFE1
+use_jmptable_stop .(
+	lda #<$ffe1
+	ldy #>$ffe1
+	
+	sta $f157
+	sty $f158
+
+	sta $f161
+	sty $f162
+
+	sta $f396
+	sty $f397
+
+	sta $f721
+	sty $f723
+
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; convenience: ignore extra characters after filename
+	; in disk basic commands
+ignore_after_filename .(
+
+	; change the JMP at $ddb3 from syntax error to end of line handling
+EOL	=$dd03
+	lda #<EOL
+	sta $ddb4
+	lda #>EOL
+	sta $ddb5
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; convenience: remove check for D drive parameters
+	; being 0/1 only.
+remove_d01_check .(
+
+	; remove the check and branch at $dd1f-dd23
+	lda #$ea	; NOP
+	ldy #$dd23-$dd1f
+l	sta $dd1e,y
+	dey
+	bne l
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; remove a timer adjustment seemingly left over from 
+	; BASIC1/2 where the 16640 screen cycle clock was adjusted
+	; to be closer to 60 Hz.
+	; This also frees zeropage location $99/$9a
+remove_timerfix .(
+	
+	; remove the counter code on $f768-$f779
+	lda #$ea	; NOP
+	ldy #$f77a-$f768
+l1	sta $f767,y
+	dey
+	bne l1
+
+	; also remove the counter reset at $f799-$f7a0
+	ldy #$f7a0-$f799
+l2	sta $f798,y
+	dey
+	bne l2
+	rts
+	.)
+
+	; --------------------------------------------------------------	
+	; remove the page FF jmp table entries that are only used from
+	; BASIC
+
+free_dosjmps .(
+
+TOKADDR	=$b000
+
+	; CONCAT
+	; FF93 JMP DAC7
+CONCAT	=$dac7
+	lda #<CONCAT-1
+	sta TOKADDR+$48
+	lda #>CONCAT-1
+	sta TOKADDR+$49
+
+	; DOPEN
+	; FF95 JMP D942
+DOPEN	=$d942
+	lda #<DOPEN-1
+	sta TOKADDR+$aa
+	lda #>DOPEN-1
+	sta TOKADDR+$ab
+
+	; DCLOSE
+	; FF99 JMP DA07
+DCLOSE	=$da07
+	lda #<DCLOSE-1
+	sta TOKADDR+$ac
+	lda #>DCLOSE-1
+	sta TOKADDR+$ad
+
+	; RECORD
+	; FF9C JMP D7AF
+RECORD	=$d7af
+	lda #<RECORD-1
+	sta TOKADDR+$ae
+	lda #>RECORD-1
+	sta TOKADDR+$af
+
+	; HEADER
+	; FF9F JMP D9D2
+HEADER	=$d9d2
+	lda #<HEADER-1
+	sta TOKADDR+$50
+	lda #>HEADER-1
+	sta TOKADDR+$51
+
+	; COLLECT
+	; FFA2 JMP DA65
+COLLECT	=$da65
+	lda #<COLLECT-1
+	sta TOKADDR+$52
+	lda #>COLLECT-1
+	sta TOKADDR+$53
+
+	; BACKUP
+	; FFA5 JMP DA7E
+BACKUP	=$da7e
+	lda #<BACKUP-1
+	sta TOKADDR+$54
+	lda #>BACKUP-1
+	sta TOKADDR+$55
+
+	; COPY
+	; FFA8 JMP DAA7
+COPY	=$daa7
+	lda #<COPY-1
+	sta TOKADDR+$56
+	lda #>COPY-1
+	sta TOKADDR+$57
+
+	; APPEND
+	; FFAB JMP D977
+APPEND	=$d977
+	lda #<APPEND-1
+	sta TOKADDR+$58
+	lda #>APPEND-1
+	sta TOKADDR+$59
+
+	; DSAVE
+	; FFAE JMP DB0D
+DSAVE	=$db0d
+	lda #<DSAVE-1
+	sta TOKADDR+$5a
+	lda #>DSAVE-1
+	sta TOKADDR+$5b
+
+	; DLOAD
+	; FFB1 JMP DB3A
+DLOAD	=$db3a
+	lda #<DLOAD-1
+	sta TOKADDR+$5c
+	lda #>DLOAD-1
+	sta TOKADDR+$5d
+
+	; DIRECTORY
+	; FFB4 JMP D873
+DIRECTORY=$d873
+	; CATALOG
+	lda #<DIRECTORY-1
+	sta TOKADDR+$5e
+	lda #>DIRECTORY-1
+	sta TOKADDR+$5f
+	; DIRECTORY
+	lda #<DIRECTORY-1
+	sta TOKADDR+$64
+	lda #>DIRECTORY-1
+	sta TOKADDR+$65
+
+	; RENAME
+	; FFB7 JMP DB55
+RENAME	=$db55
+	lda #<RENAME-1
+	sta TOKADDR+$60
+	lda #>RENAME-1
+	sta TOKADDR+$61
+
+	; SCRATCH
+	; FFBA JMP DB66
+SCRATCH	=$db66
+	lda #<SCRATCH-1
+	sta TOKADDR+$62
+	lda #>SCRATCH-1
+	sta TOKADDR+$63
+
+	; unknown JMP
+	; FFBD JMP D995
+UNKNOWN	=$d995
+	lda #<UNKNOWN
+	sta $C001
+	lda #>UNKNOWN
+	sta $c002
+
+	; OPEN
+	; FFC0 JMP F560
+OPEN	=$f560
+	lda #<OPEN-1
+	sta TOKADDR+$3e
+	lda #>OPEN-1
+	sta TOKADDR+$3f
+
+	; SYS
+	; FFDE JMP F6C3
+SYS	=$f6c3
+	lda #<SYS-1
+	sta TOKADDR+$3c
+	lda #>SYS-1
+	sta TOKADDR+$3d
+
+	; VERIFY
+	; FFDB JMP F4F6
+VERIFY	=$f4f6
+	lda #<VERIFY-1
+	sta TOKADDR+$2a
+	lda #>VERIFY-1
+	sta TOKADDR+$2b
+
+	; SAVE
+	; FFD8 JMP F6DD
+XSAVE	=$f6dd
+	lda #<XSAVE-1
+	sta TOKADDR+$28
+	lda #>XSAVE-1
+	sta TOKADDR+$29
+
+	; LOAD
+	; FFD% JMP F6DD
+XLOAD	=$f6dd
+	lda #<XLOAD-1
+	sta TOKADDR+$26
+	lda #>XLOAD-1
+	sta TOKADDR+$27
+
+#if 0	// overwrite by jump tables
+	; clear jmps
+	lda #$aa
+	ldy #$ffc3-$ff93
+l	sta $ff92,y
+	dey
+	bne l
+	ldy #$ffe0-$ffd5
+l1	sta $ffd4,y
+	dey
+	bne l1
+#endif
+	rts
+ 	.)
+
+
+	; extra code to be patched in
+	; is located after kernal proper,
+	; but before the kernal jump table
+patch1code
+	*=PATCH1
+
+	; slice in check for STOP key when waiting for IEEE
+lf11e	.(
+	jsr $ffe1	; check stop key
+	beq stop
+	bit $e840
+	rts
+stop	pla
+	pla
+	jmp $f165
+	.)
+Lf1d7	
+
+	; get number of screen COLs in X and number of lines in Y
+lFFED	.(
+	ldx #40		; TODO: check for 40/80
+	ldy #25
+	rts
+	.)
+
+	; set (C=0) or get (C=1) the current cursor position in X/Y registers
+;lFFF0	.(
+;	.)
+
+	; get address of I/O area in X (lo)/Y (hi)
+lFFF3	.(
+	ldx #<IOBASE
+	ldy #>IOBASE
+	rts
+	.)
+
+READST	; read I/O status
+	.(
+	lda $96
+	rts
+	.)
+
+SETLFS	; SETLFS	set logical/first/second address
+	.(
+	sta $d2		; logical file no
+	stx $d4		; unit address
+	sty $d3		; secondary address
+	rts
+	.)
+
+SETNAM	; SETNAM	set filename
+	.(
+	sta $d1		; filename length
+	stx $da		; address low
+	sty $db		; address high
+	rts
+	.)
+
+LOAD	; LOAD		load
+	.(
+	stx $fb		; start lo
+	sty $fc		; start hi
+	sta $9d		; load/verify flag
+	jmp $f356
+	.)
+
+SAVE	; SAVE		save
+	.(
+	stx $c9		; end lo	
+	sty $ca		; end hi
+	tax		; pointer to zp location for start
+	lda $0,x
+	sta $c7		; start lo
+	lda $1,x
+	sta $c8		; start hi
+	jmp $f6e3
+	.)
+
+RDTIM	; RDTIM		get time
+	.(
+	sei
+	lda $8f
+	ldx $8e
+	ldy $8d
+	; fall-through
+	.)
+SETTIM	; SETTIM	set time
+	.(
+	sei
+	sta $8f
+	stx $8e
+	sty $8d
+	cli
+	rts
+	.)
+
+
+lFF84	; IOINIT	init all other I/O
+lFF87	; RAMTAS	RAM test and find end of RAM
+lFF8A	; RESTOR	restore default vectors
+lFF8D	; VECTOR	read/set vectored I/O
+lFF90	; SETMSG	control kernal messages
+lFF99	; MEMTOP	read/set top of RAM
+lFF9C	; MEMBOT	read/set bottom of RAM
+lFFA2	; SETTMO	set IEEE timeout
+lFFF0	; PLOT		set/get current cursor position
+	rts
+
+	.assert *<PATCH1END, "extra code too long"
+	patch1len = *-PATCH1
+	*=patch1code + patch1len
+
+	; ---------------------------------------
+	; jmp table 1
+patch2code
+	*=PATCH2	; $ffed
+	jmp lFFED	; SCREEN
+	jmp lFFF0	; PLOT
+	jmp lFFF3	; IOBASE
+	patch2len = *-PATCH2
+	*=patch2code+patch2len
+
+	; ---------------------------------------
+	; jmp table 2
+patch3code
+	*=PATCH3	; $ffd5	
+	jmp LOAD	; LOAD		load
+	jmp SAVE	; SAVE		save
+	jmp SETTIM	; SETTIM	set time
+	jmp RDTIM	; RDTIM		get time
+	patch3len = *-PATCH3
+	*=patch3code + patch3len
+
+	; ---------------------------------------
+patch4code
+	*=PATCH4	; $ff81
+	jmp $e000	; CINT 		video reset
+	jmp lFF84	; IOINIT	init all other I/O
+	jmp lFF87	; RAMTAS	RAM test and find end of RAM
+	jmp lFF8A	; RESTOR	restore default vectors
+	jmp lFF8D	; VECTOR	read/set vectored I/O
+	jmp lFF90	; SETMSG	control kernal messages
+	jmp $f143	; SECLSTN	IEEE secondary listen address
+	jmp $f193	; SECTALK	IEEE secondary talk address
+	jmp lFF99	; MEMTOP	read/set top of RAM
+	jmp lFF9C	; MEMBOT	read/set bottom of RAM
+	jmp $e027	; SCNKEY	scan keyboard
+	jmp lFFA2	; SETTMO	set IEEE timeout
+	jmp $f1c0	; IECIN		get byte from IEEE
+	jmp $f19e	; IECOUT	send byte to IEEE
+	jmp $f1ae	; UNTALK	IEEE UNTALK
+	jmp $f1b9	; UNLSTN	IEEE UNLISTEN
+	jmp $f0d5	; LISTEN	IEEE LISTEN
+	jmp $fd02	; TALK		IEEE TALK
+	jmp READST	; READST	read I/O status
+	jmp SETLFS	; SETLFS	set logical/first/second address
+	jmp SETNAM	; SETNAM	set filename
+	jmp $f563	; OPEN		open a file after using SETLFS/SETNAM
+	patch4len = *-PATCH4
+	*=patch4code + patch4len
+
