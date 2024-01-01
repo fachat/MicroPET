@@ -78,12 +78,29 @@ opt_install:
 	; link in check for STOP in IEEE
 	jsr link_ieee_stop
 
+	; add missing ATN disable
+	;jsr disable_atn
+
 	lda #$f0	; write protect all ROMs
 	sta $e801
 
 	cli	
 	rts
 
+	; --------------------------------------------------------------	
+	; in some cases ATN is active after a STOP, which prevents
+	; USB from being used
+;disable_atn .(
+;	lda #$20	; JSR
+;	ldx #<lf2b8
+;	ldy #>lf2b8
+;	sta $f2b8
+;	stx $f2b9
+;	sty $f2ba
+;	lda #$ea	; NOP
+;	sta $f2bb
+;	rts
+;	.)
 
 	; --------------------------------------------------------------	
 	; link in check for STOP in IEEE
@@ -206,6 +223,9 @@ free_dosjmps .(
 
 TOKADDR	=$b000
 
+	; ------------------
+	; $48-$65 can actually be updated as/from a table
+
 	; CONCAT
 	; FF93 JMP DAC7
 CONCAT	=$dac7
@@ -218,25 +238,25 @@ CONCAT	=$dac7
 	; FF95 JMP D942
 DOPEN	=$d942
 	lda #<DOPEN-1
-	sta TOKADDR+$aa
+	sta TOKADDR+$4a
 	lda #>DOPEN-1
-	sta TOKADDR+$ab
+	sta TOKADDR+$4b
 
 	; DCLOSE
 	; FF99 JMP DA07
 DCLOSE	=$da07
 	lda #<DCLOSE-1
-	sta TOKADDR+$ac
+	sta TOKADDR+$4c
 	lda #>DCLOSE-1
-	sta TOKADDR+$ad
+	sta TOKADDR+$4d
 
 	; RECORD
 	; FF9C JMP D7AF
 RECORD	=$d7af
 	lda #<RECORD-1
-	sta TOKADDR+$ae
+	sta TOKADDR+$4e
 	lda #>RECORD-1
-	sta TOKADDR+$af
+	sta TOKADDR+$4f
 
 	; HEADER
 	; FF9F JMP D9D2
@@ -324,21 +344,34 @@ SCRATCH	=$db66
 	lda #>SCRATCH-1
 	sta TOKADDR+$63
 
-	; unknown JMP
-	; FFBD JMP D995
-UNKNOWN	=$d995
-	lda #<UNKNOWN
-	sta $C001
-	lda #>UNKNOWN
-	sta $c002
 
-	; OPEN
-	; FFC0 JMP F560
-OPEN	=$f560
-	lda #<OPEN-1
-	sta TOKADDR+$3e
-	lda #>OPEN-1
-	sta TOKADDR+$3f
+	;------
+
+	; LOAD
+	; FFD% JMP F6DD
+XLOAD	=$f6dd
+	lda #<XLOAD-1
+	sta TOKADDR+$26
+	lda #>XLOAD-1
+	sta TOKADDR+$27
+
+	; SAVE
+	; FFD8 JMP F6DD
+XSAVE	=$f6dd
+	lda #<XSAVE-1
+	sta TOKADDR+$28
+	lda #>XSAVE-1
+	sta TOKADDR+$29
+	
+	; VERIFY
+	; FFDB JMP F4F6
+VERIFY	=$f4f6
+	lda #<VERIFY-1
+	sta TOKADDR+$2a
+	lda #>VERIFY-1
+	sta TOKADDR+$2b
+
+	;------
 
 	; SYS
 	; FFDE JMP F6C3
@@ -348,29 +381,33 @@ SYS	=$f6c3
 	lda #>SYS-1
 	sta TOKADDR+$3d
 
-	; VERIFY
-	; FFDB JMP F4F6
-VERIFY	=$f4f6
-	lda #<VERIFY-1
-	sta TOKADDR+$2a
-	lda #>VERIFY-1
-	sta TOKADDR+$2b
+	; OPEN
+	; FFC0 JMP F560
+OPEN	=$f560
+	lda #<OPEN-1
+	sta TOKADDR+$3e
+	lda #>OPEN-1
+	sta TOKADDR+$3f
 
-	; SAVE
-	; FFD8 JMP F6DD
-XSAVE	=$f6dd
-	lda #<XSAVE-1
-	sta TOKADDR+$28
-	lda #>XSAVE-1
-	sta TOKADDR+$29
+	; CLOSE
+	; FFC3 JMP F2DD
+CLOSE	=$f2e0
+	lda #<CLOSE-1
+	sta TOKADDR+$40
+	lda #>CLOSE-1
+	sta TOKADDR+$41
 
-	; LOAD
-	; FFD% JMP F6DD
-XLOAD	=$f6dd
-	lda #<XLOAD-1
-	sta TOKADDR+$26
-	lda #>XLOAD-1
-	sta TOKADDR+$27
+	;------
+
+	; unknown JMP
+	; FFBD JMP D995
+UNKNOWN	=$d995
+	lda #<UNKNOWN
+	sta $C001
+	lda #>UNKNOWN
+	sta $c002
+
+	;------
 
 #if 0	// overwrite by jump tables
 	; clear jmps
@@ -393,6 +430,14 @@ l1	sta $ffd4,y
 	; but before the kernal jump table
 patch1code
 	*=PATCH1
+
+	; disable ATN on CLRCHN anyway
+lf2b8	.(
+	jsr $f148
+	lda #$03
+	sta $b0
+	rts
+	.)
 
 	; slice in check for STOP key when waiting for IEEE
 lf11e	.(
