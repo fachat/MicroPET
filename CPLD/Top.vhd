@@ -133,10 +133,12 @@ architecture Behavioral of Top is
 	signal clk1m: std_logic;
 	signal clk2m: std_logic;
 	signal clk4m: std_logic;
+	signal io1m: std_logic;
 	
 	signal phi2_int: std_logic;
 	signal phi2_int2: std_logic;
 	signal phi2_out: std_logic;
+	signal phi2_io_1m: std_logic;
 	signal phi2_io_out: std_logic;
 	signal is_cpu: std_logic;
 	signal is_cpu_trigger: std_logic;
@@ -233,6 +235,8 @@ architecture Behavioral of Top is
 	   clk2m	: out std_logic;	-- trigger CPU access @ 2MHz
 	   clk4m	: out std_logic;	-- trigger CPU access @ 4MHz
 	   
+		io1m		: out std_logic;
+
 	   dotclk	: out std_logic;	-- pixel clock for video (12.5 MHz)
 	   dot2clk	: out std_logic;	-- half the pixel clock (6.25 MHz)
 	   dot4clk	: out std_logic;	-- 1/4 the pixel clock (3.125 MHz)
@@ -368,6 +372,7 @@ begin
 	   clk1m,
 	   clk2m,
 	   clk4m,
+		io1m,
 	   dotclk,
 	   dot2clk,
 	   dot4clk,
@@ -468,8 +473,21 @@ begin
 	-- split phi2, stretched phi2 for the CPU to accomodate for waits.
 	-- for full speed, don't delay VIA timers
 	phi2_out <= phi2_int;
-	phi2_io_out <= memclk when mode="11" else
-			phi2_int;
+--	phi2_io_out <= memclk when mode="11" else
+--			phi2_int;
+	p2_p: process (phi2_int, io1m, mode, memclk)
+	begin
+			if (mode = "00" and io1m = '1') then
+--			if (io1m = '1') then
+				phi2_io_1m <= '1';
+			elsif (not (mode = "00")) then
+				phi2_io_1m <= phi2_int;
+			elsif (falling_edge(phi2_int)) then
+				phi2_io_1m <= '0';
+			end if;
+	end process;
+	phi2_io_out <= phi2_io_1m;
+	
 	rdy_out <= '1';
 
 	-- to run the VIA timers at full speed all the time use this
