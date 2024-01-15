@@ -172,6 +172,7 @@ architecture Behavioral of Top is
 	signal lockb0 : std_logic;
 	signal forceb0 : std_logic;
 	signal movesync : std_logic;
+	signal s0_d : std_logic_vector(7 downto 0);
 	
 	-- video
 	signal va_out: std_logic_vector(15 downto 0);
@@ -738,6 +739,49 @@ begin
 		end if;
 	end process;
 
+		  -- will be optimized away as output s0_d is not used at all
+		  -- Would not fit into the CPLD otherwise
+        Ctrl_Rd: process(sel0, phi2_int, rwb, reset, ca_in, D)
+        begin
+
+                s0_d <= (others => '0');
+
+                if (sel0='1' and rwb='1' and ca_in(3) = '0') then
+                        -- Read from to $E80x
+                        case (ca_in(2 downto 0)) is
+                        when "000" =>
+                                -- video controls
+										  s0_d(0) <= vis_hires_in;
+                                s0_d(1) <= vis_80_in;
+                                s0_d(2) <= not(screenb0);
+                                s0_d(3) <= vis_double_in;
+                                s0_d(4) <= interlace;
+                                s0_d(6) <= movesync;
+                                s0_d(7) <= not(vis_enable);
+                        when "001" =>
+                               -- memory map controls
+                                s0_d(0) <= lockb0;
+                                s0_d(1) <= boot;
+                                s0_d(3) <= is8296;
+                                s0_d(4) <= wp_rom9;
+                                s0_d(5) <= wp_romA;
+                                s0_d(6) <= wp_romB;
+                                s0_d(7) <= wp_romPET;
+                        when "010" =>
+                                -- bank controls
+                                s0_d(3 downto 0) <= lowbank;
+                        when "011" =>
+                                -- speed controls
+                                s0_d(1 downto 0) <= mode(1 downto 0); -- speed bits
+                        when "101" =>
+                                -- video bank controls
+                                s0_d(2 downto 0) <= vidblock;
+                        when others =>
+                                s0_d <= (others => '0');
+                        end case;
+                end if;
+        end process;
+
 	-- RAM address
 	VA(7 downto 0) <= 	ipl_cnt(11 downto 4)	when ipl = '1'		else
 				ca_in(7 downto 0) 	when is_vid_out = '0' 	else 
@@ -798,6 +842,7 @@ begin
 			or rwb = '0'
 		else VD when m_vramsel_out = '1'
 		else spi_dout when spi_cs = '1'
+--		else s0_d when sel0 = '1'
 		else (others => 'Z');
 		
 	-- select RAM
