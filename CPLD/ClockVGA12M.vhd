@@ -38,6 +38,8 @@ entity Clock is
 	   clk1m 	: out std_logic;	-- trigger CPU access @ 1MHz
 	   clk2m	: out std_logic;	-- trigger CPU access @ 2MHz
 	   clk4m	: out std_logic;	-- trigger CPU access @ 4MHz
+		
+		io1m		: out std_logic;
 	   
 	   dotclk	: out std_logic;	-- pixel clock for video 12.5MHz
 	   dot2clk	: out std_logic;	-- half the pixel clock 6.25 MHz
@@ -129,6 +131,13 @@ begin
 		end if;
 	end process;
 
+	io_clk: process(memclk_int, cpu_cnt1)
+	begin
+--		if (falling_edge(memclk_int)) then
+			io1m <= cpu_cnt1(3);
+--		end if;
+	end process;
+	
 	-- generate clk1m/2m/4m
 	-- note: those are sampled at rising edge of memclk
 	cpu_cnt2_p: process(qclk, reset, cpu_cnt1)
