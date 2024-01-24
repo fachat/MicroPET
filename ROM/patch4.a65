@@ -506,6 +506,8 @@ SETNAM	; SETNAM	set filename
 	rts
 	.)
 
+	; TODO: will always load to address from file
+	; not like the C64 load at BASIC start and only ,1 to file address
 LOAD	; LOAD		load
 	.(
 	stx $fb		; start lo
