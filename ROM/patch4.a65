@@ -28,6 +28,8 @@ PATCH4		=$ff81	; jmp table 3
 
 IOBASE		=$e800
 
+curdev		=$d4	; current device number
+
 #ifndef ROM
 	.word $0401
 	*=$0401
@@ -469,6 +471,19 @@ lFFF3	.(
 	rts
 	.)
 
+	; change semantics. C64 has DEV# in AC, PET expects it in curdev
+	;jmp $f0d5	; LISTEN	IEEE LISTEN
+	;jmp $f0d2	; TALK		IEEE TALK
+TALK	.(
+	sta curdev
+	jmp $f0d2
+	.)
+
+LISTEN	.(
+	sta curdev
+	jmp $f0d5
+	.)
+
 READST	; read I/O status
 	.(
 	lda $96
@@ -585,8 +600,8 @@ patch4code
 	jmp $f19e	; IECOUT	send byte to IEEE
 	jmp $f1ae	; UNTALK	IEEE UNTALK
 	jmp $f1b9	; UNLSTN	IEEE UNLISTEN
-	jmp $f0d5	; LISTEN	IEEE LISTEN
-	jmp $fd02	; TALK		IEEE TALK
+	jmp LISTEN	; LISTEN	IEEE LISTEN
+	jmp TALK	; TALK		IEEE TALK
 	jmp READST	; READST	read I/O status
 	jmp SETLFS	; SETLFS	set logical/first/second address
 	jmp SETNAM	; SETNAM	set filename
