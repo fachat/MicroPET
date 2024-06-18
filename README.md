@@ -1,5 +1,7 @@
 # uPET R2
 
+# NOTE: the newer version is in the [cbm_micropet](https://github.com/fachat/cbm_micropet) repository!
+
 This is a re-incarnation of the Commodore PET computer(s) from the later 1970s.
 
 It is build on a Eurocard board and has only parts that can still be obtained new in 2021.
